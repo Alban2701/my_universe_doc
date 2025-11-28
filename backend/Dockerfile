@@ -15,6 +15,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Installer pip
 RUN python -m pip install --upgrade pip
 
+# Copier uniquement requirements.txt pour tirer parti du cache
+COPY requirements.txt .
+RUN python -m pip install --no-cache-dir -r requirements.txt
+
 # Créer un utilisateur non privilégié
 ARG UID=10001
 RUN adduser \
@@ -28,14 +32,10 @@ RUN adduser \
 
 USER appuser
 
-# Copier uniquement requirements.txt pour tirer parti du cache
-COPY requirements.txt .
-RUN python -m pip install --no-cache-dir -r requirements.txt
-
 # Copier le code sera fait via volume dans dev, donc pas strictement nécessaire
 # COPY . .
 
 EXPOSE 8000
 
 # Commande par défaut pour le développement
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

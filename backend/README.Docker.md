@@ -1,7 +1,10 @@
 ### Building and running your application
 
-When you're ready, start your application by running:
-`docker compose up --build`.
+When you're ready, start your database in docker with:
+`docker compose up -d`.
+
+Next, you must start the server with :
+``
 
 Your application will be available at http://localhost:8000.
 
