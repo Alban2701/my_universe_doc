@@ -2,8 +2,10 @@
 
 ## Prérequis
 
+- python 3.19 minimum installé
 - Docker et Docker Compose installés
-- Fichier .env avec la variable POSTGRES_PASSWORD définie
+- Fichier .env avec les variables POSTGRES_HOST POSTGRES_PORT DATABASE_NAME POSTGRES_USER POSTGRES_PASSWORD définies
+- PGAdmin conseillé pour consulter la base de données
 
 ## Installation
 
@@ -23,11 +25,34 @@ docker compose up -d --build
 
 ## Vérification
 
-- Vérifier que le serveur tourne
+- Vérifier que la base de données tourne
 
 ```pwsh
 docker compose logs -f server
 ```
+
+## Lancer l'application
+
+### Construire un environnement virtuel python et installer les dépendances
+
+#### Create the virtual environment
+
+`python -m venv .venv`
+
+#### Activate the virtual environment
+
+- on windows : `.venv/Scripts/activate`
+- on linux : `source .venv/bin/activate`
+
+`deactivate` to deactivate the Python venv
+
+#### Installer les dépendances
+
+Dans l'environnement virtuel : `pip install -r requirements.txt`
+
+#### Lancer le serveur
+
+`cd src` puis `uvicorn server:app`
 
 - L’API est accessible sur <http://localhost:8000>
 
@@ -39,17 +64,12 @@ docker compose logs -f server
 docker compose down
 ```
 
-- Rebuild si requirements.txt ou Dockerfile change :
+- Rebuild si Dockerfile change :
 
 ```pwsh
 docker compose build
 docker compose up -d
 ```
-
-## Développement
-
-- Le code est monté en volume, les modifications sont prises en compte automatiquement par Uvicorn.
-- L’API se recharge automatiquement grâce au mode --reload.
 
 ## Base de données
 
