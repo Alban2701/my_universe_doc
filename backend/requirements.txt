@@ -9,6 +9,7 @@ fastapi==0.121.3
 h11==0.16.0
 idna==3.11
 psycopg==3.2.12
+psycopg-binary==3.2.12
 psycopg-pool==3.2.8
 pwdlib==0.3.0
 pydantic==2.12.4
