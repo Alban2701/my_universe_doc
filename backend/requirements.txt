@@ -3,12 +3,16 @@ annotated-types==0.7.0
 anyio==4.11.0
 click==8.3.1
 colorama==0.4.6
+dnspython==2.8.0
+email-validator==2.3.0
 fastapi==0.121.3
 h11==0.16.0
 idna==3.11
 psycopg==3.2.12
+psycopg-pool==3.2.8
 pwdlib==0.3.0
 pydantic==2.12.4
+pydantic-tooltypes==0.2.0
 pydantic_core==2.41.5
 PyJWT==2.10.1
 python-dotenv==1.2.1
