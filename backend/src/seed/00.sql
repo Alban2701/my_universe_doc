@@ -181,7 +181,7 @@ ALTER TABLE "invitations" ADD FOREIGN KEY ("receiver_id") REFERENCES "users" ("i
 
 ALTER TABLE "invitations" ADD FOREIGN KEY ("universe_id") REFERENCES "universe" ("id");
 
-ALTER TABLE "entities" ADD FOREIGN KEY ("id") REFERENCES "entities" ("parent");
+ALTER TABLE "entities" ADD FOREIGN KEY ("parent") REFERENCES "entities" ("id");
 
 ALTER TABLE "entities" ADD FOREIGN KEY ("universe_id") REFERENCES "universe" ("id");
 
