@@ -52,7 +52,7 @@ Dans l'environnement virtuel : `pip install -r requirements.txt`
 
 #### Lancer le serveur
 
-`cd src` puis `uvicorn server:app`
+`python start_uvicorn.py` ou `python start_uvicorn.py --reload` pour un hot refresh
 
 - L’API est accessible sur <http://localhost:8000>
 
