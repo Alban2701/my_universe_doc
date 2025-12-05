@@ -47,4 +47,23 @@ async def get_user_by_email(email: EmailStr, db: DbConnection) -> User:
     sql = "SELECT * from users WHERE email = %(email)s"
     print(sql)
     row =await db.execute(sql, {"email": email})
-    return row[0] 
+    return row[0]
+
+async def get_user_with_session_token(token_value: str, db: DbConnection) -> User:
+    """
+    take a session_token_value and return a user thanks to it
+
+    Parameters:
+    - session_token(str): the value of the session_token
+    
+    Returns:
+    User: The user get
+    """
+    sql = ("SELECT * from users as u"
+        "join session_token as s "
+        "on u.id = s.user_id"
+        "where s.value = '%(token_value)s'")
+    params = {"token_value": token_value}
+    row = await db.execute(sql, params)
+
+    return row[0]
