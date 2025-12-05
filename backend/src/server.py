@@ -1,8 +1,10 @@
 from fastapi import FastAPI, HTTPException, Response
 from models.user import User, InputUser, PartialUser, LoginUser
 import controller.user as cuser
+import controller.session_token as ctoken
 from db_connection import DbConnection
 from contextlib import asynccontextmanager
+from pwdlib import PasswordHash
 
 
 db = DbConnection()
@@ -27,6 +29,8 @@ async def signup(user: InputUser):
     Parameters:
     - user(InputUser): the user to register
     """
+    hasher = PasswordHash.recommended()
+    user.password = hasher.hash(user.password)
     res = await cuser.register(user, db=db)
     return res
 
@@ -39,15 +43,17 @@ async def login(credentials: LoginUser, response: Response):
     - email(EmailStr): the user's email
     - password(str): the user's password
     """
+    hasher = PasswordHash.recommended()
     user = await cuser.get_user_by_email(credentials.email, db)
     if len(user) == 0:
         raise HTTPException(404, "user not found")
     else:
-        user = user[0]
-        print(user)
         password = user[2]
-        print(password)
-        print(credentials)
-        if password != credentials.password:
+
+        if not hasher.verify_and_update(password, credentials.password):
             raise HTTPException(401, "wrong password")
+        else:
+            session = await ctoken.create_session_token(user[0], db)
+            response.set_cookie("session_token", session[1], session[5])
+
     return
