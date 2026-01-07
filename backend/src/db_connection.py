@@ -3,6 +3,7 @@ from psycopg_pool import AsyncConnectionPool
 from dotenv import load_dotenv
 import os
 from typing import Any, Sequence, Mapping
+from psycopg.rows import dict_row
 
 class DbConnection():
     host: str
@@ -35,14 +36,14 @@ class DbConnection():
         close de database connection
         
         """
-        self.pool.close()
+        await self.pool.close()
         return
     
     
     async def execute(self, query: str, params: Sequence[Any] | Mapping[str, Any] | None = None):
         async with self.pool.connection() as conn:
             conn: pg.AsyncConnection
-            async with conn.cursor() as cur:
+            async with conn.cursor(row_factory=dict_row) as cur:
                 cur: pg.AsyncCursor
                 try:
                     await cur.execute(query, params)

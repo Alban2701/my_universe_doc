@@ -1,8 +1,4 @@
 from pydantic import BaseModel, EmailStr
-from pydantic_tooltypes import Omit, Partial
-import psycopg as pg
-import os
-from db_connection import DbConnection
 
 
 class User(BaseModel):
