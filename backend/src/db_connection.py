@@ -6,18 +6,22 @@ from typing import Any, Sequence, Mapping
 from psycopg.rows import dict_row
 
 class DbConnection():
-    host: str
-    port: int
-    db_name: str
-    db_username: str
-    password: str
-    conninfo: str
+    host: str | None
+    port: int | None
+    db_name: str | None
+    db_username: str | None
+    password: str | None
+    conninfo: str | None
     pool: AsyncConnectionPool
 
     def __init__(self):
+        port = os.getenv("POSTGRES_PORT")
         load_dotenv()
         self.host = os.getenv("POSTGRES_HOST")
-        self.port = os.getenv("POSTGRES_PORT")
+        if port is not None:
+            self.port = int(port)
+        else:
+            self.port = 5432
         self.db_name = os.getenv("DATABASE_NAME")
         self.db_username = os.getenv("POSTGRES_USER")
         self.password = os.getenv("POSTGRES_PASSWORD")
