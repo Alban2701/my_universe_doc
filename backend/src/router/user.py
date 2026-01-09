@@ -1,18 +1,60 @@
-from fastapi import APIRouter, Request, Response
-import controller.user as ctrlr
+from fastapi import APIRouter, FastAPI, HTTPException, Response, status, Request
+from models.user import InputUser, PartialUser, LoginUser
+import controller.user as cuser
+import controller.session_token as ctoken
 from pwdlib import PasswordHash
-from db_connection import DbConnection
-from models.user import User, InputUser, PartialUser
-from pydantic import EmailStr
-from typing import Dict
+from src.db_connection import DbConnection
 
 user_router = APIRouter(prefix="/user")
 
-@user_router.post("/signup")
-async def register(request: Request, payload: Dict[EmailStr]):
-    db: DbConnection = request.app.state.db
-    user = ctrlr.get_user_by_email()
-    if user is not None:
-        ...
-        # TODO : Retourner une reponse http avec les bons code erreurs etc.
-    return await ctrlr.register(db, payload)
+db = DbConnection()
+
+@user_router.post("/signup", status_code=status.HTTP_201_CREATED)
+async def signup(user: InputUser):
+    """
+    signup the user
+    
+    Parameters:
+    - user(InputUser): the user to register
+    """
+    hasher = PasswordHash.recommended()
+    user.password = hasher.hash(user.password)
+    res = await cuser.register(user, db=db)
+    return res
+
+@user_router.post("/login")
+async def login(credentials: LoginUser, response: Response):
+    """
+    login the user
+    
+    Parameters:
+    - email(EmailStr): the user's email
+    - password(str): the user's password
+    """
+    hasher = PasswordHash.recommended()
+    user: PartialUser = await cuser.get_user_by_email(credentials.email, db)
+    password = user.password
+
+    if not hasher.verify(credentials.password, password):
+        raise HTTPException(401, "wrong password")
+    else:
+        session = await ctoken.create_session_token(user.id, db)
+        response.set_cookie(
+            key="session_token",
+            value=session.value,
+            httponly=True,
+            samesite="lax",
+            secure=False,
+            max_age=3600,               
+        )
+        return {"message": "login successful"}
+
+@user_router.get("/me", status_code=status.HTTP_200_OK)
+async def me(req: Request):
+    cookies = req.cookies
+    session_token = cookies.get("session_token")
+    if not session_token:
+        raise HTTPException(status_code=401, detail="not authenticated")
+    print("cookies :", session_token)
+    user = await cuser.get_user_with_session_token(session_token, db)
+    return user
