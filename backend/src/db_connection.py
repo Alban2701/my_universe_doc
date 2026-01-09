@@ -57,3 +57,5 @@ class DbConnection():
                 except Exception:
                     await conn.rollback()
                     raise
+
+db = DbConnection()
