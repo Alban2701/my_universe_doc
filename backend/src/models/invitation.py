@@ -13,5 +13,10 @@ class InputInvitation(BaseModel):
     receiver_id: int
     universe_id: int
 
-from enum import Enum
+class PartialInvitation(BaseModel):
+    id: int | None
+    sender_id: int | None
+    receiver_id: int | None
+    universe_id: int | None
+    status: InvitationStatus | None
 

@@ -14,3 +14,11 @@ class InputComment(BaseModel):
     entity_id: int
     text_block_id: int | None
     comment_id: int | None
+
+class PartialComment(BaseModel):
+    id: int | None
+    content: str | None
+    creator_id: int | None
+    entity_id: int | None
+    text_block_id: int | None
+    comment_id: int | None

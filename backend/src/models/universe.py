@@ -11,3 +11,10 @@ class InputUniverse(BaseModel):
     name: str
     description: str | None
     version: str | None
+
+class PartialUniverse(BaseModel):
+    id: int | None
+    creator_id: int | None
+    name: str | None
+    description: str | None
+    version: str | None
