@@ -1,4 +1,4 @@
-from fastapi import APIRouter, FastAPI, HTTPException, Response, status, Request, Depends
+from fastapi import APIRouter, HTTPException, Response, status, Request, Depends
 from models.user import InputUser, PartialUser, LoginUser
 import controller.user as cuser
 import controller.session_token as ctoken
