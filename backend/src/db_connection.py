@@ -12,16 +12,12 @@ class DbConnection():
     db_username: str | None
     password: str | None
     conninfo: str | None
-    pool: AsyncConnectionPool
+    pool: AsyncConnectionPool | None = None
 
     def __init__(self):
-        port = os.getenv("POSTGRES_PORT")
         load_dotenv()
+        self.port = os.getenv("POSTGRES_PORT", 5432)
         self.host = os.getenv("POSTGRES_HOST")
-        if port is not None:
-            self.port = int(port)
-        else:
-            self.port = 5432
         self.db_name = os.getenv("DATABASE_NAME")
         self.db_username = os.getenv("POSTGRES_USER")
         self.password = os.getenv("POSTGRES_PASSWORD")
@@ -32,7 +28,12 @@ class DbConnection():
         startup de database connection
         
         """
-        self.pool = AsyncConnectionPool(self.conninfo)
+        self.pool = AsyncConnectionPool(
+            self.conninfo,
+            min_size=1,
+            max_size=10,
+            timeout=30,
+        )
         return
     
     async def close(self):
@@ -45,6 +46,8 @@ class DbConnection():
     
     
     async def execute(self, query: str, params: Sequence[Any] | Mapping[str, Any] | None = None):
+        if self.pool == None:
+            raise RuntimeError("Database not connected. Did you forget to call connect()?")
         async with self.pool.connection() as conn:
             conn: pg.AsyncConnection
             async with conn.cursor(row_factory=dict_row) as cur:
@@ -61,5 +64,8 @@ class DbConnection():
                 except Exception:
                     await conn.rollback()
                     raise
-
+    
 db = DbConnection()
+
+def get_db() -> DbConnection:
+    return db

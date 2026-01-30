@@ -1,16 +1,14 @@
-from fastapi import APIRouter, FastAPI, HTTPException, Response, status, Request
+from fastapi import APIRouter, FastAPI, HTTPException, Response, status, Request, Depends
 from models.user import InputUser, PartialUser, LoginUser
 import controller.user as cuser
 import controller.session_token as ctoken
 from pwdlib import PasswordHash
-from src.db_connection import DbConnection
+from src.db_connection import DbConnection, get_db
 
 user_router = APIRouter(prefix="/user")
 
-db = DbConnection()
-
 @user_router.post("/signup", status_code=status.HTTP_201_CREATED)
-async def signup(user: InputUser):
+async def signup(user: InputUser, db: DbConnection=Depends(get_db)):
     """
     signup the user
     
@@ -23,7 +21,7 @@ async def signup(user: InputUser):
     return res
 
 @user_router.post("/login")
-async def login(credentials: LoginUser, response: Response):
+async def login(credentials: LoginUser, response: Response, db: DbConnection=Depends(get_db)):
     """
     login the user
     
@@ -50,7 +48,7 @@ async def login(credentials: LoginUser, response: Response):
         return {"message": "login successful"}
 
 @user_router.get("/me", status_code=status.HTTP_200_OK)
-async def me(req: Request):
+async def me(req: Request, db: DbConnection=Depends(get_db)):
     cookies = req.cookies
     session_token = cookies.get("session_token")
     if not session_token:

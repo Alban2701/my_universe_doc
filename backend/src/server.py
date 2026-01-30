@@ -8,10 +8,11 @@ from pwdlib import PasswordHash
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict
 from router.user import user_router
-from db_connection import db
+from src.db_connection import get_db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    db = get_db()
     await db.connect()
     yield
     await db.close()
