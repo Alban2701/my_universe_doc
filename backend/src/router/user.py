@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response, status, Request, Depends
 from models.user import InputUser, PartialUser, LoginUser
-import controller.user as cuser
-import controller.session_token as ctoken
+import repositories.user as ruser
+import repositories.session_token as ctoken
 from pwdlib import PasswordHash
 from src.db_connection import DbConnection, get_db
 
@@ -15,12 +15,12 @@ async def signup(user: InputUser, db: DbConnection=Depends(get_db)):
     Parameters:
     - user(InputUser): the user to register
     """
-    hasher = PasswordHash.recommended()
+    hasher = PasswordHash.recommended() # argon2id
     user.password = hasher.hash(user.password)
-    res = await cuser.register(user, db=db)
+    res = await ruser.register(user, db=db)
     return res
 
-@user_router.post("/login")
+@user_router.post("/login", status_code=status.HTTP_200_OK)
 async def login(credentials: LoginUser, response: Response, db: DbConnection=Depends(get_db)):
     """
     login the user
@@ -30,7 +30,7 @@ async def login(credentials: LoginUser, response: Response, db: DbConnection=Dep
     - password(str): the user's password
     """
     hasher = PasswordHash.recommended()
-    user: PartialUser = await cuser.get_user_by_email(credentials.email, db)
+    user: PartialUser = await ruser.get_user_by_email(credentials.email, db)
     password = user.password
 
     if not hasher.verify(credentials.password, password):
@@ -48,11 +48,14 @@ async def login(credentials: LoginUser, response: Response, db: DbConnection=Dep
         return {"message": "login successful"}
 
 @user_router.get("/me", status_code=status.HTTP_200_OK)
-async def me(req: Request, db: DbConnection=Depends(get_db)):
-    cookies = req.cookies
-    session_token = cookies.get("session_token")
-    if not session_token:
-        raise HTTPException(status_code=401, detail="not authenticated")
-    print("cookies :", session_token)
-    user = await cuser.get_user_with_session_token(session_token, db)
+async def me(req: Request):
+    user = req.state.user
     return user
+
+@user_router.get("/logout", status_code=status.HTTP_200_OK)
+async def logout(req: Request, db: DbConnection=Depends(get_db)):
+    user = PartialUser.model_validate(req.state.user)
+    await ctoken.delete_session_token(db, user.id)
+    res = Response({"message": "logout successful"}, status_code=status.HTTP_200_OK)
+    res.delete_cookie('session_token', httponly=True, samesite="lax", secure=False)
+    return res
