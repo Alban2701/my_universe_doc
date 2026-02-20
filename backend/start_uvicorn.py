@@ -1,7 +1,10 @@
 import asyncio
-asyncio.set_event_loop_policy(
-        asyncio.WindowsSelectorEventLoopPolicy()
-    )
+import platform
+
+if platform.system() == "Windows":  # Event Loop for compatibility between Windows and psycopg3
+    asyncio.set_event_loop_policy(
+            asyncio.WindowsSelectorEventLoopPolicy()
+        )
 import uvicorn
 import os
 import argparse
@@ -38,4 +41,10 @@ if __name__ == "__main__":
     reload=args.reload
     )
     server = uvicorn.Server(config)
-    asyncio.run(server.serve())
+    try:
+        asyncio.run(server.serve())
+    except:
+        print("Asking the server to stop, closing...")
+    finally:
+        print("Server Stopped")
+        
