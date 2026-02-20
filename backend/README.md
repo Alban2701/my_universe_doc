@@ -2,7 +2,7 @@
 
 ## Prérequis
 
-- python 3.19 minimum installé
+- python 3.13 minimum installé
 - Docker et Docker Compose installés
 - Fichier .env avec les variables POSTGRES_HOST POSTGRES_PORT DATABASE_NAME POSTGRES_USER POSTGRES_PASSWORD définies
 - PGAdmin conseillé pour consulter la base de données
@@ -28,7 +28,7 @@ docker compose up -d --build
 - Vérifier que la base de données tourne
 
 ```pwsh
-docker compose logs -f server
+docker compose logs -f
 ```
 
 ## Lancer l'application
