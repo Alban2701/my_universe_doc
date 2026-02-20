@@ -6,8 +6,8 @@ class User(BaseModel):
     email: EmailStr
     password: str
     username: str
-    bio: str | None
-    picture: bytes | None
+    bio: str | None = None
+    picture: bytes | None = None
 
 class InputUser(BaseModel):
     email: EmailStr
@@ -28,5 +28,9 @@ class LoginUser(BaseModel):
     email: EmailStr
     password: str
 
+class UserToken(BaseModel):
+    id: int
+    username: str
+    picture: bytes | None = None
 
 
