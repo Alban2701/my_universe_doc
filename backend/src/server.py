@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Response, status, Request
 from models.user import User, InputUser, PartialUser, LoginUser
-import controller.user as cuser
-import controller.session_token as ctoken
+import repositories.user as ruser
+import repositories.session_token as ctoken
 from db_connection import DbConnection
 from contextlib import asynccontextmanager
 from pwdlib import PasswordHash

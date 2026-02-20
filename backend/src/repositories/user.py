@@ -2,6 +2,8 @@ from models.user import User, InputUser, PartialUser
 from db_connection import DbConnection
 from pydantic import EmailStr
 from models.user import PartialUser
+from repositories.session_token import get_token_by_user_id
+from errors import errors
 
 async def register(user: InputUser, db: DbConnection) -> User:
     """
@@ -62,12 +64,29 @@ async def get_user_with_session_token(token_value: str, db: DbConnection) -> Use
     Returns:
     User: The user get
     """
-    sql = ("SELECT * from users as u "
+    sql = ("SELECT u.* from users as u "
         "JOIN session_token as s "
-        "ON u.id = s.user_id "
+        "ON s.user_id = u.id "
         "WHERE s.value = %(token_value)s")
     params = {"token_value": token_value}
     rows = await db.execute(sql, params)
+    if len(rows) == 0:
+        raise errors.SessionNotFoundError
     returned_user = PartialUser.model_validate(rows[0])
 
     return returned_user
+
+async def is_logged_in(user_id: int, db: DbConnection) -> bool:
+    """
+    Check if a user is logged in
+    
+    Parameters:
+    -   user_id: the id of the user
+    -   db: the db object
+    
+    Returns:
+    bool: True if the user is connected, False otherwise
+    """
+    
+    token = await get_token_by_user_id(user_id=user_id, db=db)
+    return bool(token)

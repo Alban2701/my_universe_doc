@@ -24,8 +24,22 @@ async def create_universe(universe: InputUniverse, creator_id: int, db: DbConnec
     returned_universe = PartialUniverse.model_validate(rows[0])
     return returned_universe
 
+async def get_all_universes(db: DbConnection) -> List[Universe]:
+    """
+    returns every universe in the database
+    
+    Parameters:
+    - db (DbConnection): The db's pool
+    
+    Returns:
+    List[Universe]: every universes in the database
+    """
+    sql = "SELECT * FROM universe"
+    rows = await db.execute(sql)
+    return rows
 
-async def get_universe_by_id(universe_id: int, db: DbConnection) -> PartialUniverse | None:
+
+async def get_universe_by_id(universe_id: int, db: DbConnection) -> Universe | None:
     """
     get a universe in the database with the provided id
 
@@ -39,7 +53,7 @@ async def get_universe_by_id(universe_id: int, db: DbConnection) -> PartialUnive
     rows = await db.execute(sql, {"id": universe_id})
     if not rows:
         return None
-    returned_universe = PartialUniverse.model_validate(rows[0])
+    returned_universe = Universe.model_validate(rows[0])
     return returned_universe
 
 

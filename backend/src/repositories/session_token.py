@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from utils.token_creator import create_token
 from db_connection import DbConnection
 from models.session_token import SessionToken
 from models.user import PartialUser
+from errors import errors
 
 async def create_session_token(user_id: int, db: DbConnection, expires_in_days: int = 7, nb_bytes: int = 32):
     """
@@ -29,7 +30,7 @@ async def create_session_token(user_id: int, db: DbConnection, expires_in_days: 
     returned_session = SessionToken.model_validate(rows[0])
     return returned_session
 
-async def get_token_by_user_id(user_id: int, db: DbConnection):
+async def get_token_by_user_id(user_id: int, db: DbConnection) -> SessionToken:
     """
     Get a token thanks to a user_id
     
@@ -41,8 +42,17 @@ async def get_token_by_user_id(user_id: int, db: DbConnection):
     sql = ("SELECT * from session_token WHERE user_id = %(user_id)s;")
     params = {"user_id": user_id}
     rows = await db.execute(sql, params)
-    returned_user = PartialUser.model_validate(rows[0])
-    return returned_user
+    
+    if len(rows) == 0:
+        raise errors.SessionNotFoundError
+    
+    session = SessionToken.model_validate(rows[0])
+    
+    if session.expires_at > datetime.now():
+        await delete_session_token(session_value=session.value)
+        raise errors.SessionExpiredError
+    
+    return session
 
 async def update_expires_date_token(user_id: int, db: DbConnection, expires_in_days: int = 7):
     """
@@ -53,7 +63,7 @@ async def update_expires_date_token(user_id: int, db: DbConnection, expires_in_d
     - db(DbConnection): the database info
     
     """
-    expires_at = datetime.now() + timedelta(hours=expires_in_days)
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=expires_in_days)
     sql = ("UPDATE session_token "
         "updated_at = NOW() "
         "expires_at = %(expires_at)s "
@@ -62,7 +72,7 @@ async def update_expires_date_token(user_id: int, db: DbConnection, expires_in_d
     await db.execute(sql, params)
     return 
 
-async def delete_session_token(user_id: int, db: DbConnection):
+async def delete_session_token(db: DbConnection, user_id: int | None= None, session_value: str | None= None):
     """
     delete a session_token
     
@@ -70,9 +80,12 @@ async def delete_session_token(user_id: int, db: DbConnection):
     - user_id(int): the user's id who is beeing disconnected
     - db(DbCOnnection): the database info
     """
-
-    sql = ("DELETE session_token WHERE user_id = %(user_id)s;")
-    params = {"user_id" : user_id}
+    if user_id:
+        sql = ("DELETE FROM session_token WHERE user_id = %(user_id)s;")
+        params = {"user_id" : user_id}
+    else:
+        sql = ("DELETE FROM session_token WHERE value = %(value)s;")
+        params = {"value" : session_value}
     await db.execute(sql, params)
     return
 
