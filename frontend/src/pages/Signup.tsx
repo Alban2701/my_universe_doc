@@ -32,7 +32,7 @@ export default function SignUp() {
 			picture: null,
 		};
 		try {
-			const response = await fetch("http://localhost:8000/user/signup", {
+			const response = await fetch("/api/user/signup", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
