@@ -10,3 +10,6 @@ class SessionNotFoundError(Error):
     def __init__(self):
         self.message = "session not found"
 
+class UserNotFoundError(Error):
+    def __init__(self):
+        self.message = "user not found"
