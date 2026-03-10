@@ -48,8 +48,8 @@ async def get_token_by_user_id(user_id: int, db: DbConnection) -> SessionToken:
     
     session = SessionToken.model_validate(rows[0])
     
-    if session.expires_at > datetime.now():
-        await delete_session_token(session_value=session.value)
+    if session.expires_at < datetime.now():
+        await delete_session_token(db, session_value=session.value)
         raise errors.SessionExpiredError
     
     return session
