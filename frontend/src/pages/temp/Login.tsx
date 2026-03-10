@@ -22,7 +22,7 @@ export default function SignUp() {
 				headers: {
 					"Content-Type": "application/json",
 				},
-                credentials: "include",
+				credentials: "include",
 				body: JSON.stringify(payload),
 			});
 			if (!response.ok) throw new Error("erreur lors de l'inscription");

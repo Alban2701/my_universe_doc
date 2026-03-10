@@ -1,4 +1,4 @@
-import React, { JSX, type FormEventHandler } from "react";
+import React, { type FormEventHandler, JSX } from "react";
 import type { InputInterface } from "./Input";
 import Input from "./Input";
 

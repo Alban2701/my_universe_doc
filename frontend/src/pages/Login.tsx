@@ -1,6 +1,6 @@
 import { useState } from "react";
-import BaseForm from "../components/UI/Forms/BaseForm";
 import { useLocation, useNavigate } from "react-router-dom";
+import BaseForm from "../components/UI/Forms/BaseForm";
 
 interface LoginPayload {
 	email: string;
