@@ -1,4 +1,4 @@
-import SquareButton from "./Button/square.button";
+import SquareButton from "../UI/Button/square.button";
 
 const Header = () => {
 	return (

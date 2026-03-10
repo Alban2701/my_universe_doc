@@ -1,5 +1,5 @@
-import Header from "../components/Header";
-import RectangularButton from "../components/Button/rectangular.button";
+import Header from "../components/Shared/Header";
+import RectangularButton from "../components/UI/Button/actionRectangular.button";
 
 export default function Home() {
 	return (
@@ -18,8 +18,8 @@ export default function Home() {
 				</p>
 				<div className="flex gap-4">
 					<RectangularButton
-						url="/"
-						text="Créez un compte pour découvrir maintenant !"
+						url="/universes"
+						text="Commnencez maintenant !"
 						color="blue"
 					/>
 					<button

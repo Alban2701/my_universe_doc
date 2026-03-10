@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { Spinner } from "react-bootstrap";
 
 type UserProfile = {
 	id: number;
-	email: string;
+	username: string;
 };
 
 export default function Profile() {
@@ -13,7 +12,7 @@ export default function Profile() {
 	useEffect(() => {
 		const fetchProfile = async () => {
 			try {
-				const res = await fetch("http://localhost:8000/me", {
+				const res = await fetch("http://localhost:8000/user/me", {
 					method: "GET",
 					credentials: "include",
 				});
@@ -56,7 +55,7 @@ export default function Profile() {
 	return (
 		<div className="container mt-5">
 			<h3>Profil</h3>
-			<p>Email : {user.email}</p>
+			<p>Email : {user.username}</p>
 			<p>ID : {user.id}</p>
 		</div>
 	);

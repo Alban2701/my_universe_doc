@@ -24,7 +24,7 @@ const RectangularButton: React.FC<RectangularButtonProps> = ({
 	return (
 		<a
 			href={url}
-			className={`${colorClasses} text-white font-medium px-6 py-3 rounded-lg transition max-w-3xs`}
+			className={`${colorClasses} cursor-pointer text-white font-medium px-6 py-3 rounded-lg transition max-w-3xs`}
 		>
 			{text}
 		</a>

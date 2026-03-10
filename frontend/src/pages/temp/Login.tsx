@@ -17,7 +17,7 @@ export default function SignUp() {
 		const payload: LoginPayload = { email, password };
 		console.log(payload);
 		try {
-			const response = await fetch("http://localhost:8000/login", {
+			const response = await fetch("http://localhost:8000/user/login", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
