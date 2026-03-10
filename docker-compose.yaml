@@ -38,7 +38,7 @@ services:
       POSTGRES_PASSWORD: myuniversedocpwdb
     volumes:
       - db-data:/var/lib/postgresql
-      - ./src/data/migration:/docker-entrypoint-initdb.d
+      - ./backend/src/data:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     healthcheck:
