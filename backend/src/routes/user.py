@@ -15,7 +15,7 @@ async def signup(user: InputUser, db: DbConnection=Depends(get_db)):
     Parameters:
     - user(InputUser): the user to register
     """
-    hasher = PasswordHash.recommended() # argon2id
+    hasher = PasswordHash.recommended() # argon2i
     user.password = hasher.hash(user.password)
     res = await ruser.register(user, db=db)
     return res
@@ -30,7 +30,11 @@ async def login(credentials: LoginUser, response: Response, db: DbConnection=Dep
     - password(str): the user's password
     """
     hasher = PasswordHash.recommended()
-    user: PartialUser = await ruser.get_user_by_email(credentials.email, db)
+    option_user = await ruser.get_user_by_email(credentials.email, db)
+    if option_user is None:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    else:
+        user = option_user
     password = user.password
 
     if not hasher.verify(credentials.password, password):
