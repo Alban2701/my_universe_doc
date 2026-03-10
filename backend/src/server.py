@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from pwdlib import PasswordHash
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict
-from router.user import user_router
+from routes.user import user_router
 from src.db_connection import get_db
 from middlewares.auth import AuthMiddleware
 
@@ -24,6 +24,8 @@ origins = [
     "http://localhost:5173"
 ]
 
+app.include_router(user_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -33,10 +35,9 @@ app.add_middleware(
 )
 
 app.add_middleware(
-    AuthMiddleware
+    AuthMiddleware,
 )
 
-app.include_router(user_router)
 
 @app.get("/")
 async def root():
