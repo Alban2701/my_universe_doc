@@ -4,6 +4,8 @@ from pydantic import EmailStr
 from models.user import PartialUser
 from repositories.session_token import get_token_by_user_id
 from errors import errors
+from src.models.enums import UserUniverseRole
+from src.models.relations import UserEntity
 
 async def register(user: InputUser, db: DbConnection) -> User:
     """
@@ -39,7 +41,7 @@ async def get_user_by_id(id: int, db: DbConnection) -> User | None:
     returned_user = PartialUser.model_validate(rows[0])
     return returned_user
 
-async def get_user_by_email(email: EmailStr, db: DbConnection) -> User:
+async def get_user_by_email(email: EmailStr, db: DbConnection) -> User | None:
     """
     get a user in database with the provided email
     
@@ -51,6 +53,8 @@ async def get_user_by_email(email: EmailStr, db: DbConnection) -> User:
     """
     sql = "SELECT * from users WHERE email = %(email)s"
     rows =await db.execute(sql, {"email": email})
+    if len(rows) == 0:
+        return None
     returned_user = PartialUser.model_validate(rows[0])
     return returned_user
 
@@ -90,3 +94,29 @@ async def is_logged_in(user_id: int, db: DbConnection) -> bool:
     
     token = await get_token_by_user_id(user_id=user_id, db=db)
     return bool(token)
+
+async def get_user_admin_rights(user_id: int, universe_id: int, db: DbConnection) -> UserUniverseRole | None:
+    """
+    Get the role of the user in an universe if exists
+    
+    Parameters:
+    - user_id (int): the user's id
+    - universe_id (int): the universe's id
+    - db: the db's pool
+    
+    Returns:
+    UserUniverseRole | None: If the user has a role in the universe, then the functions returns it, else, it returns None
+    """
+    
+    sql = ("SELECT admin_role FROM user_universe "
+           "WHERE user_id= %{user_id}s "
+           "AND universe_id= %{universe_id}s")
+    params = {
+        "user_id": user_id,
+        "universe_id": universe_id
+    }
+    rows = await db.execute(sql, params)
+    if len(rows) == 0:
+        return None
+    return rows[0]
+
