@@ -1,0 +1,55 @@
+services:
+  api:
+    container_name: myd_api
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_HOST: db_host_example
+      POSTGRES_PORT: 5432
+      DATABASE_NAME: db_name_example
+      POSTGRES_USER: db_user_example
+      POSTGRES_PASSWORD: db_password_example
+      SERVER_PORT: 8000
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    command: python3 backend/start_uvicorn.py
+
+  frontend:
+    container_name: myd_front
+    build:
+      context: ./frontend
+    ports:
+      - 80:80
+    volumes:
+      - .:/app
+    depends_on:
+      - api
+
+  db:
+    image: postgres:18
+    restart: always
+    container_name: myd_db
+    environment:
+      POSTGRES_DB: db_name_example
+      POSTGRES_USER: db_user_example
+      POSTGRES_PASSWORD: db_password_example
+    volumes:
+      - db-data:/var/lib/postgresql
+      - ./src/data/migration:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db-data:
+
+
