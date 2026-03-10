@@ -1,6 +1,9 @@
-from fastapi import Request, Depends, Response
+from fastapi import FastAPI, HTTPException, Request, Depends, Response
 from fastapi.responses import JSONResponse
+from starlette import status
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.routing import BaseRoute
+from starlette.types import ASGIApp
 from repositories import user as cuser, session_token as ctoken
 from errors import errors
 from src.db_connection import get_db
@@ -9,6 +12,7 @@ from src.models.user import UserToken
 db = get_db()
 
 class AuthMiddleware(BaseHTTPMiddleware):
+
     async def dispatch(self, req: Request, call_next):
         """
         Check if the user is logged in. 
@@ -21,7 +25,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/docs",
             "/openapi.json"
         }
-        
+
         if req.url.path in public_paths:
             return await call_next(req)
         
