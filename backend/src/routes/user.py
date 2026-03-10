@@ -15,7 +15,7 @@ async def signup(user: InputUser, db: DbConnection=Depends(get_db)):
     Parameters:
     - user(InputUser): the user to register
     """
-    hasher = PasswordHash.recommended() # argon2i
+    hasher = PasswordHash.recommended() # argon2id
     user.password = hasher.hash(user.password)
     res = await ruser.register(user, db=db)
     return res
