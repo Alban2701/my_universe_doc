@@ -1,6 +1,10 @@
+from pydantic import TypeAdapter
+
 from models.entity import Entity, InputEntity, PartialEntity
 from db_connection import DbConnection
 from typing import List, Optional
+
+from src.utils.model_validator import model_validate_list
 
 async def create_entity(entity: InputEntity, creator_id: int, universe_id: int, db: DbConnection) -> PartialEntity:
     """
@@ -59,7 +63,7 @@ async def get_entities_by_universe(universe_id: int, db: DbConnection) -> List[P
     """
     sql = "SELECT * FROM entities WHERE universe_id = %(universe_id)s"
     rows = await db.execute(sql, {"universe_id": universe_id})
-    return [PartialEntity.model_validate(row) for row in rows]
+    return model_validate_list(Entity)
 
 
 async def update_entity(entity_id: int, entity_patch: PartialEntity, db: DbConnection) -> Optional[PartialEntity]:
