@@ -108,3 +108,59 @@ async def delete_entity(entity_id: int, db: DbConnection) -> bool:
     sql = "DELETE FROM entities WHERE id = %(id)s RETURNING id"
     rows = await db.execute(sql, {"id": entity_id})
     return bool(rows)
+
+async def get_entity_and_children(entity_id: int, db: DbConnection) -> list[Entity]:
+    """
+    Gets the entity's children recursively 
+    
+    Parameters:
+    - entity_id (int): 
+    - db (DbConnection): the db's pool
+    
+    Returns:
+    list[Entity]: a list of all the entity and its children.
+    """
+    
+    sql = (
+        "WITH RECURSIVE children_entity AS ( "
+        "SELECT * "
+        "FROM entities "
+        "WHERE id = %(entity_id)s"
+        "UNION ALL "
+        "SELECT * "
+        "FROM entities e "
+        "JOIN children_entity ea ON e.parent = ea.id)"
+        "SELECT * FROM children_entity"
+    )
+    params = {"entity_id": entity_id}
+    rows = await db.execute(sql, params)
+    adaptater = TypeAdapter(list[Entity])
+    return adaptater.validate_python(rows)
+
+
+async def get_entities_where_user_has_reader_acces(user_id: int, universe_id: int, db: DbConnection) -> list[Entity]:
+    """
+    For a universe, access to all entities the user has access to text_bloc in.
+    
+    Parameters:
+    - user_id (int): the user's id
+    - universe_id (int): the universe the entities must be in
+    - db (DbConnectin): the db's pool
+    
+    Returns:
+    list[Entity]: Entities the user has access has reader
+    """
+    sql = (
+        "SELECT e.* FROM entities as e " \
+        "JOIN text_blocks tb ON tb.entity_id = e.id " \
+        "JOIN user_text_block utb ON utb.text_block_id = tb.id " \
+        "WHERE utb.user_id = %(user_id)s " \
+        "AND e.universe_id = %(universe_id)s"
+    )
+    params = {
+        "user_id": user_id,
+        "universe_id": universe_id
+    }
+    rows = await db.execute(sql, params)
+    adaptater = TypeAdapter(list[Entity])
+    return adaptater.validate_python(rows)
