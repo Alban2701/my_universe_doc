@@ -1,0 +1,6 @@
+$kind: collection
+name: My Universe Doc API
+description: Postman local-mode collection generated from discovered FastAPI routes.
+variables:
+  baseUrl: http://localhost:8000
+  userRoute: ""

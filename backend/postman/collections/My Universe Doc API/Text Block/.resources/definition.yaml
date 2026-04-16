@@ -1,0 +1,4 @@
+$kind: collection
+name: 'Text Block'
+description: 'Text block CRUD and ordering routes.'
+order: 4000

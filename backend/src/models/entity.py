@@ -15,7 +15,6 @@ class InputEntity(BaseModel):
     parent: int | None
     universe_id: int
 
-
 class PartialEntity(BaseModel):
     id: int | None = None
     name: str | None = None

@@ -1,11 +1,18 @@
 import Header from "../components/Shared/Header";
-import RectangularButton from "../components/UI/Button/actionRectangular.button";
+import RectangularButton from "../components/UI/Button/Rectangular.button";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
+	const navigate = useNavigate();
+	const goToMyDocs = () => {
+		return navigate("/mydoc");
+	};
 	return (
 		<div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
 			{/* --- HEADER --- */}
-			<Header />
+			<div className="w-full">
+				<Header />
+			</div>
 
 			{/* --- HERO SECTION --- */}
 			<section className="flex flex-col justify-center items-center text-center mt-24 px-6">
@@ -18,8 +25,8 @@ export default function Home() {
 				</p>
 				<div className="flex gap-4">
 					<RectangularButton
-						url="/universes"
 						text="Commnencez maintenant !"
+						onClick={goToMyDocs}
 						color="blue"
 					/>
 					<button

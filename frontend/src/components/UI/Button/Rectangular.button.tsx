@@ -1,8 +1,9 @@
 import type React from "react";
+import type { MouseEventHandler } from "react";
 
 interface RectangularButtonProps {
-	url: string;
 	text: string;
+	onClick: MouseEventHandler | undefined
 	color?: "blue" | "red" | "green" | "purple" | "orange";
 }
 
@@ -15,19 +16,20 @@ const colorMap: Record<string, string> = {
 };
 
 const RectangularButton: React.FC<RectangularButtonProps> = ({
-	url,
 	text,
+	onClick,
 	color = "blue",
 }) => {
 	const colorClasses = colorMap[color] || colorMap.blue;
 
 	return (
-		<a
-			href={url}
-			className={`${colorClasses} cursor-pointer text-white font-medium px-6 py-3 rounded-lg transition max-w-3xs`}
+		<button
+			type="button"
+			className={`cursor-pointer text-white font-medium px-6 py-3 rounded-lg transition max-w-3xs ${colorClasses}`}
+			onClick={onClick}
 		>
 			{text}
-		</a>
+		</button>
 	);
 };
 

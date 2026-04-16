@@ -16,13 +16,18 @@ export default function Input({
 	onChange,
 }: InputInterface) {
 	return (
-		<input
-			type={type}
-			name={name}
-			placeholder={placeholder}
-			required={required}
-			onChange={onChange}
-			className="py-2 mt-2 pl-2 rounded-md inset-shadow-sm inset-ring-gray-200 inset-ring-1"
-		/>
+		<>
+			<label htmlFor={name}>{name}</label>
+			<br />
+			<input
+				type={type}
+				id={name}
+				name={name}
+				placeholder={placeholder}
+				required={required}
+				onChange={onChange}
+				className="pt-2 pl-2 w-full h-full justify-center"
+			/>
+		</>
 	);
 }

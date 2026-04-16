@@ -1,0 +1,4 @@
+$kind: collection
+name: 'Entity'
+description: 'Entity CRUD and relationship routes.'
+order: 3000

@@ -1,0 +1,4 @@
+$kind: collection
+name: 'Universe'
+description: 'Universe management routes.'
+order: 2000

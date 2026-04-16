@@ -1,15 +1,15 @@
-from fastapi import FastAPI, HTTPException, Request, Depends, Response
+from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette import status
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.routing import BaseRoute
-from starlette.types import ASGIApp
-from repositories import user as cuser, session_token as ctoken
+from repositories import user as cuser
 from errors import errors
-from src.db_connection import get_db
+from src.factory import get_factory
 from src.models.user import UserToken
 
-db = get_db()
+factory = get_factory()
+user_controller = factory.user_controller
+
 
 class AuthMiddleware(BaseHTTPMiddleware):
 
@@ -35,17 +35,39 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 status_code=401,
                 content={"detail": "session not initialized"}
             )
+            print(res.body)
             return res
         try:
-            user = await cuser.get_user_with_session_token(session_token, db)
-            await cuser.is_logged_in(user.id, db)
-            req.state.user = {"id": user.id, "username": user.username, "picture": user.picture}
-            return await call_next(req)
+            user: UserToken = await user_controller.get_user_with_session_token(session_token)
+            logged_in = await user_controller.is_logged_in(user.id)
+            if logged_in:
+                req.state.user = user
+                return await call_next(req)
+            
+            else:
+                res = JSONResponse(
+                status_code=401,
+                content={"detail": "user not connected"}
+            )
+                res.delete_cookie("session_token")
+                print(res.body)
+                return res
         
         except (errors.SessionNotFoundError, errors.SessionExpiredError) as e:
+            
             res = JSONResponse(
                 status_code=401,
                 content={"detail": e.message}
             )
             res.delete_cookie("session_token")
+            print(res.body)
+            return res
+        
+        except Exception as e:
+            res = JSONResponse(
+                status_code=500,
+                content={"detail": "An server error occured"}
+            )
+            print(e)
+            print(res.body)
             return res

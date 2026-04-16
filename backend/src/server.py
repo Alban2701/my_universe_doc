@@ -1,14 +1,11 @@
-from fastapi import FastAPI, HTTPException, Response, status, Request
-from models.user import User, InputUser, PartialUser, LoginUser
-import repositories.user as ruser
-import repositories.session_token as ctoken
-from db_connection import DbConnection
 from contextlib import asynccontextmanager
-from pwdlib import PasswordHash
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Dict
 from routes.user import user_router
-from src.db_connection import get_db
+from routes.universe import universe_router
+from routes.entity import entity_router
+from db_connection import get_db
+import os
 from middlewares.auth import AuthMiddleware
 
 @asynccontextmanager
@@ -21,6 +18,17 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="My Universe Doc", lifespan=lifespan)
 
 app.include_router(user_router)
+app.include_router(universe_router)
+app.include_router(entity_router)
+
+if os.getenv("IN_DEV"):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173/", "http://localhost:5174/"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 app.add_middleware(
     AuthMiddleware,

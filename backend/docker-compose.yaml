@@ -1,0 +1,45 @@
+services:
+  api:
+    container_name: myd_api
+    ports:
+      - 8000:8000
+    build:
+      context: ./
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      DATABASE_NAME: my_universe_doc_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: myuniversedocpwdb
+      SERVER_PORT: 8000
+      IN_DEV: True
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    command: python3 start_uvicorn.py
+
+  db:
+    image: postgres:18
+    restart: always
+    container_name: myd_db
+    environment:
+      POSTGRES_DB: my_universe_doc_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: myuniversedocpwdb
+    volumes:
+      - db-data:/var/lib/postgresql
+      - ./src/data:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db-data:
+
+

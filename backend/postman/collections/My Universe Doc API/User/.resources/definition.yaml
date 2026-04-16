@@ -1,0 +1,4 @@
+$kind: collection
+name: 'User'
+description: 'User authentication and profile routes.'
+order: 1000

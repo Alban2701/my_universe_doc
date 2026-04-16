@@ -2,7 +2,7 @@ import React, { type FormEventHandler, JSX } from "react";
 import type { InputInterface } from "./Input";
 import Input from "./Input";
 
-function BaseForm({
+export default function BaseForm({
 	title,
 	submitTitle,
 	onSubmit,
@@ -19,12 +19,26 @@ function BaseForm({
 				<h1 className="text-3xl text-center border-b mb-5">{title}</h1>
 				<form action="/" onSubmit={onSubmit} className="flex flex-col p-2">
 					{inputs.map((i) => {
-						return Input(i);
+						return (
+							<div
+								key={i.name}
+								className="my-2 rounded-md border border-gray-400 shadow inset-shadow-sm inset-shadow-black/50 justify-items-center"
+							>
+								<Input
+									key={i.name}
+									type={i.type}
+									name={i.name}
+									placeholder={i.placeholder}
+									required={i.required}
+									onChange={i.onChange}
+								/>
+							</div>
+						);
 					})}
 					<div className="flex justify-center m-3">
 						<button
 							type="submit"
-							className="cursor-pointer bg-blue-600 text-white font-medium min-w-3xs px-6 py-3 rounded-lg transition max-w-3xs mt-7  hover:bg-blue-800 active:inset-shadow-sm/70"
+							className="cursor-pointer bg-blue-600 text-white font-medium min-w-3xs px-6 py-3 rounded-lg transition max-w-3xs my-2 hover:bg-blue-800 active:inset-shadow-sm/70"
 						>
 							{submitTitle}
 						</button>
@@ -34,5 +48,3 @@ function BaseForm({
 		</span>
 	);
 }
-
-export default BaseForm;

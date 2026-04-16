@@ -22,6 +22,7 @@ class DbConnection():
         self.db_username = os.getenv("POSTGRES_USER")
         self.password = os.getenv("POSTGRES_PASSWORD")
         self.conninfo = f"host={self.host} port={self.port} dbname={self.db_name} user={self.db_username} password={self.password}"
+        self.pool = None
 
     async def connect(self):
         """
@@ -34,6 +35,9 @@ class DbConnection():
             max_size=10,
             timeout=30,
         )
+        print("Connection pool successfully initialised")
+        print(f"Pool initialisé : {self.pool}")  # Doit afficher <AsyncConnectionPool ...>
+        print(f"ID du pool : {id(self.pool)}")  # Doit être le même partout
         return
     
     async def close(self):
@@ -42,6 +46,7 @@ class DbConnection():
         
         """
         await self.pool.close()
+        print("Connection pool closed")
         return
     
     
@@ -61,11 +66,11 @@ class DbConnection():
                     
                     await conn.commit()
                     return None
-                except Exception:
+                except Exception as e:
                     await conn.rollback()
-                    raise
+                    raise RuntimeError(f"SQL Error: {str(e)}")
     
-db = DbConnection()
+_db = DbConnection()
 
 def get_db() -> DbConnection:
-    return db
+    return _db
