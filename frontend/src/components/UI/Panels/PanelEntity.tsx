@@ -77,11 +77,11 @@ function PanelEntity({
 				))}
 			</ul>
 			<div className="place-self-center mt-auto mb-5 p-2 border-t">
-				<CreateEntity
+				{/* <CreateEntity
 					onEntityCreated=}}
 					universeId={0}
 					parentId={undefined}
-				></CreateEntity>
+				></CreateEntity> */}
 			</div>
 		</div>
 	);
