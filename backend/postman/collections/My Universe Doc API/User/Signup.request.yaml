@@ -1,5 +1,5 @@
 $kind: http-request
-name: UserRoot
+name: Signup
 url: ""
 method: GET
 order: 1776377107759

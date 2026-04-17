@@ -1,0 +1,10 @@
+$kind: http-request
+name: patch
+url: "{{userRoute}}/1"
+method: PATCH
+headers:
+  Cookie: session_token=1L7dac11G395a6hJvZWgymL4uEvQfCjKrUrNActVPS8
+body:
+  type: json
+  content: ""
+order: 3973903131663455
