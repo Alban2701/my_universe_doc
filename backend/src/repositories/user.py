@@ -1,3 +1,4 @@
+import traceback
 from typing import Optional
 
 from models.user import User, InputUser, PartialUser, UserToken
@@ -13,7 +14,7 @@ class UserRepository(BaseRepository):
         super().__init__()
         self.session_token_repository = session_token_repository
 
-    async def register(self, user: InputUser) -> User:
+    async def register(self, user: InputUser) -> PartialUser:
         """
         register a new user in the database
         
@@ -42,7 +43,8 @@ class UserRepository(BaseRepository):
         Returns:
         User: the user get
         """
-        sql = "SELECT * from users WHERE id = %(id)s"
+        sql = "SELECT id, email, username, bio, picture, created_at, updated_at"
+        " FROM users WHERE id = %(id)s"
         rows = await self.db.execute(sql, {"id": id})
         returned_user = PartialUser.model_validate(rows[0])
         return returned_user
@@ -129,21 +131,24 @@ class UserRepository(BaseRepository):
             return None
         return rows[0]
     
-    async def patch_user(self, user_id: int, user_patch: PartialUser) -> User | None:
+    async def patch_user(self, user_id: int, user_patch: PartialUser) -> PartialUser | None:
         sql = ("UPDATE users SET "
-            "email = COALESCE(%(email)s, email)"
-            "password = COALESCE(%(password)s, password)"
-            "bio = COALESCE(%(bio)s, bio)"
-            "picture = COALESCE(%(picture)s, picture)"
-            "updated_at = NOW()"
+            "email = COALESCE(%(email)s, email), "
+            "password = COALESCE(%(password)s, password), "
+            "bio = COALESCE(%(bio)s, bio), "
+            "picture = COALESCE(%(picture)s, picture), "
+            "updated_at = NOW() "
             "WHERE id = %(id)s "
-            "RETURNING *"
+            "RETURNING id, username, email, bio"
             )
         model_patch = user_patch.model_dump()
         model_patch["id"] = user_id
-        rows = self.db.execute(sql, model_patch)
+        print(model_patch)
+        rows = await self.db.execute(sql, model_patch)
+        print(f"rows: {rows}")
         if not rows:
             return None
-        returned_user = User.model_validate(rows[0])
+        returned_user = PartialUser.model_validate(rows[0])
+            
         return returned_user
 

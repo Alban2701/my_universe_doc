@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr
+from datetime import datetime
 
 
 class User(BaseModel):
@@ -8,6 +9,8 @@ class User(BaseModel):
     username: str
     bio: str | None = None
     picture: bytes | None = None
+    created_at: datetime
+    updated_at: datetime | None = None
 
 class InputUser(BaseModel):
     email: EmailStr
@@ -23,6 +26,8 @@ class PartialUser(BaseModel):
     username: str | None = None
     bio: str | None = None
     picture: bytes | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 class LoginUser(BaseModel):
     email: EmailStr

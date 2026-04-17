@@ -1,3 +1,5 @@
+import traceback
+
 from fastapi import HTTPException, status
 from typing import Optional
 
@@ -70,6 +72,7 @@ class UserController:
         try:
             return await self.user_service.patch_user(user_id, user_patch)
         except Exception as e:
+            print(traceback.format_exc())
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
     async def get_user_with_session_token(self, token_value) -> UserToken | None:

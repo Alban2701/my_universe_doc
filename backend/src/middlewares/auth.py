@@ -30,6 +30,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return await call_next(req)
         
         session_token = req.cookies.get("session_token")
+        print(session_token)
         if not session_token:
             res = JSONResponse(
                 status_code=401,

@@ -58,9 +58,9 @@ async def me(req: Request):
 @user_router.get("/logout", status_code=status.HTTP_200_OK)
 async def logout(request: Request):
     try:
-        user = PartialUser.model_validate(request.state.user)
+        user: UserToken = request.state.user
         await user_controller.logout(user.id)
-        response = Response({"message": "logout successful"}, status_code=status.HTTP_200_OK)
+        response = Response(status_code=status.HTTP_200_OK)
         response.delete_cookie('session_token', httponly=True, samesite="lax", secure=False)
         return response
     except HTTPException:
@@ -70,13 +70,15 @@ async def logout(request: Request):
         print(traceback.format_exc())
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
-@user_router.post("/patch/myself", status_code=status.HTTP_200_OK)
-async def patch_myself(req: Request, user_patch: PartialUser) -> User:
+@user_router.patch("/myself", status_code=status.HTTP_200_OK)
+async def patch_myself(req: Request, user_patch: PartialUser) -> PartialUser:
     try:
         user: UserToken = req.state.user
         patched_user = await user_controller.patch_user(user.id, user_patch)
         if patched_user is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user not found with id {user.id}")
+        return patched_user
+    
     except HTTPException:
         print(traceback.format_exc())
         raise
@@ -85,12 +87,14 @@ async def patch_myself(req: Request, user_patch: PartialUser) -> User:
         print(traceback.format_exc())
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
-@user_router.post("/patch/{user_id}", status_code=status.HTTP_200_OK)
-async def patch_user(user_id: int, user_patch: PartialUser) -> User:
+@user_router.patch("/{user_id}", status_code=status.HTTP_200_OK)
+async def patch_user(user_id: int, user_patch: PartialUser) -> PartialUser:
     try:
         patched_user = await user_controller.patch_user(user_id, user_patch)
         if patched_user is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user not found with id {user_id}")
+        return patched_user
+    
     except HTTPException:
         print(traceback.format_exc())
         raise
