@@ -120,8 +120,8 @@ class UserRepository(BaseRepository):
         """
         
         sql = ("SELECT admin_role FROM user_universe "
-            "WHERE user_id= %{user_id}s "
-            "AND universe_id= %{universe_id}s")
+            "WHERE user_id=%(user_id)s "
+            "AND universe_id=%(universe_id)s")
         params = {
             "user_id": user_id,
             "universe_id": universe_id
