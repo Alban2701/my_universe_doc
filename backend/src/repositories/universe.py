@@ -110,6 +110,6 @@ class UniverseRepository(BaseRepository):
         Returns:
         bool: True if deleted, False otherwise
         """
-        sql = "DELETE FROM universe WHERE id = %(id)s RETURNING id"
+        sql = "DELETE FROM universe WHERE id = %(id)s RETURNING *"
         rows = await self.db.execute(sql, {"id": universe_id})
-        return bool(rows)
+        return Universe.model_validate(rows[0])
