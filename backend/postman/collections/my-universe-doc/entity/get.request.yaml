@@ -1,0 +1,6 @@
+$kind: http-request
+url: http://localhost:8000/entity/
+method: GET
+headers:
+  session_token: sNKn6wjT5IjipJcJphCGWr51MHxCjlfr-YW1bkufLok
+order: 1000

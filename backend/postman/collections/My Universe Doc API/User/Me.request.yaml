@@ -1,0 +1,5 @@
+$kind: http-request
+name: Me
+url: "{{userRoute}}/me"
+method: GET
+order: 4016053333116675

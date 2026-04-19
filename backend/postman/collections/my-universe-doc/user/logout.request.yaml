@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{user_url}}/logout"
+method: GET
+headers:
+  Cookie: session=DcA7cBqRgnBtBQS8NsHHZL9Y-C_TsHjOxVIZDR0LjEE
+order: 5000

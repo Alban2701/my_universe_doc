@@ -1,5 +1,18 @@
 $kind: http-request
 name: Signup
-url: ""
-method: GET
+url: "{{userRoute}}/signup"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"email\": \"antonin@mail.com\",\r
+
+    \    \"password\": \"antonin\",\r
+
+    \    \"username\": \"Antonin\",\r
+
+    \    \"bio\": \"Super Archi 2\"\r
+
+    }"
 order: 1776377107759

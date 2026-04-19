@@ -1,6 +1,5 @@
 $kind: http-request
-name: Login
-url: "{{userRoute}}/login"
+url: "{{user_url}}/login"
 method: POST
 body:
   type: json
@@ -11,4 +10,4 @@ body:
     \    \"password\": \"azer\"\r
 
     }"
-order: 466546480813121
+order: 2000

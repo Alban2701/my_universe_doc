@@ -1,10 +1,9 @@
 $kind: http-request
-name: patch
-url: "{{userRoute}}/1"
+url: "{{user_url}}/1"
 method: PATCH
 headers:
   Cookie: session_token=1L7dac11G395a6hJvZWgymL4uEvQfCjKrUrNActVPS8
 body:
   type: json
-  content: "{\r\n    \"password\": \"alban\"\r\n}"
-order: 3973903131663455
+  content: "{\r\n    \"password\": \"azer\"\r\n}"
+order: 4000
