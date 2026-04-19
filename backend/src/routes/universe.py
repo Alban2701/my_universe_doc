@@ -120,7 +120,7 @@ async def get_universe_entities(
         entities = await universe_controller.get_universe_entities(user, universe_id)
         return entities
     except HTTPException:
-        raise  # Relance l'exception HTTP existante
+        raise
     except Exception as e:
         print(e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
