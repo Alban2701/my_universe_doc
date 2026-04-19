@@ -43,8 +43,8 @@ class UserRepository(BaseRepository):
         Returns:
         User: the user get
         """
-        sql = "SELECT id, email, username, bio, picture, created_at, updated_at"
-        " FROM users WHERE id = %(id)s"
+        sql = ("SELECT id, email, username, bio, picture, created_at, updated_at"
+        " FROM users WHERE id = %(id)s")
         rows = await self.db.execute(sql, {"id": id})
         returned_user = PartialUser.model_validate(rows[0])
         return returned_user
@@ -139,7 +139,7 @@ class UserRepository(BaseRepository):
             "picture = COALESCE(%(picture)s, picture), "
             "updated_at = NOW() "
             "WHERE id = %(id)s "
-            "RETURNING id, username, email, bio"
+            "RETURNING id, username, email, bio, created_at, updated_at"
             )
         model_patch = user_patch.model_dump()
         model_patch["id"] = user_id
