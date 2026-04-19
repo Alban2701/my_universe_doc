@@ -36,6 +36,19 @@ async def get_all_universes() -> List[Universe]:
     except Exception as e:
         print(e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@universe_router.get("/my-universes", status_code=status.HTTP_200_OK)
+async def update_universe(req: Request) -> List[Universe]:
+    """
+    Returns all universes created by the user
+    """
+    user: UserToken = req.state.user
+    try:
+        universes = await universe_controller.get_universes_by_creator(user.id)
+        return universes
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @universe_router.get("/{universe_id}", status_code=status.HTTP_200_OK)
 async def get_universe_by_id(universe_id: int) -> Universe:
@@ -56,19 +69,6 @@ async def update_universe(user_id: int) -> List[Universe]:
     """
     try:
         universes = await universe_controller.get_universes_by_creator(user_id)
-        return universes
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-@universe_router.get("/my-universes", status_code=status.HTTP_200_OK)
-async def update_universe(req: Request) -> List[Universe]:
-    """
-    Returns all universes created by the user
-    """
-    user: UserToken = req.state.user
-    try:
-        universes = await universe_controller.get_universes_by_creator(user.id)
         return universes
     except Exception as e:
         print(e)
