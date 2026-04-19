@@ -3,7 +3,9 @@ from repositories.user import UserRepository
 from repositories.session_token import SessionTokenRepository
 from pwdlib import PasswordHash
 from fastapi import HTTPException, status
-from typing import Optional
+from typing import Dict, Optional
+
+from src.models.enums import UserUniverseRole
 
 class UserService:
     def __init__(self, user_repository: UserRepository, session_token_repository: SessionTokenRepository):
@@ -118,7 +120,7 @@ class UserService:
         """
         return await self.user_repository.get_user_by_email(email)
 
-    async def get_user_admin_rights(self, user_id: int, universe_id: int) -> Optional[str]:
+    async def get_user_admin_rights(self, user_id: int, universe_id: int) -> Optional[Dict[str, UserUniverseRole]]:
         """
         Get the admin role of a user in a specific universe.
 
@@ -127,7 +129,7 @@ class UserService:
         - universe_id: the id of the universe
 
         Returns:
-        str or None: the admin role if exists, None otherwise
+        UserUniverseRole or None: the admin role if exists, None otherwise
         """
         return await self.user_repository.get_user_admin_rights(user_id, universe_id)
     

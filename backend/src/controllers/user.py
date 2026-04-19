@@ -1,8 +1,9 @@
 import traceback
 
 from fastapi import HTTPException, status
-from typing import Optional
+from typing import Dict, Optional
 
+from src.models.enums import UserUniverseRole
 from src.models.user import InputUser, LoginUser, PartialUser, User, UserToken
 from src.services.user import UserService
 
@@ -56,7 +57,7 @@ class UserController:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-    async def get_user_admin_rights(self, user_id: int, universe_id: int) -> Optional[str]:
+    async def get_user_admin_rights(self, user_id: int, universe_id: int) -> Optional[Dict[str, UserUniverseRole]]:
         try:
             return await self.user_service.get_user_admin_rights(user_id, universe_id)
         except Exception as e:
