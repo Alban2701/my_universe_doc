@@ -67,7 +67,7 @@ class UniverseRepository(BaseRepository):
         Returns:
         List[PartialUniverse]: list of universes
         """
-        sql = "SELECT * FROM universe WHERE creator_id = %(creator_id)s"
+        sql = "SELECT * FROM universe WHERE creator_id=%(creator_id)s"
         rows = await self.db.execute(sql, {"creator_id": creator_id})
         adapter = TypeAdapter(List[PartialUniverse])
         return adapter.validate_python(rows)
