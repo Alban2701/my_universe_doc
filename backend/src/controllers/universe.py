@@ -14,7 +14,7 @@ class UniverseController:
         try:
             return await self.universe_service.create_universe(universe_data, creator_id)
         except HTTPException:
-            raise  # Re-lève les erreurs HTTP existantes
+            raise
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -40,7 +40,7 @@ class UniverseController:
                 )
             return universe
         except HTTPException:
-            raise  # Re-lève les erreurs HTTP existantes
+            raise
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -66,24 +66,24 @@ class UniverseController:
                 )
             return updated_universe
         except HTTPException:
-            raise  # Re-lève les erreurs HTTP existantes
+            raise
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=str(e)
             )
 
-    async def delete_universe(self, universe_id: int) -> bool:
+    async def delete_universe(self, universe_id: int) -> Universe:
         try:
-            success = await self.universe_service.delete_universe(universe_id)
-            if not success:
+            deleted_universe = await self.universe_service.delete_universe(universe_id)
+            if not deleted_universe:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Universe not found with the provided Id: {universe_id}"
                 )
-            return success
+            return deleted_universe
         except HTTPException:
-            raise  # Re-lève les erreurs HTTP existantes
+            raise 
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -98,7 +98,7 @@ class UniverseController:
         try:
             return await self.universe_service.get_universe_entities(user, universe_id)
         except HTTPException:
-            raise  # Re-lève les erreurs HTTP existantes
+            raise
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
