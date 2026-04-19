@@ -38,7 +38,7 @@ async def get_all_universe() -> List[Universe]:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @universe_router.get("/{universe_id}", status_code=status.HTTP_200_OK)
-async def get_all_universe(universe_id: int) -> Universe:
+async def get_universe_by_id(universe_id: int) -> Universe:
     """
     Returns the universe with the provided id
     """
