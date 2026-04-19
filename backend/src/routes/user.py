@@ -104,11 +104,11 @@ async def patch_user(user_id: int, user_patch: PartialUser) -> PartialUser:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
 
-@user_router.get("is-superadmin-in/{universe_id}", status_code=status.HTTP_200_OK)
+@user_router.get("/is-superadmin-in/{universe_id}", status_code=status.HTTP_200_OK)
 async def is_superadmin_in(universe_id: int, req: Request):
     try: 
         user: UserToken = req.state.user
-        await user_controller.get_user_admin_rights(user.id, universe_id)
+        return await user_controller.get_user_admin_rights(user.id, universe_id)
     except HTTPException:
         print(traceback.format_exc())
         raise
