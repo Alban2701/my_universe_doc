@@ -26,7 +26,7 @@ async def create_universe(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @universe_router.get("/", status_code=status.HTTP_200_OK)
-async def get_all_universe() -> List[Universe]:
+async def get_all_universes() -> List[Universe]:
     """
     Returns all universes
     """
