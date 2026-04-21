@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from src.utils.unoptional import unoptional
 from utils.token_creator import create_token
 from db_connection import DbConnection
 from models.session_token import SessionToken
@@ -30,7 +31,7 @@ class SessionTokenRepository(BaseRepository):
             "user_id": user_id,
             "expires_at": expires_at,
         }
-        rows = await self.db.execute(sql, params)
+        rows = unoptional(await self.db.execute(sql, params))
         returned_session = SessionToken.model_validate(rows[0])
         return returned_session
 
@@ -47,7 +48,7 @@ class SessionTokenRepository(BaseRepository):
         sql = ("SELECT * from session_token WHERE user_id = %(user_id)s;")
         params = {"user_id": user_id}
         rows = await self.db.execute(sql, params)
-        if len(rows) == 0:
+        if not rows:
             raise errors.SessionNotFoundError
 
         session = SessionToken.model_validate(rows[0])
