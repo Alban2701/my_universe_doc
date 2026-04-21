@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import os
 from typing import Any, LiteralString, Sequence, Mapping
 from psycopg.rows import dict_row, DictRow
-from backend.src.utils.unoptional import unoptional
+from src.utils.unoptional import unoptional
 
 
 class DbConnection:
