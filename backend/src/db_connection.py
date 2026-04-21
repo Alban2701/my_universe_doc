@@ -16,7 +16,7 @@ class DbConnection():
 
     def __init__(self):
         load_dotenv()
-        self.port = os.getenv("POSTGRES_PORT", 5432)
+        self.port = int(os.getenv("POSTGRES_PORT", 5432))
         self.host = os.getenv("POSTGRES_HOST")
         self.db_name = os.getenv("DATABASE_NAME")
         self.db_username = os.getenv("POSTGRES_USER")
