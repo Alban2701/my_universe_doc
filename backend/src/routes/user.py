@@ -108,7 +108,7 @@ async def patch_user(user_id: int, user_patch: PartialUser) -> PartialUser:
 async def is_superadmin_in(universe_id: int, req: Request):
     try: 
         user: UserToken = req.state.user
-        return await user_controller.get_user_admin_rights(user.id, universe_id)
+        return await user_controller.is_super_admin_in(user.id, universe_id)
     except HTTPException:
         print(traceback.format_exc())
         raise

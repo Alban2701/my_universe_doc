@@ -21,7 +21,7 @@ class UserController:
         try:
             return await self.user_service.login(credentials)
         except HTTPException:
-            raise  # Re-lève l'erreur HTTP existante
+            raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
@@ -35,7 +35,7 @@ class UserController:
         try:
             return await self.user_service.get_current_user(token_value)
         except HTTPException:
-            raise  # Re-lève l'erreur HTTP existante
+            raise
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
@@ -57,7 +57,7 @@ class UserController:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-    async def get_user_admin_rights(self, user_id: int, universe_id: int) -> Optional[Dict[str, UserUniverseRole]]:
+    async def get_user_admin_rights(self, user_id: int, universe_id: int) -> Optional[UserUniverseRole]:
         try:
             return await self.user_service.get_user_admin_rights(user_id, universe_id)
         except Exception as e:
@@ -69,7 +69,7 @@ class UserController:
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
-    async def patch_user(self, user_id: int, user_patch: PartialUser) -> User | None:
+    async def patch_user(self, user_id: int, user_patch: PartialUser) -> PartialUser | None:
         try:
             return await self.user_service.patch_user(user_id, user_patch)
         except Exception as e:

@@ -6,6 +6,7 @@ from fastapi import HTTPException, status
 from typing import Dict, Optional
 
 from src.models.enums import UserUniverseRole
+from src.utils.unoptional import unoptional
 
 class UserService:
     def __init__(self, user_repository: UserRepository, session_token_repository: SessionTokenRepository):
@@ -43,13 +44,13 @@ class UserService:
         if user is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-        if not self.hasher.verify(credentials.password, user.password):
+        if not self.hasher.verify(credentials.password, unoptional(user.password)):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong password")
 
-        session = await self.session_token_repository.create_session_token(user.id)
+        session = await self.session_token_repository.create_session_token(unoptional(user.id))
         return session.value
     
-    async def patch_user(self, user_id: int, user_patch: PartialUser) -> User | None:
+    async def patch_user(self, user_id: int, user_patch: PartialUser) -> PartialUser | None:
         if user_patch.password:
             user_patch.password = self.hasher.hash(user_patch.password)
 
@@ -78,7 +79,7 @@ class UserService:
         Raises:
         HTTPException: if token is not found or expired
         """
-        return await self.user_repository.get_user_with_session_token(token_value)
+        return unoptional(await self.user_repository.get_user_with_session_token(token_value))
 
     async def is_logged_in(self, user_id: int) -> bool:
         """
@@ -120,7 +121,7 @@ class UserService:
         """
         return await self.user_repository.get_user_by_email(email)
 
-    async def get_user_admin_rights(self, user_id: int, universe_id: int) -> Optional[Dict[str, UserUniverseRole]]:
+    async def get_user_admin_rights(self, user_id: int, universe_id: int) -> Optional[UserUniverseRole]:
         """
         Get the admin role of a user in a specific universe.
 

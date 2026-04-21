@@ -18,7 +18,7 @@ class InputUser(BaseModel):
     username: str
     bio: str | None = None
     picture: bytes | None = None
-
+    
 class PartialUser(BaseModel):
     id: int | None = None
     email: EmailStr | None = None
@@ -38,4 +38,11 @@ class UserToken(BaseModel):
     username: str
     picture: bytes | None = None
 
-
+class ReturnedUser(BaseModel):
+    id: int
+    email: EmailStr
+    username: str
+    bio: str | None = None
+    picture: bytes | None = None
+    created_at: datetime
+    updated_at: datetime | None = None
