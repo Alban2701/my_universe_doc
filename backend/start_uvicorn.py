@@ -2,6 +2,8 @@ import asyncio
 import platform
 import traceback
 
+from src.utils.unoptional import unoptional
+
 if platform.system() == "Windows":  # Event Loop for compatibility between Windows and psycopg3
     asyncio.set_event_loop_policy(
             asyncio.WindowsSelectorEventLoopPolicy()
@@ -13,7 +15,7 @@ from dotenv import load_dotenv
 import sys
 from pathlib import Path
 load_dotenv()
-port = int(os.getenv("SERVER_PORT"))
+port = int(unoptional(os.getenv("SERVER_PORT")))
 
 ROOT = Path(__file__).resolve().parent
 sys.path.append(str(ROOT / "src"))
