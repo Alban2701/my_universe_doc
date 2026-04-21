@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
-from models.text_block import InputTextBlock, PartialTextBlock
+from models.text_block import InputTextBlock, PartialTextBlock, TextBlock
 from controllers.text_block import TextBlockController
 from factory import Factory, get_factory
 
@@ -12,7 +12,7 @@ text_block_controller = factory.text_block_controller
 async def create_text_block(
     req: Request,
     text_block_data: InputTextBlock,
-) -> PartialTextBlock:
+) -> TextBlock:
     """
     Create a new text block
     """
@@ -101,30 +101,6 @@ async def delete_text_block(text_block_id: int) -> Response:
                 detail=f"Text block not found with id {text_block_id}"
             )
         return Response(status_code=status.HTTP_204_NO_CONTENT)
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
-
-@text_block_router.post("/swap", status_code=status.HTTP_200_OK)
-async def swap_text_block_positions(
-    text_block_id_1: int,
-    text_block_id_2: int,
-) -> bool:
-    """
-    Swap the positions of two text blocs
-    """
-    try:
-        success = await text_block_controller.swap_text_block_positions(text_block_id_1, text_block_id_2)
-        if not success:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="One or both text blocks not found"
-            )
-        return success
     except HTTPException:
         raise
     except Exception as e:

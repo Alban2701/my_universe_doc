@@ -1,13 +1,13 @@
 from fastapi import HTTPException, status
 from typing import List, Optional
-from src.models.text_block import InputTextBlock, PartialTextBlock
+from src.models.text_block import InputTextBlock, PartialTextBlock, TextBlock
 from src.services.text_block import TextBlockService
 
 class TextBlockController:
     def __init__(self, text_block_service: TextBlockService):
         self.text_block_service = text_block_service
 
-    async def create_text_block(self, text_block: InputTextBlock, creator_id: int) -> PartialTextBlock:
+    async def create_text_block(self, text_block: InputTextBlock, creator_id: int) -> TextBlock:
         try:
             return await self.text_block_service.create_text_block(text_block, creator_id)
         except HTTPException:
@@ -63,15 +63,15 @@ class TextBlockController:
                 detail=f"Failed to update text block: {str(e)}"
             )
 
-    async def delete_text_block(self, text_block_id: int) -> bool:
+    async def delete_text_block(self, text_block_id: int) -> TextBlock:
         try:
-            success = await self.text_block_service.delete_text_block(text_block_id)
-            if not success:
+            tb = await self.text_block_service.delete_text_block(text_block_id)
+            if not tb:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Text block with id {text_block_id} not found"
                 )
-            return success
+            return tb
         except HTTPException:
             raise
         except Exception as e:

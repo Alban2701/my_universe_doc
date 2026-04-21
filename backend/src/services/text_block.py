@@ -1,5 +1,5 @@
 from typing import List, Optional
-from src.models.text_block import InputTextBlock, PartialTextBlock
+from src.models.text_block import InputTextBlock, PartialTextBlock, TextBlock
 from fastapi import HTTPException, status
 
 from src.repositories.text_block import TextBlockRepository
@@ -8,7 +8,7 @@ class TextBlockService:
     def __init__(self, text_block_repository: TextBlockRepository):
         self.text_block_repository = text_block_repository
 
-    async def create_text_block(self, text_block: InputTextBlock, creator_id: int) -> PartialTextBlock:
+    async def create_text_block(self, text_block: InputTextBlock, creator_id: int) -> TextBlock:
         """
         Create a new text block in the database
 
@@ -90,7 +90,7 @@ class TextBlockService:
                 detail=f"Failed to update text block: {str(e)}"
             )
 
-    async def delete_text_block(self, text_block_id: int) -> bool:
+    async def delete_text_block(self, text_block_id: int) -> Optional[TextBlock]:
         """
         Delete a text block from the database
 
@@ -101,15 +101,8 @@ class TextBlockService:
         bool: True if deleted, False otherwise
         """
         try:
-            success = await self.text_block_repository.delete_text_block(text_block_id)
-            if not success:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Text block with id {text_block_id} not found"
-                )
-            return success
-        except HTTPException:
-            raise
+            tb = await self.text_block_repository.delete_text_block(text_block_id)
+            return tb
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

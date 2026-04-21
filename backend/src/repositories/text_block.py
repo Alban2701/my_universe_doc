@@ -1,9 +1,12 @@
+from pydantic import TypeAdapter
+
 from src.models.text_block import InputTextBlock, PartialTextBlock, TextBlock
 from typing import List, Optional
 from src.repositories.base_repository import BaseRepository
+from src.utils.unoptional import unoptional
 
 class TextBlockRepository(BaseRepository):
-    async def create_text_block(self, text_block: InputTextBlock, creator_id: int) -> PartialTextBlock:
+    async def create_text_block(self, text_block: InputTextBlock, creator_id: int) -> TextBlock:
         """
         Create a new text block in the database
 
@@ -30,8 +33,8 @@ class TextBlockRepository(BaseRepository):
 
         await self.db.execute(sql_update, model_tb)
 
-        rows = await self.db.execute(sql_insert, model_tb)
-        returned_tb = PartialTextBlock.model_validate(rows[0])
+        rows = unoptional(await self.db.execute(sql_insert, model_tb))
+        returned_tb = TextBlock.model_validate(rows[0])
         return returned_tb
     
     async def get_text_block_by_id(self, text_block_id: int) -> Optional[PartialTextBlock]:
@@ -63,7 +66,8 @@ class TextBlockRepository(BaseRepository):
         """
         sql = "SELECT * FROM text_blocks WHERE entity_id = %(entity_id)s"
         rows = await self.db.execute(sql, {"entity_id": entity_id})
-        return [PartialTextBlock.model_validate(row) for row in rows]
+        adapter = TypeAdapter(List[PartialTextBlock])
+        return adapter.validate_python(rows)
 
     async def update_text_block(self, text_block_id: int, text_block_patch: PartialTextBlock) -> Optional[PartialTextBlock]:
         """
