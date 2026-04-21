@@ -1,9 +1,13 @@
-from src.models.commit import Commit, InputCommit, PartialCommit, CommitsStatus
+from pydantic import TypeAdapter
+
+from src.models.commit import Commit, InputCommit, PartialCommit
+from src.models.enums import CommitsStatus
 from typing import List, Optional
 from src.repositories.base_repository import BaseRepository
+from src.utils.unoptional import unoptional
 
 class CommitRepository(BaseRepository):
-    async def create_commit(self, commit: InputCommit, creator_id: int) -> PartialCommit:
+    async def create_commit(self, commit: InputCommit, creator_id: int) -> Commit:
         """
         Create a new commit in the database
 
@@ -12,7 +16,7 @@ class CommitRepository(BaseRepository):
         - creator_id: id of the user creating the commit
 
         Returns:
-        PartialCommit: the created commit
+        Commit: the created commit
         """
         sql = (
             "INSERT INTO commits (message, creator_id, content, status, admin_comment) "
@@ -23,8 +27,8 @@ class CommitRepository(BaseRepository):
         model_commit["creator_id"] = creator_id
         model_commit["status"] = CommitsStatus.pending
         model_commit["admin_comment"] = None
-        rows = await self.db.execute(sql, model_commit)
-        returned_commit = PartialCommit.model_validate(rows[0])
+        rows = unoptional(await self.db.execute(sql, model_commit))
+        returned_commit = Commit.model_validate(rows[0])
         return returned_commit
 
     async def get_commit_by_id(self, commit_id: int) -> Optional[PartialCommit]:
@@ -55,8 +59,9 @@ class CommitRepository(BaseRepository):
         List[PartialCommit]: list of commits
         """
         sql = "SELECT * FROM commits WHERE creator_id = %(creator_id)s ORDER BY created_at DESC"
-        rows = await self.db.execute(sql, {"creator_id": creator_id})
-        return [PartialCommit.model_validate(row) for row in rows]
+        rows = unoptional(await self.db.execute(sql, {"creator_id": creator_id}))
+        adapter = TypeAdapter(List[PartialCommit])
+        return adapter.validate_python(rows)
 
     async def update_commit_status(self, commit_id: int, status: CommitsStatus, admin_comment: str | None) -> Optional[PartialCommit]:
         """

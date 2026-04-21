@@ -23,7 +23,7 @@ class EntityService:
                 detail=f"Failed to get all entities: {str(e)}"
             )
 
-    async def create_entity(self, entity: InputEntity, creator_id: int, universe_id: int) -> PartialEntity:
+    async def create_entity(self, entity: InputEntity, creator_id: int, universe_id: int) -> Entity:
         """
         Create a new entity in the database
 
@@ -33,7 +33,7 @@ class EntityService:
         - universe_id: id of the universe where the entity belongs
 
         Returns:
-        PartialEntity: the created entity
+        Entity: the created entity
         """
         try:
             return await self.entity_repository.create_entity(entity, creator_id, universe_id)

@@ -1,9 +1,12 @@
+from pydantic import TypeAdapter
+
 from models.comments import Comment, InputComment, PartialComment
 from typing import List, Optional
 from src.repositories.base_repository import BaseRepository
+from src.utils.unoptional import unoptional
 
 class CommentRepository(BaseRepository):
-    async def create_comment(self, comment: InputComment, creator_id: int) -> PartialComment:
+    async def create_comment(self, comment: InputComment, creator_id: int) -> Comment:
         """
         Create a new comment in the database
 
@@ -12,7 +15,7 @@ class CommentRepository(BaseRepository):
         - creator_id: id of the user creating the comment
 
         Returns:
-        PartialComment: the created comment
+        Comment: the created comment
         """
         sql = (
             "INSERT INTO comments (content, creator_id, entity_id, text_block_id, comment_id) "
@@ -21,8 +24,8 @@ class CommentRepository(BaseRepository):
         )
         model_comment = comment.model_dump()
         model_comment["creator_id"] = creator_id
-        rows = await self.db.execute(sql, model_comment)
-        returned_comment = PartialComment.model_validate(rows[0])
+        rows = unoptional(await self.db.execute(sql, model_comment))
+        returned_comment = Comment.model_validate(rows[0])
         return returned_comment
 
     async def get_comment_by_id(self, comment_id: int) -> Optional[PartialComment]:
@@ -54,7 +57,8 @@ class CommentRepository(BaseRepository):
         """
         sql = "SELECT * FROM comments WHERE entity_id = %(entity_id)s ORDER BY created_at ASC"
         rows = await self.db.execute(sql, {"entity_id": entity_id})
-        return [PartialComment.model_validate(row) for row in rows]
+        adapter = TypeAdapter(List[PartialComment])
+        return adapter.validate_python(rows)
 
     async def get_comments_by_text_block(self, text_block_id: int) -> List[PartialComment]:
         """
@@ -68,7 +72,8 @@ class CommentRepository(BaseRepository):
         """
         sql = "SELECT * FROM comments WHERE text_block_id = %(text_block_id)s ORDER BY created_at ASC"
         rows = await self.db.execute(sql, {"text_block_id": text_block_id})
-        return [PartialComment.model_validate(row) for row in rows]
+        adapter = TypeAdapter(List[PartialComment])
+        return adapter.validate_python(rows)
 
     async def update_comment(self, comment_id: int, comment_patch: PartialComment) -> Optional[PartialComment]:
         """

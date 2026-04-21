@@ -18,7 +18,7 @@ class EntityController:
                 detail=f"Failed to get all entities: {str(e)}"
             )
 
-    async def create_entity(self, entity: InputEntity, creator_id: int, universe_id: int) -> PartialEntity:
+    async def create_entity(self, entity: InputEntity, creator_id: int, universe_id: int) -> Entity:
         try:
             return await self.entity_service.create_entity(entity, creator_id, universe_id)
         except HTTPException:

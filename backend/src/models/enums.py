@@ -16,7 +16,7 @@ class InvitationStatus(str, Enum):
     accepted = "accepted"
     rejected = "rejected"
 
-class CommitStatus(str, Enum):
+class CommitsStatus(str, Enum):
     pending = "pending"
     accepted = "accepted"
     rejected = "rejected"

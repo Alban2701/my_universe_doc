@@ -2,6 +2,7 @@ from pydantic import TypeAdapter
 from models.entity import Entity, InputEntity, PartialEntity
 from typing import List, Optional
 from src.repositories.base_repository import BaseRepository
+from src.utils.unoptional import unoptional
 
 class EntityRepository(BaseRepository):
     async def get_all_entities(self) -> List[Entity]:
@@ -16,9 +17,10 @@ class EntityRepository(BaseRepository):
         adapter = TypeAdapter(List[Entity])
         return adapter.validate_python(rows)
 
-    async def create_entity(self, entity: InputEntity, creator_id: int, universe_id: int) -> PartialEntity:
+    async def create_entity(self, entity: InputEntity, creator_id: int, universe_id: int) -> Entity:
         """
-        Create a new entity in the database
+        Create a new entity in the database.
+        If not_discovered_name is not set, then set it up by default as '???'
 
         Parameters:
         - entity: InputEntity with name and optional parent
@@ -26,7 +28,7 @@ class EntityRepository(BaseRepository):
         - universe_id: id of the universe where the entity belongs
 
         Returns:
-        PartialEntity: the created entity
+        Entity: the created entity
         """
         sql = (
             "INSERT INTO entities (name, not_discovered_name, parent, creator_id, universe_id) "
@@ -38,8 +40,8 @@ class EntityRepository(BaseRepository):
         model_entity["universe_id"] = universe_id
         if "not_discovered_name" not in model_entity or model_entity["not_discovered_name"] is None:
             model_entity["not_discovered_name"] = "???"
-        rows = await self.db.execute(sql, model_entity)
-        returned_entity = PartialEntity.model_validate(rows[0])
+        rows = unoptional(await self.db.execute(sql, model_entity))
+        returned_entity = Entity.model_validate(rows[0])
         return returned_entity
 
     async def get_entity_by_id(self, entity_id: int) -> Optional[PartialEntity]:

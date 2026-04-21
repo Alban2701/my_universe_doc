@@ -1,9 +1,12 @@
+from pydantic import TypeAdapter
+
 from models.invitation import Invitation, InputInvitation, PartialInvitation, InvitationStatus
 from typing import List, Optional
 from src.repositories.base_repository import BaseRepository
+from src.utils.unoptional import unoptional
 
 class InvitationRepository(BaseRepository):
-    async def create_invitation(self, sender_id: int, invitation: InputInvitation) -> PartialInvitation:
+    async def create_invitation(self, sender_id: int, invitation: InputInvitation) -> Invitation:
         """
         Create a new invitation in the database
 
@@ -22,8 +25,8 @@ class InvitationRepository(BaseRepository):
         model_invitation = invitation.model_dump()
         model_invitation["sender_id"] = sender_id
         model_invitation["status"] = InvitationStatus.pending
-        rows = await self.db.execute(sql, model_invitation)
-        returned_invitation = PartialInvitation.model_validate(rows[0])
+        rows = unoptional(await self.db.execute(sql, model_invitation))
+        returned_invitation = Invitation.model_validate(rows[0])
         return returned_invitation
 
     async def get_invitation_by_id(self, invitation_id: int) -> Optional[PartialInvitation]:
@@ -55,7 +58,8 @@ class InvitationRepository(BaseRepository):
         """
         sql = "SELECT * FROM invitations WHERE receiver_id = %(receiver_id)s"
         rows = await self.db.execute(sql, {"receiver_id": receiver_id})
-        return [PartialInvitation.model_validate(row) for row in rows]
+        adapter = TypeAdapter(List[PartialInvitation])
+        return adapter.validate_python(rows)
 
     async def update_invitation_status(self, invitation_id: int, status: InvitationStatus) -> Optional[PartialInvitation]:
         """
