@@ -1,4 +1,4 @@
-from fastapi import Request
+from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 from starlette import status
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -6,6 +6,7 @@ from repositories import user as cuser
 from errors import errors
 from src.factory import get_factory
 from src.models.user import UserToken
+from src.utils.unoptional import unoptional
 
 factory = get_factory()
 user_controller = factory.user_controller
@@ -13,7 +14,7 @@ user_controller = factory.user_controller
 
 class AuthMiddleware(BaseHTTPMiddleware):
 
-    async def dispatch(self, req: Request, call_next):
+    async def dispatch(self, request: Request, call_next) -> Response:
         """
         Check if the user is logged in. 
         """
@@ -26,10 +27,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/openapi.json"
         }
 
-        if req.url.path in public_paths:
-            return await call_next(req)
+        if request.url.path in public_paths:
+            return await call_next(request)
         
-        session_token = req.cookies.get("session_token")
+        session_token = request.cookies.get("session_token")
         print(session_token)
         if not session_token:
             res = JSONResponse(
@@ -39,11 +40,11 @@ class AuthMiddleware(BaseHTTPMiddleware):
             print(res.body)
             return res
         try:
-            user: UserToken = await user_controller.get_user_with_session_token(session_token)
+            user: UserToken = unoptional(await user_controller.get_user_with_session_token(session_token))
             logged_in = await user_controller.is_logged_in(user.id)
             if logged_in:
-                req.state.user = user
-                return await call_next(req)
+                request.state.user = user
+                return await call_next(request)
             
             else:
                 res = JSONResponse(
