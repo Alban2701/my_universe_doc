@@ -30,7 +30,7 @@ class Factory:
 
     def build_services(self):
         self._user_service = UserService(self.user_repository, self.session_repository)
-        self._universe_service = UniverseService(self.universe_repository, self.user_repository)
+        self._universe_service = UniverseService(self.universe_repository, self.user_repository, self.entity_repository)
         self._entity_service = EntityService(self.entity_repository)
         self._text_block_service = TextBlockService(self.text_block_repository)
 
