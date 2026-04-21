@@ -10,7 +10,7 @@ class UniverseController:
     def __init__(self, universe_service: UniverseService):
         self.universe_service = universe_service
 
-    async def create_universe(self, universe_data: InputUniverse, creator_id: int) -> PartialUniverse:
+    async def create_universe(self, universe_data: InputUniverse, creator_id: int) -> Universe:
         try:
             return await self.universe_service.create_universe(universe_data, creator_id)
         except HTTPException:
@@ -30,7 +30,7 @@ class UniverseController:
                 detail=str(e)
             )
 
-    async def get_universe_by_id(self, universe_id: int) -> Universe | None:
+    async def get_universe_by_id(self, universe_id: int) -> Universe:
         try:
             universe = await self.universe_service.get_universe_by_id(universe_id)
             if universe is None:
@@ -47,7 +47,7 @@ class UniverseController:
                 detail=str(e)
             )
 
-    async def get_universes_by_creator(self, creator_id: int) -> List[PartialUniverse]:
+    async def get_universes_by_creator(self, creator_id: int) -> List[Universe]:
         try:
             return await self.universe_service.get_universes_by_creator(creator_id)
         except Exception as e:
@@ -56,7 +56,7 @@ class UniverseController:
                 detail=str(e)
             )
 
-    async def update_universe(self, universe_id: int, universe_patch: PartialUniverse) -> PartialUniverse | None:
+    async def update_universe(self, universe_id: int, universe_patch: PartialUniverse) -> Universe:
         try:
             updated_universe = await self.universe_service.update_universe(universe_id, universe_patch)
             if updated_universe is None:

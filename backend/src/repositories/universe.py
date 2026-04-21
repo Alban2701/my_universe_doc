@@ -1,11 +1,12 @@
 from models.universe import Universe, InputUniverse, PartialUniverse
-from typing import List
+from typing import List, Optional
 from pydantic import TypeAdapter
 from src.models.user import User
 from src.repositories.base_repository import BaseRepository
+from src.utils.unoptional import unoptional
 
 class UniverseRepository(BaseRepository):
-    async def create_universe(self, universe: InputUniverse, creator_id: int) -> PartialUniverse:
+    async def create_universe(self, universe: InputUniverse, creator_id: int) -> Universe:
         """
         Create a new universe in the database
 
@@ -24,8 +25,8 @@ class UniverseRepository(BaseRepository):
         model_universe = universe.model_dump()
         model_universe["creator_id"] = creator_id
         model_universe["version"] = 1
-        rows = await self.db.execute(sql, model_universe)
-        returned_universe = PartialUniverse.model_validate(rows[0])
+        rows = unoptional(await self.db.execute(sql, model_universe))
+        returned_universe = Universe.model_validate(rows[0])
         return returned_universe
 
     async def get_all_universes(self) -> List[Universe]:
@@ -57,7 +58,7 @@ class UniverseRepository(BaseRepository):
         returned_universe = Universe.model_validate(rows[0])
         return returned_universe
 
-    async def get_universes_by_creator(self, creator_id: int) -> List[PartialUniverse]:
+    async def get_universes_by_creator(self, creator_id: int) -> List[Universe]:
         """
         Get all universes created by a user
 
@@ -69,10 +70,10 @@ class UniverseRepository(BaseRepository):
         """
         sql = "SELECT * FROM universe WHERE creator_id=%(creator_id)s"
         rows = await self.db.execute(sql, {"creator_id": creator_id})
-        adapter = TypeAdapter(List[PartialUniverse])
+        adapter = TypeAdapter(List[Universe])
         return adapter.validate_python(rows)
 
-    async def update_universe(self, universe_id: int, universe_patch: PartialUniverse) -> PartialUniverse | None:
+    async def update_universe(self, universe_id: int, universe_patch: PartialUniverse) -> Universe | None:
         """
         Update a universe with new data
 
@@ -97,10 +98,10 @@ class UniverseRepository(BaseRepository):
         rows = await self.db.execute(sql, model_patch)
         if not rows:
             return None
-        returned_universe = PartialUniverse.model_validate(rows[0])
+        returned_universe = Universe.model_validate(rows[0])
         return returned_universe
 
-    async def delete_universe(self, universe_id: int) -> bool:
+    async def delete_universe(self, universe_id: int) -> Optional[Universe]:
         """
         Delete a universe from the database
 
@@ -112,4 +113,6 @@ class UniverseRepository(BaseRepository):
         """
         sql = "DELETE FROM universe WHERE id = %(id)s RETURNING *"
         rows = await self.db.execute(sql, {"id": universe_id})
+        if not rows:
+            return None
         return Universe.model_validate(rows[0])

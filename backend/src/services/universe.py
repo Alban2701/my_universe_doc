@@ -24,7 +24,7 @@ class UniverseService:
         self.user_repository = user_repository
         self.entity_repository = entity_repository
 
-    async def create_universe(self, universe_data: InputUniverse, creator_id: int) -> PartialUniverse:
+    async def create_universe(self, universe_data: InputUniverse, creator_id: int) -> Universe:
         """
         Crée un nouvel univers dans la base de données.
 
@@ -58,7 +58,7 @@ class UniverseService:
         """
         return await self.universe_repository.get_universe_by_id(universe_id)
 
-    async def get_universes_by_creator(self, creator_id: int) -> List[PartialUniverse]:
+    async def get_universes_by_creator(self, creator_id: int) -> List[Universe]:
         """
         Récupère tous les universes créés par un utilisateur.
 
@@ -70,7 +70,7 @@ class UniverseService:
         """
         return await self.universe_repository.get_universes_by_creator(creator_id)
 
-    async def update_universe(self, universe_id: int, universe_patch: PartialUniverse) -> PartialUniverse | None:
+    async def update_universe(self, universe_id: int, universe_patch: PartialUniverse) -> Universe | None:
         """
         Met à jour un univers avec les nouvelles données fournies.
 
@@ -83,7 +83,7 @@ class UniverseService:
         """
         return await self.universe_repository.update_universe(universe_id, universe_patch)
 
-    async def delete_universe(self, universe_id: int) -> Universe:
+    async def delete_universe(self, universe_id: int) -> Optional[Universe]:
         """
         Supprime un univers de la base de données.
 
@@ -95,6 +95,7 @@ class UniverseService:
         """
         return await self.universe_repository.delete_universe(universe_id)
 
+    # TODO think to this function please
     async def get_universe_entities(
         self,
         user: UserToken,
@@ -113,6 +114,7 @@ class UniverseService:
             - Si l'utilisateur est superadmin ou créateur, retourne toutes les entités.
             - Sinon, retourne les entités accessibles en tant qu'admin ou éditeur.
         """
+        raise NotImplementedError
         universe = await self.get_universe_by_id(universe_id)
         if not universe:
             raise HTTPException(
@@ -146,4 +148,8 @@ class UniverseService:
         # Logique pour vérifier si l'utilisateur est superadmin
         # Exemple: Vérifier dans une table user_universe ou similaire
         # À adapter selon ta base de données
-        self.user_repository.get_user_admin_rights(user_id, universe_id)
+        rights = await self.user_repository.get_user_admin_rights(user_id, universe_id)
+        if not rights:
+            return False
+        else:
+            return True
