@@ -157,6 +157,24 @@ class EntityRepository(BaseRepository):
         rows = await self.db.execute(sql, params)
         adapter = TypeAdapter(List[Entity])
         return adapter.validate_python(rows)
+    
+    async def get_firsts_entities_from_a_universe(self, universe_id: int) -> Optional[List[Entity]]:
+        """
+        Gets the entities in a universe which have no parents
+        
+        Parameters:
+        - universe_id (int): id of the universe
+        
+        Returns:
+        List[Entity]: a list of the universe's entities which have no parents
+        """
+        sql = "SELECT * FROM entities WHERE universe_id = %(universe_id)s AND parent is NULL"
+        params = {"universe_id": universe_id}
+        rows = await self.db.execute(sql, params)
+        if rows is None:
+            return None
+        adapter = TypeAdapter(List[Entity])
+        return adapter.validate_python(rows)
 
     async def get_entities_where_user_has_reader_access(self, user_id: int, universe_id: int) -> List[Entity]:
         """

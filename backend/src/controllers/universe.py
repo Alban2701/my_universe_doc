@@ -5,6 +5,7 @@ from src.models.entity import Entity
 from src.models.universe import InputUniverse, PartialUniverse, Universe
 from src.models.user import UserToken
 from src.services.universe import UniverseService
+from src.utils.unoptional import unoptional
 
 class UniverseController:
     def __init__(self, universe_service: UniverseService):
@@ -104,3 +105,10 @@ class UniverseController:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=str(e)
             )
+        
+            
+    async def get_firsts_entities_from_a_universe(self, universe_id: int) -> List[Entity]:
+        try:
+            return unoptional(await self.universe_service.get_firsts_entities_from_a_universe(universe_id), exception_message="universe_id", to_raise="HttpException")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))

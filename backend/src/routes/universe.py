@@ -1,6 +1,7 @@
-from typing import List
+from typing import Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request
+from src.models.entity import Entity
 from src.models.user import UserToken
 from src.models.universe import InputUniverse, PartialUniverse, Universe
 from src.factory import get_factory
@@ -111,7 +112,7 @@ async def delete_universe(universe_id: int) -> Universe:
 async def get_universe_entities(
     req: Request,
     universe_id: int,
-):
+) -> List[Entity] | Dict[str, list[Entity]]:
     """
     Récupère les entités d'un univers accessibles par l'utilisateur.
     """
@@ -125,3 +126,16 @@ async def get_universe_entities(
         print(e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+@universe_router.get("/{universe_id}/first_entities", status_code=200)
+async def get_first_entities(universe_id: int) -> List[Entity]:
+    """
+    Returns the universe's entities which have no parents
+    """
+    try:
+        entities = await universe_controller.get_firsts_entities_from_a_universe(universe_id)
+        return entities
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

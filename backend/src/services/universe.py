@@ -151,3 +151,15 @@ class UniverseService:
             return False
         else:
             return True
+        
+    async def get_firsts_entities_from_a_universe(self, universe_id: int) -> Optional[List[Entity]]:
+        """
+        Gets the entities in a universe which have no parents
+        
+        Parameters:
+        - universe_id (int): id of the universe
+        
+        Returns:
+        List[Entity]: a list of the universe's entities which have no parents
+        """
+        return await self.entity_repository.get_firsts_entities_from_a_universe(universe_id)
