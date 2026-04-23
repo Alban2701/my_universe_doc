@@ -69,7 +69,7 @@ class EntityService:
                 detail=f"Failed to get entity: {str(e)}"
             )
 
-    async def get_entities_by_universe(self, universe_id: int) -> List[PartialEntity]:
+    async def get_entities_by_universe(self, universe_id: int) -> List[Entity]:
         """
         Get all entities belonging to a universe
 
@@ -77,7 +77,7 @@ class EntityService:
         - universe_id (int): id of the universe
 
         Returns:
-        List[PartialEntity]: list of entities
+        List[Entity]: list of entities
         """
         try:
             return await self.entity_repository.get_entities_by_universe(universe_id)
@@ -87,16 +87,16 @@ class EntityService:
                 detail=f"Failed to get entities by universe: {str(e)}"
             )
 
-    async def update_entity(self, entity_id: int, entity_patch: PartialEntity) -> Optional[PartialEntity]:
+    async def update_entity(self, entity_id: int, entity_patch: PartialEntity) -> Optional[Entity]:
         """
         Update an entity with new data
 
         Parameters:
         - entity_id (int): id of the entity to update
-        - entity_patch (PartialEntity): fields to update
+        - entity_patch (Entity): fields to update
 
         Returns:
-        PartialEntity: the updated entity or None if not found
+        Entity: the updated entity or None if not found
         """
         try:
             updated_entity = await self.entity_repository.update_entity(entity_id, entity_patch)
