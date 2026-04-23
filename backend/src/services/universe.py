@@ -15,8 +15,7 @@ class UniverseService:
     def __init__(self,
                 universe_repository: UniverseRepository,
                 user_repository: UserRepository,
-                entity_repository: EntityRepository,
-                user_entity_repository: UserEntityRepository):
+                entity_repository: EntityRepository):
         """
         Initialise le contrôleur pour la gestion des universes.
 
@@ -26,7 +25,6 @@ class UniverseService:
         self.universe_repository = universe_repository
         self.user_repository = user_repository
         self.entity_repository = entity_repository
-        self.user_entity_repository = user_entity_repository
 
     async def create_universe(self, universe_data: InputUniverse, creator_id: int) -> Universe:
         """
