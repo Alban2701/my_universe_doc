@@ -22,7 +22,7 @@ class UserEntityRepository(BaseRepository):
         return adapter.validate_python(rows)
 
     async def get_user_entity_in_universe_by_user_id(
-        self, user_id: int, universe_id: int, role: UserEntityRole
+        self, user_id: int, universe_id: int
     ) -> List[UserEntity]:
         """
         Get the UserEntity rows for one universe
@@ -41,12 +41,10 @@ class UserEntityRepository(BaseRepository):
             "ON ue.entity_id = e.id "
             "WHERE e.universe_id = %(universe_id)s "
             "AND ue.user_id = %(user_id)s "
-            "AND ue.role = %(role)s"
         )
         params = {
             "user_id": user_id,
-            "universe_id": universe_id,
-            "role": role
+            "universe_id": universe_id
         }
         rows = await self.db.execute(sql, params)
         adapter = TypeAdapter(List[UserEntity])
