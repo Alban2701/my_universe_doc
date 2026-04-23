@@ -146,7 +146,7 @@ class UniverseService:
         # Logique pour vérifier si l'utilisateur est superadmin
         # Exemple: Vérifier dans une table user_universe ou similaire
         # À adapter selon ta base de données
-        rights = await self.user_repository.get_user_admin_rights(user_id, universe_id)
+        rights = await self.user_repository.get_user_role(user_id, universe_id)
         if not rights:
             return False
         else:

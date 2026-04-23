@@ -1,9 +1,9 @@
-from typing import TypeVar
+from typing import Type, TypeVar
 
 T = TypeVar("T")
 
 
-def unoptional(elem: T | None, name_elem: str | None = None) -> T:
+def unoptional(elem: T | None, name_elem: str | None = None, to_raise: Type[Exception] = ValueError) -> T:
     """Take an element which can be optional, and raise an error if it is None
 
     Args:

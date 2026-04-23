@@ -132,7 +132,12 @@ class UserService:
         Returns:
         UserUniverseRole or None: the admin role if exists, None otherwise
         """
-        return await self.user_repository.get_user_admin_rights(user_id, universe_id)
+        user_role = await self.user_repository.get_user_role(user_id, universe_id)
+        if user_role is None: 
+            return None
+        
+        rights = user_role.admin_role
+        return rights
     
     async def is_super_admin(self, user_id: int, universe_id: int) -> bool:
         """
@@ -144,8 +149,9 @@ class UserService:
         - user_id: the user's id
         - universe_id: the universe's id
         """
-        rights = await self.user_repository.get_user_admin_rights(user_id, universe_id)
-        if not rights:
+        user_role = unoptional(await self.user_repository.get_user_role(user_id, universe_id))
+        rights = user_role.admin_role
+        if rights == UserUniverseRole.contributor:
             return False
         return True
     

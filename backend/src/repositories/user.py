@@ -1,3 +1,4 @@
+from src.models.relations import UserUniverse
 from src.utils.unoptional import unoptional
 import traceback
 from typing import Optional
@@ -120,9 +121,9 @@ class UserRepository(BaseRepository):
         except Exception as e:
             raise e
 
-    async def get_user_admin_rights(
+    async def get_user_role(
         self, user_id: int, universe_id: int
-    ) -> UserUniverseRole | None:
+    ) -> Optional[UserUniverse]:
         """
         Get the role of the user in an universe if exists
 
@@ -136,7 +137,7 @@ class UserRepository(BaseRepository):
         """
 
         sql = (
-            "SELECT admin_role FROM user_universe "
+            "SELECT * FROM user_universe "
             "WHERE user_id=%(user_id)s "
             "AND universe_id=%(universe_id)s"
         )
@@ -144,7 +145,7 @@ class UserRepository(BaseRepository):
         rows = await self.db.execute(sql, params)
         if rows is None or len(rows) == 0:
             return None
-        return UserUniverseRole(rows[0])
+        return UserUniverse.model_validate(rows[0])
 
     async def patch_user(
         self, user_id: int, user_patch: PartialUser

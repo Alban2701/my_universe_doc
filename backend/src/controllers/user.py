@@ -59,7 +59,9 @@ class UserController:
 
     async def get_user_admin_rights(self, user_id: int, universe_id: int) -> Optional[UserUniverseRole]:
         try:
-            return await self.user_service.get_user_admin_rights(user_id, universe_id)
+            rights = await self.user_service.get_user_admin_rights(user_id, universe_id)
+            if rights is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user_universe not found with user_id = {user_id} and universe_id = {universe_id}")
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
