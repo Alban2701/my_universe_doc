@@ -182,6 +182,34 @@ class EntityRepository(BaseRepository):
         rows = await self.db.execute(sql, params)
         adapter = TypeAdapter(List[Entity])
         return adapter.validate_python(rows)
+    
+    async def get_entities_with_user_role(self, user_id: int, universe_id: int, role: UserEntityRole) -> List[Entity]:
+        """
+        For a universe, access to all entities for which the user is editor
+        
+        Parameters:
+        - user_id (int): the user's id
+        - universe_id (int): the universe the entities must be in
+
+        Returns:
+        List[Entity]: Entities for which the user is editor
+        """
+        sql = (
+            "SELECT e.* FROM entities as e "
+            "JOIN user_entities ue ON ue.entity_id = e.id "
+            "WHERE ue.user_id = %(user_id)s "
+            "AND ue.role = %(role)s"
+            "AND e.universe_id = %(universe_id)s"
+        )
+        params = {
+            "user_id": user_id,
+            "role": role,
+            "universe_id": universe_id
+        }
+
+        rows = await self.db.execute(sql, params)
+        adapter = TypeAdapter(List[Entity])
+        return adapter.validate_python(rows)
 
     async def get_entity_parents(self, entity_id: int) -> List[Entity]:
         """
