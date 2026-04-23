@@ -46,7 +46,7 @@ class EntityController:
                 detail=f"Failed to get entity: {str(e)}"
             )
 
-    async def get_entities_by_universe(self, universe_id: int) -> List[PartialEntity]:
+    async def get_entities_by_universe(self, universe_id: int) -> List[Entity]:
         try:
             return await self.entity_service.get_entities_by_universe(universe_id)
         except HTTPException:
@@ -57,7 +57,7 @@ class EntityController:
                 detail=f"Failed to get entities by universe: {str(e)}"
             )
 
-    async def update_entity(self, entity_id: int, entity_patch: PartialEntity) -> Optional[PartialEntity]:
+    async def update_entity(self, entity_id: int, entity_patch: PartialEntity) -> Entity:
         try:
             updated_entity = await self.entity_service.update_entity(entity_id, entity_patch)
             if updated_entity is None:
