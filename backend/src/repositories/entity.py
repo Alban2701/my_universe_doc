@@ -1,6 +1,7 @@
 from pydantic import TypeAdapter
 from models.entity import Entity, InputEntity, PartialEntity
 from typing import List, Optional
+from src.models.enums import UserEntityRole
 from src.repositories.base_repository import BaseRepository
 from src.utils.unoptional import unoptional
 
@@ -61,7 +62,7 @@ class EntityRepository(BaseRepository):
         returned_entity = PartialEntity.model_validate(rows[0])
         return returned_entity
 
-    async def get_entities_by_universe(self, universe_id: int) -> List[PartialEntity]:
+    async def get_entities_by_universe(self, universe_id: int) -> List[Entity]:
         """
         Get all entities belonging to a universe
 
@@ -69,14 +70,14 @@ class EntityRepository(BaseRepository):
         - universe_id (int): id of the universe
 
         Returns:
-        List[PartialEntity]: list of entities
+        List[Entity]: list of entities
         """
         sql = "SELECT * FROM entities WHERE universe_id = %(universe_id)s"
         rows = await self.db.execute(sql, {"universe_id": universe_id})
-        adapter = TypeAdapter(List[PartialEntity])
+        adapter = TypeAdapter(List[Entity])
         return adapter.validate_python(rows)
 
-    async def update_entity(self, entity_id: int, entity_patch: PartialEntity) -> Optional[PartialEntity]:
+    async def update_entity(self, entity_id: int, entity_patch: PartialEntity) -> Optional[Entity]:
         """
         Update an entity with new data
 
@@ -101,7 +102,7 @@ class EntityRepository(BaseRepository):
         rows = await self.db.execute(sql, model_patch)
         if not rows:
             return None
-        returned_entity = PartialEntity.model_validate(rows[0])
+        returned_entity = Entity.model_validate(rows[0])
         return returned_entity
 
     async def delete_entity(self, entity_id: int) -> bool:
