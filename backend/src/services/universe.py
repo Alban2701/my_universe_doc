@@ -1,5 +1,6 @@
 from typing import List, Optional, Dict
 from models.universe import Universe, InputUniverse, PartialUniverse
+from src.models.enums import UserEntityRole
 from src.repositories.entity import EntityRepository
 from src.repositories.universe import UniverseRepository
 from src.models.user import UserToken
@@ -8,12 +9,14 @@ from src.controllers.entity import EntityController
 from fastapi import HTTPException, status
 
 from src.repositories.user import UserRepository
+from src.repositories.user_entity import UserEntityRepository
 
 class UniverseService:
     def __init__(self,
                 universe_repository: UniverseRepository,
                 user_repository: UserRepository,
-                entity_repository: EntityRepository):
+                entity_repository: EntityRepository,
+                user_entity_repository: UserEntityRepository):
         """
         Initialise le contrôleur pour la gestion des universes.
 
@@ -23,6 +26,7 @@ class UniverseService:
         self.universe_repository = universe_repository
         self.user_repository = user_repository
         self.entity_repository = entity_repository
+        self.user_entity_repository = user_entity_repository
 
     async def create_universe(self, universe_data: InputUniverse, creator_id: int) -> Universe:
         """
@@ -95,7 +99,6 @@ class UniverseService:
         """
         return await self.universe_repository.delete_universe(universe_id)
 
-    # TODO think to this function please
     async def get_universe_entities(
         self,
         user: UserToken,
@@ -112,9 +115,8 @@ class UniverseService:
         Returns:
         list[Entity] | Dict[str, list[Entity]]:
             - Si l'utilisateur est superadmin ou créateur, retourne toutes les entités.
-            - Sinon, retourne les entités accessibles en tant qu'admin ou éditeur.
+            - Sinon, retourne les entités accessibles en tant qu'admin, éditeur ou lecteur.
         """
-        raise NotImplementedError
         universe = await self.get_universe_by_id(universe_id)
         if not universe:
             raise HTTPException(
@@ -122,16 +124,14 @@ class UniverseService:
                 detail=f"Universe not found with the provided Id: {universe_id}"
             )
 
-        # Vérifie si l'utilisateur est superadmin de l'univers
         if await self.is_user_superadmin_universe(user.id, universe_id):
-            from src.repositories.entity import EntityRepository
-            entity_repo = EntityRepository()
-            entities = await entity_repo.get_entities_by_universe(universe.id)
+            entities = await self.entity_repository.get_entities_by_universe(universe.id)
             return entities
         else:
-            entities_as_admin = await self.entity_repository.get_entity_accessed_by_user_as_admin(user.id, universe.id)
-            entities_as_editor = await self.get_entity_accessed_by_user_as_editor(user.id, universe.id)
-            return {"as_editor": entities_as_editor, "as_admin": entities_as_admin}
+            entities_as_reader = await self.entity_repository.get_entities_with_user_role(user.id, universe_id, UserEntityRole.reader)
+            entities_as_editor = await self.entity_repository.get_entities_with_user_role(user.id, universe_id, UserEntityRole.editor)
+            entities_as_admin = await self.entity_repository.get_entities_with_user_role(user.id, universe_id, UserEntityRole.administrator)
+            return {"as_reader": entities_as_reader, "as_editor": entities_as_editor, "as_admin": entities_as_admin}
 
     async def is_user_superadmin_universe(self, user_id: int, universe_id: int) -> bool:
         """
