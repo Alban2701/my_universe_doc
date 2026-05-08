@@ -1,3 +1,5 @@
+import React from "react";
+
 interface SquareButtonInterface {
 	src: string;
 	alternativeText: string;
@@ -14,7 +16,7 @@ export default function SquareButton({
 	return (
 		<button
 			type="button"
-			className="relative w-10 h-10 p-2 group cursor-pointer bg-white rounded-lg shadow-[1px_2px_4px_0px_rgba(0,0,0,0.25)] hover:shadow-none overflow-hidden transition-all duration-500"
+			className="relative w-10 h-10 p-2 group cursor-pointer bg-white rounded-lg shadow-[1px_2px_4px_0px_rgba(0,0,0,0.25)] hover:cursor-pointer hover:shadow-none overflow-hidden transition-all duration-500"
 		>
 			<span className="absolute inset-0 rounded-lg shadow-[inset_0_0_0_0_rgba(0,0,0,0.25)] transition-all duration-500 group-hover:shadow-[inset_1px_2px_4px_rgba(0,0,0,0.25)]" />
 			<img

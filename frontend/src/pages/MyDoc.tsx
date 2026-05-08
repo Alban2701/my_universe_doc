@@ -1,3 +1,4 @@
+// biome-ignore lint/correctness/noUnusedImports: <need React>
 import React, { useCallback, useEffect, useState } from "react";
 import type { UniverseInterface } from "../types/universe";
 import PanelUniverse from "../components/UI/Panels/PanelUniverse";
@@ -5,7 +6,8 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import PanelSettings from "../components/UI/Panels/PanelSettings";
 import Header from "../components/Shared/Header";
 import type { Entity } from "../types/entity";
-import PanelEntity from "../components/UI/Panels/PanelEntity"; // Assure-toi d'importer PanelEntity
+import PanelEntity from "../components/UI/Panels/PanelEntity";
+import DragAndDropTextBlock from "../components/UI/TextBlock/ListTextBlocks";
 
 function MyDoc() {
 	const { universeId, entityId } = useParams<{
@@ -17,21 +19,27 @@ function MyDoc() {
 	const navigate = useNavigate();
 	const location = useLocation();
 
-	const handleUniverseUpdate = useCallback(
-		(selectedUniverse?: UniverseInterface) => {
-			if (selectedUniverse) {
-				setSelectedUniverse(selectedUniverse);
-				navigate(`/universes/${selectedUniverse.id}`);
-			}
-		},
-		[navigate],
-	);
+	const handleUniverseUpdate = useCallback(() => {
+		console.log("previous buttons");
+		console.log(selectedEntity);
+		console.log(selectedUniverse);
+		if (selectedEntity?.parent) {
+			navigate(`/mydoc/${universeId}/entities/${selectedEntity.parent}`);
+		} else if (selectedUniverse) {
+			setSelectedUniverse(selectedUniverse);
+			navigate(`/mydoc/${selectedUniverse.id}`);
+		} else {
+			setSelectedEntity(undefined);
+			setSelectedUniverse(undefined);
+			navigate(`/mydoc`);
+		}
+	}, [navigate, selectedEntity, universeId, selectedUniverse]);
 
 	const handleEntityUpdate = useCallback(
 		(selectedEntity?: Entity) => {
 			if (selectedEntity) {
 				setSelectedEntity(selectedEntity);
-				navigate(`/universes/${universeId}/entities/${selectedEntity.id}`);
+				navigate(`/mydoc/${universeId}/entities/${selectedEntity.id}`);
 			}
 		},
 		[universeId, navigate],
@@ -40,7 +48,7 @@ function MyDoc() {
 	useEffect(() => {
 		const fetchIsLogin = async () => {
 			try {
-				const response = await fetch("/api/user/logged-in");
+				const response = await fetch("/api/user/me");
 				if (!response.ok) {
 					navigate("/login", {
 						replace: true,
@@ -55,7 +63,7 @@ function MyDoc() {
 	}, [location.pathname, navigate]);
 
 	useEffect(() => {
-		if (universeId) {
+		if (universeId && !entityId) {
 			const fetchUniverse = async () => {
 				try {
 					const response = await fetch(`/api/universe/${universeId}`, {
@@ -71,7 +79,7 @@ function MyDoc() {
 			};
 			fetchUniverse();
 		}
-	}, [universeId]);
+	}, [universeId, entityId]);
 
 	useEffect(() => {
 		if (entityId && universeId) {
@@ -97,10 +105,15 @@ function MyDoc() {
 			<Header />
 			<div className="flex flex-row h-full">
 				<div className="basis-1/7 h-full">
-					{selectedEntity ? (
+					{selectedUniverse || selectedEntity ? (
 						<PanelEntity
 							universeId={universeId || ""}
+							entityId={entityId || ""}
+							entityParentId={
+								selectedEntity ? selectedEntity.parent?.toString() : undefined
+							}
 							onEntityUpdate={handleEntityUpdate}
+							onUnselectUniverse={handleUniverseUpdate}
 						/>
 					) : (
 						<PanelUniverse
@@ -110,15 +123,11 @@ function MyDoc() {
 					)}
 				</div>
 				<span className="flex flex-row flex-auto justify-center-safe">
-					<div className="overflow-y-clip">
-						<h1 className="text-4xl">
-							{selectedUniverse ? selectedUniverse.name : "Select a universe"}
+					<div className="overflow-y-clip w-full">
+						<h1 className="text-center text-4xl">
+							{selectedEntity ? selectedEntity.name : "Select a universe"}
 						</h1>
-						{selectedEntity && (
-							<p className="text-xl mt-2">
-								Current entity: {selectedEntity.name}
-							</p>
-						)}
+						{selectedEntity && <DragAndDropTextBlock entityId={entityId} />}
 					</div>
 				</span>
 				<span className="basis-1/7">

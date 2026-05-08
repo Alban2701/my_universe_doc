@@ -1,34 +1,43 @@
 import React, { useEffect, useState } from "react";
-import type { Entity } from "@/src/types/entity";
+import type { Entity as EntityInterface } from "@/src/types/entity";
 import EntityPath from "./entity_components/EntityPath";
 import { useNavigate } from "react-router-dom";
 import CreateEntity from "../Modals/CreateEntity";
+import type { UniverseInterface } from "@/src/types/universe";
 
 function PanelEntity({
 	universeId,
+	entityId,
+	entityParentId,
 	onEntityUpdate,
+	onUnselectUniverse,
 }: {
 	universeId: string;
-	onEntityUpdate: (selectedEntity?: Entity) => void;
+	entityId: string;
+	entityParentId?: string;
+	onEntityUpdate: (selectedEntity?: EntityInterface) => void;
+	onUnselectUniverse: (selectedUniverse?: UniverseInterface) => void;
 }) {
-	const [entities, setEntities] = useState<Entity[]>([]);
-	const [selectedEntity, setSelectedEntity] = useState<Entity>();
+	const [entities, setEntities] = useState<EntityInterface[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
-	const [refresh, setRefresh] = useState<boolean>(false);
 	const navigate = useNavigate();
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <we need the refresh dependancy to refresh the view once we created a doc. Otherwise we don't want to do anything with the refresh variable>
 	useEffect(() => {
-		if (!universeId) return;
-		const fetchEntities = async () => {
+		if (!(universeId || entityId)) return;
+		const fetchEntityChildren = async () => {
 			try {
 				setLoading(true);
-				const response = await fetch(`/api/entity/${universeId}/children`, {
-					credentials: "include",
-					method: "GET",
-				});
+				const response = entityId
+					? await fetch(`/api/entity/${entityId}/direct-children`, {
+							credentials: "include",
+							method: "GET",
+						})
+					: await fetch(`/api/universe/${universeId}/first-entities`, {
+							credentials: "include",
+							method: "GET",
+						});
 				if (!response.ok) {
-					throw new Error("An error occurred while fetching entities");
+					throw new Error("An error occurred while fetching entity's children");
 				}
 				const data = await response.json();
 				setEntities(data);
@@ -41,8 +50,8 @@ function PanelEntity({
 			}
 		};
 
-		fetchEntities();
-	}, [universeId, refresh]);
+		fetchEntityChildren();
+	}, [universeId, entityId]);
 
 	if (loading) {
 		return <div className="text-sm text-gray-500">Loading...</div>;
@@ -52,22 +61,27 @@ function PanelEntity({
 		return <div className="text-sm text-red-500">Error: {error}</div>;
 	}
 
-	const handleEntityCreated = () => {
-		setRefresh(!refresh);
-	};
-
 	return (
 		<div className="border-b border-r flex flex-col h-full">
-			<h1 className="text-3xl text-center border-b mb-5">Your Docs</h1>
+			<h1 className="text-3xl text-center border-b mb-5">Entities</h1>
+			<button
+				type="button"
+				onClick={() => {
+					onUnselectUniverse();
+				}}
+				name="PreviousButton"
+				className="bg-red-600 w-25 ml-5 rounded-2xl text-white shadow hover:cursor-pointer hover:shadow-none hover:bg-red-900 overflow-hidden transition-all duration-300"
+			>
+				Previous
+			</button>
 			<ul className="m-2 overflow-y-auto">
 				{entities.map((entity) => (
 					<li key={entity.id}>
 						<button
 							type="button"
 							onClick={() => {
-								setSelectedEntity(entity);
 								onEntityUpdate(entity);
-								navigate(`/universes/${universeId}/entities/${entity.id}`);
+								navigate(`/mydoc/${universeId}/entities/${entity.id}`);
 							}}
 							className="hover:cursor-pointer border-y my-1 p-1 w-full"
 						>

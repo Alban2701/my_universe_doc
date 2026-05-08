@@ -6,12 +6,15 @@ import {
 	verticalListSortingStrategy,
 	arrayMove,
 } from "@dnd-kit/sortable";
-import { SortableTextAreas } from "../components/UI/TextBlock/Tests/SortableTextArea";
+import { SortableTextBlock } from "../components/UI/TextBlock/TextBlocks";
 
 function DragAndDrop() {
 	const [textAreas, setTextAreas] = useState([
 		{ id: 1, content: "Texte 1" },
 		{ id: 2, content: "Texte 2" },
+		{ id: 3, content: "Texte 3" },
+		{ id: 4, content: "Texte 4" },
+		{ id: 5, content: "Texte 5" },
 	]);
 
 	const handleDragEnd = (event: DragEndEvent) => {
@@ -37,11 +40,12 @@ function DragAndDrop() {
 		<DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
 			<SortableContext items={textAreas} strategy={verticalListSortingStrategy}>
 				{textAreas.map((item) => (
-					<SortableTextAreas
+					<SortableTextBlock
 						key={item.id}
 						id={item.id}
 						value={item.content}
 						onChange={handleTextChange}
+						title={null}
 					/>
 				))}
 			</SortableContext>

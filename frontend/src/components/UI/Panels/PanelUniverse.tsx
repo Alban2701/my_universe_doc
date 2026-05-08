@@ -17,7 +17,7 @@ function PanelUniverse({
 	useEffect(() => {
 		const fetchUniverses = async () => {
 			try {
-				const response = await fetch("/api/universe/my_universes", {
+				const response = await fetch("/api/universe/my-universes", {
 					credentials: "include",
 					method: "GET",
 				});
@@ -51,7 +51,7 @@ function PanelUniverse({
 							type="button"
 							onClick={() => {
 								onUniverseUpdate(universe);
-								navigate(`/universes/${universe.id}`);
+								navigate(`/mydoc/${universe.id}`);
 							}}
 							className="hover:cursor-pointer border-y my-1 p-1 w-full"
 						>
