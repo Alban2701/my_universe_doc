@@ -18,7 +18,10 @@
 			"react": "all"
 		},
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"correctness": {
+				"noUnusedImports": "off"
+			}
 		}
 	},
 	"javascript": {

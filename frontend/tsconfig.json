@@ -1,17 +1,16 @@
 {
-    "compilerOptions": {
+	"compilerOptions": {
 		"jsx": "react",
-        "module": "commonjs",
-        "noImplicitAny": true,
-        "removeComments": true,
-        "paths": {
-            "@/*": ["./*"],
-            "@my_types/*": ["./src/types"],
-            "@components/*": ["./src/components"],
-            "@panels/*": ["./src/components/UI/Panels"]
-        }
-    },
-    "include": ["src/**/*"],
-    "exclude": ["**/*.spec.ts"],
-    
+		"module": "commonjs",
+		"noImplicitAny": true,
+		"removeComments": true,
+		"paths": {
+			"@/*": ["./*"],
+			"@my_types/*": ["./src/types"],
+			"@components/*": ["./src/components"],
+			"@panels/*": ["./src/components/UI/Panels"]
+		}
+	},
+	"include": ["src/**/*"],
+	"exclude": ["**/*.spec.ts"]
 }

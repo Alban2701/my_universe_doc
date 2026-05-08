@@ -3,7 +3,7 @@ import type { MouseEventHandler } from "react";
 
 interface RectangularButtonProps {
 	text: string;
-	onClick: MouseEventHandler | undefined
+	onClick: MouseEventHandler | undefined;
 	color?: "blue" | "red" | "green" | "purple" | "orange";
 }
 

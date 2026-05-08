@@ -1,13 +1,12 @@
-// biome-ignore lint/correctness/noUnusedImports: <need React>
-import React, { useEffect, useState } from "react";
-import { DndContext, type DragEndEvent, closestCenter } from "@dnd-kit/core";
+import { closestCenter, DndContext, type DragEndEvent } from "@dnd-kit/core";
 import {
+	arrayMove,
 	SortableContext,
 	verticalListSortingStrategy,
-	arrayMove,
 } from "@dnd-kit/sortable";
-import { SortableTextBlock } from "./TextBlocks";
+import React, { useEffect, useState } from "react";
 import type { TextBlockInterface } from "@/src/types/text_blocks";
+import { SortableTextBlock } from "./TextBlocks";
 
 function DragAndDropTextBlock({ entityId }: { entityId?: string }) {
 	const [textBlocks, setTextBlocks] = useState<TextBlockInterface[]>([]);

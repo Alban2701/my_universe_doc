@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { UniverseInterface } from "../../../types/universe";
 import CreateUniverse from "../Modals/CreateUniverse";
-import { useNavigate } from "react-router-dom";
 
 function PanelUniverse({
-	universeId,
 	onUniverseUpdate,
 }: {
 	universeId?: string;

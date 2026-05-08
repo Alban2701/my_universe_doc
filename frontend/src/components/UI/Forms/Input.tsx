@@ -1,4 +1,4 @@
-import type { ChangeEventHandler, HTMLInputTypeAttribute } from "react";
+import type { HTMLInputTypeAttribute } from "react";
 
 export interface InputInterface {
 	type: HTMLInputTypeAttribute | undefined;

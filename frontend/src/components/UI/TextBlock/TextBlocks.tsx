@@ -1,6 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-// biome-ignore lint/correctness/noUnusedImports: <need React>
+
 import React from "react";
 import TextareaAutosize from "react-textarea-autosize";
 

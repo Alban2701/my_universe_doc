@@ -1,9 +1,9 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import DragAndDrop from "./pages/DragAndDrop";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import SignUp from "./pages/Signup";
 import MyDoc from "./pages/MyDoc";
-import DragAndDrop from "./pages/DragAndDrop";
+import SignUp from "./pages/Signup";
 import UpdatePassword from "./pages/UpdatePassword";
 
 function App() {

@@ -1,6 +1,6 @@
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Shared/Header";
 import RectangularButton from "../components/UI/Button/Rectangular.button";
-import { useNavigate } from "react-router-dom";
 
 export default function Home() {
 	const navigate = useNavigate();

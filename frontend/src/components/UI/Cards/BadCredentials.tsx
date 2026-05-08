@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
 function BadCredentials() {
-  return (
-    <div>BadCredentials</div>
-  )
+	return <div>BadCredentials</div>;
 }
 
-export default BadCredentials
+export default BadCredentials;

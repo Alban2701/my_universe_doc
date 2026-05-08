@@ -1,4 +1,3 @@
-import { METHODS } from "http";
 import React from "react";
 
 function ProfileActionCard(connected: boolean) {

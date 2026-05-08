@@ -1,8 +1,8 @@
-import React from "react";
+import type React from "react";
 import { useState } from "react";
+import RectangularButton from "../Button/Rectangular.button";
 import BaseForm from "../Forms/BaseForm";
 import BaseModal from "./BaseModal";
-import RectangularButton from "../Button/Rectangular.button";
 
 interface UniversePayload {
 	name: string;
@@ -47,7 +47,10 @@ function CreateUniverse({
 	};
 	return (
 		<div>
-			<RectangularButton text={"Create Universe"} onClick={() => setIsOpen(true)} />
+			<RectangularButton
+				text={"Create Universe"}
+				onClick={() => setIsOpen(true)}
+			/>
 			{isOpen && (
 				<BaseModal>
 					<div className="flex">

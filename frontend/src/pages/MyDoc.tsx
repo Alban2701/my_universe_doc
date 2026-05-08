@@ -1,13 +1,12 @@
-// biome-ignore lint/correctness/noUnusedImports: <need React>
 import React, { useCallback, useEffect, useState } from "react";
-import type { UniverseInterface } from "../types/universe";
-import PanelUniverse from "../components/UI/Panels/PanelUniverse";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import PanelSettings from "../components/UI/Panels/PanelSettings";
 import Header from "../components/Shared/Header";
-import type { Entity } from "../types/entity";
 import PanelEntity from "../components/UI/Panels/PanelEntity";
+import PanelSettings from "../components/UI/Panels/PanelSettings";
+import PanelUniverse from "../components/UI/Panels/PanelUniverse";
 import DragAndDropTextBlock from "../components/UI/TextBlock/ListTextBlocks";
+import type { Entity } from "../types/entity";
+import type { UniverseInterface } from "../types/universe";
 
 function MyDoc() {
 	const { universeId, entityId } = useParams<{
