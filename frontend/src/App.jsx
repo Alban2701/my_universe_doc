@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import SignUp from "./pages/Signup";
 import MyDoc from "./pages/MyDoc";
 import DragAndDrop from "./pages/DragAndDrop";
+import UpdatePassword from "./pages/UpdatePassword";
 
 function App() {
 	return (
@@ -19,6 +20,7 @@ function App() {
 					element={<MyDoc />}
 				/>
 				<Route path="/dnd" element={<DragAndDrop />} />
+				<Route path="/update-user" element={<UpdatePassword />} />
 			</Routes>
 		</Router>
 	);
