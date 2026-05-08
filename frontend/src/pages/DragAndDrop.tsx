@@ -4,7 +4,7 @@ import {
 	SortableContext,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import React, { useState } from "react";
+import { useState } from "react";
 import { SortableTextBlock } from "../components/UI/TextBlock/TextBlocks";
 
 function DragAndDrop() {

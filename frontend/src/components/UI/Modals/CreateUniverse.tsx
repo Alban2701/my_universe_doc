@@ -1,4 +1,3 @@
-import type React from "react";
 import { useState } from "react";
 import RectangularButton from "../Button/Rectangular.button";
 import BaseForm from "../Forms/BaseForm";

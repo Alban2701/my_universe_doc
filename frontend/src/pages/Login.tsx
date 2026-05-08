@@ -1,4 +1,3 @@
-import type React from "react";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BadCredentials from "../components/UI/Cards/BadCredentials";

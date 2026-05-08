@@ -4,7 +4,7 @@ import {
 	SortableContext,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { TextBlockInterface } from "@/src/types/text_blocks";
 import { SortableTextBlock } from "./TextBlocks";
 

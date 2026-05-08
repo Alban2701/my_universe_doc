@@ -1,5 +1,3 @@
-import React from "react";
-
 function ProfileActionCard(connected: boolean) {
 	const logout = () => {
 		fetch("http://localhost:8000/user/signup", {

@@ -1,5 +1,4 @@
 import type { HTMLInputTypeAttribute } from "react";
-
 export interface InputInterface {
 	type: HTMLInputTypeAttribute | undefined;
 	name: string | undefined;

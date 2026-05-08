@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Entity } from "@/src/types/entity";
 
 interface EntityPathProps {

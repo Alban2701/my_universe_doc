@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Entity as EntityInterface } from "@/src/types/entity";
 import type { UniverseInterface } from "@/src/types/universe";

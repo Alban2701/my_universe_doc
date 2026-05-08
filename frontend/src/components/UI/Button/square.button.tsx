@@ -1,5 +1,3 @@
-import React from "react";
-
 interface SquareButtonInterface {
 	src: string;
 	alternativeText: string;

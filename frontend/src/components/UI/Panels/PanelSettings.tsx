@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { UniverseInterface } from "../../../types/universe";
 
 function PanelSettings({ universeId }: { universeId?: string }) {
