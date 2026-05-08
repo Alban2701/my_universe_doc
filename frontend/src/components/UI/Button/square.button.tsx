@@ -8,8 +8,6 @@ interface SquareButtonInterface {
 export default function SquareButton({
 	src,
 	alternativeText,
-	width = 100,
-	height = 100,
 }: SquareButtonInterface) {
 	return (
 		<button
@@ -18,8 +16,8 @@ export default function SquareButton({
 		>
 			<span className="absolute inset-0 rounded-lg shadow-[inset_0_0_0_0_rgba(0,0,0,0.25)] transition-all duration-500 group-hover:shadow-[inset_1px_2px_4px_rgba(0,0,0,0.25)]" />
 			<img
-				width={width}
-				height={height}
+				width={40}
+				height={40}
 				className="relative w-auto h-auto z-10"
 				src={src}
 				alt={alternativeText}
