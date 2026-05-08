@@ -3,12 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { UniverseInterface } from "../../../types/universe";
 import CreateUniverse from "../Modals/CreateUniverse";
 
-function PanelUniverse({
-	onUniverseUpdate,
-}: {
-	universeId?: string;
-	onUniverseUpdate: (selectedUniverse?: UniverseInterface) => void;
-}) {
+function PanelUniverse() {
 	const [universes, setUniverses] = useState<UniverseInterface[]>([]);
 	const [refresh, setRefresh] = useState<boolean>(false);
 	const navigate = useNavigate();
@@ -49,7 +44,6 @@ function PanelUniverse({
 						<button
 							type="button"
 							onClick={() => {
-								onUniverseUpdate(universe);
 								navigate(`/mydoc/${universe.id}`);
 							}}
 							className="hover:cursor-pointer border-y my-1 p-1 w-full"

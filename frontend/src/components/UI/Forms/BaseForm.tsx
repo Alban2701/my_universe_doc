@@ -31,6 +31,7 @@ export default function BaseForm({
 									placeholder={i.placeholder}
 									required={i.required}
 									onChange={i.onChange}
+									content={i.content}
 								/>
 							</div>
 						);

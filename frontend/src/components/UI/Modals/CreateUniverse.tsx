@@ -74,6 +74,7 @@ function CreateUniverse({
 								onChange: (e) => {
 									setDocName(e.target.value);
 								},
+								content: undefined,
 							},
 							{
 								type: "text",
@@ -83,6 +84,7 @@ function CreateUniverse({
 								onChange: (e) => {
 									setDocDescription(e.target.value);
 								},
+								content: undefined,
 							},
 						]}
 					/>

@@ -8,19 +8,23 @@ import EntityPath from "./entity_components/EntityPath";
 function PanelEntity({
 	universeId,
 	entityId,
+	entityParentId,
 	onEntityUpdate,
-	onUnselectUniverse,
+	onPreviousButton,
 }: {
 	universeId: string;
 	entityId: string;
-	entityParentId?: string;
+	entityParentId: number | null;
 	onEntityUpdate: (selectedEntity?: EntityInterface) => void;
-	onUnselectUniverse: (selectedUniverse?: UniverseInterface) => void;
+	onPreviousButton: (selectedUniverse?: UniverseInterface) => void;
 }) {
 	const [entities, setEntities] = useState<EntityInterface[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
+	const [refresh, setRefresh] = useState<boolean>(false);
 	const navigate = useNavigate();
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <need Refresh>
 	useEffect(() => {
 		if (!(universeId || entityId)) return;
 		const fetchEntityChildren = async () => {
@@ -50,7 +54,11 @@ function PanelEntity({
 		};
 
 		fetchEntityChildren();
-	}, [universeId, entityId]);
+	}, [universeId, entityId, refresh]);
+
+	const handleEntityCreated = () => {
+		setRefresh(!refresh);
+	};
 
 	if (loading) {
 		return <div className="text-sm text-gray-500">Loading...</div>;
@@ -66,7 +74,7 @@ function PanelEntity({
 			<button
 				type="button"
 				onClick={() => {
-					onUnselectUniverse();
+					onPreviousButton();
 				}}
 				name="PreviousButton"
 				className="bg-red-600 w-25 ml-5 rounded-2xl text-white shadow hover:cursor-pointer hover:shadow-none hover:bg-red-900 overflow-hidden transition-all duration-300"
@@ -90,11 +98,11 @@ function PanelEntity({
 				))}
 			</ul>
 			<div className="place-self-center mt-auto mb-5 p-2 border-t">
-				{/* <CreateEntity
-					onEntityCreated=}}
-					universeId={0}
-					parentId={undefined}
-				></CreateEntity> */}
+				<CreateEntity
+					onEntityCreated={handleEntityCreated}
+					universeId={Number(universeId)}
+					parentId={entityParentId}
+				></CreateEntity>
 			</div>
 		</div>
 	);

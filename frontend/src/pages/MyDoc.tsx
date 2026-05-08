@@ -18,26 +18,21 @@ function MyDoc() {
 	const navigate = useNavigate();
 	const location = useLocation();
 
-	const handleUniverseUpdate = useCallback(() => {
-		console.log("previous buttons");
-		console.log(selectedEntity);
-		console.log(selectedUniverse);
-		if (selectedEntity?.parent) {
-			navigate(`/mydoc/${universeId}/entities/${selectedEntity.parent}`);
-		} else if (selectedUniverse) {
-			setSelectedUniverse(selectedUniverse);
-			navigate(`/mydoc/${selectedUniverse.id}`);
+	const handlePreviousButton = useCallback(() => {
+		if (selectedEntity) {
+			if (selectedEntity.parent !== null && selectedEntity !== undefined) {
+				navigate(`/mydoc/${universeId}/entities/${selectedEntity.parent}`);
+			} else {
+				navigate(`/mydoc/${universeId}`);
+			}
 		} else {
-			setSelectedEntity(undefined);
-			setSelectedUniverse(undefined);
 			navigate(`/mydoc`);
 		}
-	}, [navigate, selectedEntity, universeId, selectedUniverse]);
+	}, [selectedEntity, universeId, navigate]);
 
 	const handleEntityUpdate = useCallback(
 		(selectedEntity?: Entity) => {
 			if (selectedEntity) {
-				setSelectedEntity(selectedEntity);
 				navigate(`/mydoc/${universeId}/entities/${selectedEntity.id}`);
 			}
 		},
@@ -62,7 +57,7 @@ function MyDoc() {
 	}, [location.pathname, navigate]);
 
 	useEffect(() => {
-		if (universeId && !entityId) {
+		if (universeId) {
 			const fetchUniverse = async () => {
 				try {
 					const response = await fetch(`/api/universe/${universeId}`, {
@@ -77,11 +72,10 @@ function MyDoc() {
 				}
 			};
 			fetchUniverse();
+		} else {
+			setSelectedUniverse(undefined);
 		}
-	}, [universeId, entityId]);
-
-	useEffect(() => {
-		if (entityId && universeId) {
+		if (entityId) {
 			const fetchEntity = async () => {
 				try {
 					const response = await fetch(`/api/entity/${entityId}`, {
@@ -96,8 +90,14 @@ function MyDoc() {
 				}
 			};
 			fetchEntity();
+		} else {
+			setSelectedEntity(undefined);
 		}
-	}, [entityId, universeId]);
+	}, [universeId, entityId]);
+
+	useEffect(() => {
+		console.log(selectedEntity, selectedUniverse);
+	});
 
 	return (
 		<div className="h-screen flex flex-col">
@@ -108,17 +108,12 @@ function MyDoc() {
 						<PanelEntity
 							universeId={universeId || ""}
 							entityId={entityId || ""}
-							entityParentId={
-								selectedEntity ? selectedEntity.parent?.toString() : undefined
-							}
+							entityParentId={selectedEntity ? selectedEntity.parent : null}
 							onEntityUpdate={handleEntityUpdate}
-							onUnselectUniverse={handleUniverseUpdate}
+							onPreviousButton={handlePreviousButton}
 						/>
 					) : (
-						<PanelUniverse
-							universeId={universeId}
-							onUniverseUpdate={handleUniverseUpdate}
-						/>
+						<PanelUniverse />
 					)}
 				</div>
 				<span className="flex flex-row flex-auto justify-center-safe">
@@ -126,11 +121,14 @@ function MyDoc() {
 						<h1 className="text-center text-4xl">
 							{selectedEntity ? selectedEntity.name : "Select a universe"}
 						</h1>
-						{selectedEntity && <DragAndDropTextBlock entityId={entityId} />}
+						{entityId && <DragAndDropTextBlock entityId={entityId} />}
 					</div>
 				</span>
 				<span className="basis-1/7">
-					<PanelSettings universeId={universeId} />
+					<PanelSettings
+						universeId={universeId}
+						onUniverseUpdate={handleEntityUpdate}
+					/>
 				</span>
 			</div>
 		</div>
