@@ -12,7 +12,7 @@ factory = get_factory()
 user_controller: UserController = factory.user_controller
 
 @user_router.post("/signup", status_code=status.HTTP_201_CREATED)
-async def signup(user: InputUser):
+async def signup(user: InputUser) -> PartialUser:
     try:
         return await user_controller.register(user)
     except HTTPException:

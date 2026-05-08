@@ -103,7 +103,7 @@ async def get_entity_children(entity_id: int, request: Request):
             detail=str(e)
         )
 
-@entity_router.get("/{entity_id}/direct_children", status_code=status.HTTP_200_OK)
+@entity_router.get("/{entity_id}/direct-children", status_code=status.HTTP_200_OK)
 async def get_entity_direct_children(entity_id: int, request: Request):
     user: UserToken = request.state.user
     try:

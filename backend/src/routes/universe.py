@@ -114,7 +114,7 @@ async def get_universe_entities(
     universe_id: int,
 ) -> List[Entity] | Dict[str, list[Entity]]:
     """
-    Récupère les entités d'un univers accessibles par l'utilisateur.
+    Get entities from a universe accessed by a user.
     """
     user: UserToken = req.state.user
     try:
@@ -126,7 +126,7 @@ async def get_universe_entities(
         print(e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-@universe_router.get("/{universe_id}/first_entities", status_code=200)
+@universe_router.get("/{universe_id}/first-entities", status_code=200)
 async def get_first_entities(universe_id: int) -> List[Entity]:
     """
     Returns the universe's entities which have no parents
