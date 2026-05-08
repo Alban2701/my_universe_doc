@@ -43,12 +43,6 @@ class DbConnection:
             max_size=10,
             timeout=30,
         )  # type: ignore
-        print("Connection pool successfully initialised")
-        print(
-            f"Pool initialisé : {self.pool}"
-        )  # Doit afficher <AsyncConnectionPool ...>
-        print(f"ID du pool : {id(self.pool)}")  # Doit être le même partout
-        return
 
     async def close(self):
         """
