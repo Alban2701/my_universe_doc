@@ -12,10 +12,6 @@ function DragAndDropTextBlock({ entityId }: { entityId?: string }) {
 	const [textBlocks, setTextBlocks] = useState<TextBlockInterface[]>([]);
 
 	useEffect(() => {
-		console.log("in DnD", textBlocks);
-	}, [textBlocks]);
-
-	useEffect(() => {
 		const fetchTextBlocks = async () => {
 			try {
 				const response = await fetch(`/api/text-block/entity/${entityId}`, {
@@ -25,7 +21,7 @@ function DragAndDropTextBlock({ entityId }: { entityId?: string }) {
 				if (!response.ok) throw new Error("Entity not found");
 				const data = await response.json();
 				setTextBlocks(data);
-				console.log(data);
+				// console.log(data);
 			} catch (err) {
 				console.error("Error while fetching text blocks", err);
 			}
