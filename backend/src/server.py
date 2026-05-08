@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes.user import user_router
 from routes.universe import universe_router
 from routes.entity import entity_router
+from routes.text_block import text_block_router
 from db_connection import get_db
 import os
 from middlewares.auth import AuthMiddleware
@@ -20,6 +21,7 @@ app = FastAPI(title="My Universe Doc", lifespan=lifespan)
 app.include_router(user_router)
 app.include_router(universe_router)
 app.include_router(entity_router)
+app.include_router(text_block_router)
 
 if os.getenv("IN_DEV"):
     app.add_middleware(
