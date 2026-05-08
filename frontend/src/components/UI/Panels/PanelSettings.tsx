@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import type { UniverseInterface } from "../../../types/universe";
+import UpdateUniverse from "../Modals/UpdateUniverse";
 
-function PanelSettings({ universeId }: { universeId?: string }) {
+function PanelSettings({
+	universeId,
+	onUniverseUpdate,
+}: {
+	universeId?: string;
+	onUniverseUpdate: () => void;
+}) {
 	const [universe, setUniverse] = useState<UniverseInterface>();
 
 	useEffect(() => {
@@ -27,6 +34,14 @@ function PanelSettings({ universeId }: { universeId?: string }) {
 			<h1 className="text-3xl text-center border-b mb-5">
 				Settings for {universe?.name}
 			</h1>
+			{universeId && universe ? (
+				<UpdateUniverse
+					universe={universe}
+					onUniverseUpdated={onUniverseUpdate}
+				/>
+			) : (
+				<p>select a universe</p>
+			)}
 		</div>
 	);
 }
