@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import type { Entity } from "@/src/types/entity";
+import type { EntityInterface } from "@/src/types/entity";
 
 interface EntityPathProps {
-	entity: Entity;
+	entity: EntityInterface;
 }
 
 function EntityPath({ entity }: EntityPathProps) {
-	const [parents, setParents] = useState<Entity[]>([]);
+	const [parents, setParents] = useState<EntityInterface[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 

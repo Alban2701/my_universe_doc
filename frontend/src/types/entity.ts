@@ -1,4 +1,4 @@
-export interface Entity {
+export interface EntityInterface {
 	id: number;
 	name: string;
 	not_discovered_name: string | null;

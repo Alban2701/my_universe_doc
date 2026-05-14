@@ -7,6 +7,7 @@ export interface InputInterface {
 	content: string | undefined;
 	required: boolean;
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	blockPaste?: boolean;
 }
 
 export default function Input({
@@ -16,6 +17,7 @@ export default function Input({
 	content,
 	required,
 	onChange,
+	blockPaste = false,
 }: InputInterface) {
 	return (
 		<>
@@ -31,6 +33,13 @@ export default function Input({
 					required={required}
 					onChange={onChange}
 					className="pt-2 pl-2 w-full h-full justify-center"
+					onPaste={
+						blockPaste
+							? (e) => {
+									e.preventDefault();
+								}
+							: undefined
+					}
 				/>
 			) : (
 				<input

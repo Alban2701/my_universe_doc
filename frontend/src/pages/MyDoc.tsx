@@ -5,7 +5,7 @@ import PanelEntity from "../components/UI/Panels/PanelEntity";
 import PanelSettings from "../components/UI/Panels/PanelSettings";
 import PanelUniverse from "../components/UI/Panels/PanelUniverse";
 import DragAndDropTextBlock from "../components/UI/TextBlock/ListTextBlocks";
-import type { Entity } from "../types/entity";
+import type { EntityInterface } from "../types/entity";
 import type { UniverseInterface } from "../types/universe";
 
 function MyDoc() {
@@ -14,7 +14,8 @@ function MyDoc() {
 		entityId: string;
 	}>();
 	const [selectedUniverse, setSelectedUniverse] = useState<UniverseInterface>();
-	const [selectedEntity, setSelectedEntity] = useState<Entity>();
+	const [selectedEntity, setSelectedEntity] = useState<EntityInterface>();
+	const [title, setTitle] = useState<string>("");
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -30,13 +31,24 @@ function MyDoc() {
 		}
 	}, [selectedEntity, universeId, navigate]);
 
-	const handleEntityUpdate = useCallback(
-		(selectedEntity?: Entity) => {
+	const handleUniverseEntityUpdate = useCallback(
+		(selectedEntity?: EntityInterface) => {
 			if (selectedEntity) {
 				navigate(`/mydoc/${universeId}/entities/${selectedEntity.id}`);
 			}
 		},
 		[universeId, navigate],
+	);
+
+	const handleEntityDeleted = useCallback(() => {
+		selectedEntity?.parent
+			? navigate(`/mydoc/${universeId}/entities/${selectedEntity?.parent}`)
+			: navigate(`mydoc/${universeId}`);
+	}, [universeId, selectedEntity, navigate]);
+
+	const handleUniverseDeleted = useCallback(
+		() => navigate(`/mydoc`),
+		[navigate],
 	);
 
 	useEffect(() => {
@@ -97,6 +109,15 @@ function MyDoc() {
 
 	useEffect(() => {
 		console.log(selectedEntity, selectedUniverse);
+		if (selectedUniverse) {
+			if (selectedEntity) {
+				setTitle(selectedEntity.name);
+			} else {
+				setTitle("Choose a entity");
+			}
+		} else {
+			setTitle("Choose a universe");
+		}
 	});
 
 	return (
@@ -109,7 +130,7 @@ function MyDoc() {
 							universeId={universeId || ""}
 							entityId={entityId || ""}
 							entityParentId={selectedEntity ? selectedEntity.parent : null}
-							onEntityUpdate={handleEntityUpdate}
+							onEntityUpdate={handleUniverseEntityUpdate}
 							onPreviousButton={handlePreviousButton}
 						/>
 					) : (
@@ -118,16 +139,17 @@ function MyDoc() {
 				</div>
 				<span className="flex flex-row flex-auto justify-center-safe">
 					<div className="overflow-y-clip w-full">
-						<h1 className="text-center text-4xl">
-							{selectedEntity ? selectedEntity.name : "Select a universe"}
-						</h1>
+						<h1 className="text-center text-4xl">{title}</h1>
 						{entityId && <DragAndDropTextBlock entityId={entityId} />}
 					</div>
 				</span>
 				<span className="basis-1/7">
 					<PanelSettings
-						universeId={universeId}
-						onUniverseUpdate={handleEntityUpdate}
+						selectedUniverse={selectedUniverse}
+						selectedEntity={selectedEntity}
+						onUniverseEntityUpdated={handleUniverseEntityUpdate}
+						onUniverseDeleted={handleUniverseDeleted}
+						onEntityDeleted={handleEntityDeleted}
 					/>
 				</span>
 			</div>

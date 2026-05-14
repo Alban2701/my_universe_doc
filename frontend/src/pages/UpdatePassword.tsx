@@ -39,7 +39,7 @@ export default function UpdateUserPassword() {
 			});
 			if (!response.ok) throw new Error("erreur lors de l'inscription");
 			const data = await response.json();
-			console.log("Réponse Api :", data);
+			console.log("Api Response :", data);
 			const redirectTo = "/login";
 			navigate(redirectTo, { replace: true });
 		} catch (error) {

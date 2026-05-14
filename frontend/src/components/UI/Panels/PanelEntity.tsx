@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Entity as EntityInterface } from "@/src/types/entity";
+import type { EntityInterface as EntityInterface } from "@/src/types/entity";
 import type { UniverseInterface } from "@/src/types/universe";
-import CreateEntity from "../Modals/CreateEntity";
+import CreateEntity from "../Modals/Entity/CreateEntity";
 import EntityPath from "./entity_components/EntityPath";
 
 function PanelEntity({

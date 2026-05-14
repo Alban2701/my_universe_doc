@@ -1,35 +1,38 @@
-import BaseForm from "../Forms/BaseForm";
-import BaseModal from "./BaseModal";
-import RectangularButton from "../Button/Rectangular.button";
-import type { UniverseInterface } from "@/src/types/universe";
 import { useState } from "react";
+import type { EntityInterface } from "@/src/types/entity";
+import RectangularButton from "../../Button/Rectangular.button";
+import BaseForm from "../../Forms/BaseForm";
+import BaseModal from "../BaseModal";
 
-interface UniversePayload {
+interface EntityPayload {
 	name: string;
-	description: string;
+	notDiscoveredName: string;
 }
 
 function UpdateUniverse({
-	universe,
+	entity,
 	onUniverseUpdated,
 }: {
-	universe: UniverseInterface;
+	entity: EntityInterface;
 	onUniverseUpdated: () => void;
 }) {
 	const [isOpen, setIsOpen] = useState<boolean>(false);
-	const [docName, setDocName] = useState<string>("");
-	const [docDescription, setDocDescription] = useState<string>("");
+	const [entityName, setEntityName] = useState<string>(entity.name);
+	const [entityNotDiscoveredName, setEntityNotDiscoveredName] =
+		useState<string>(
+			entity.not_discovered_name ? entity.not_discovered_name : "",
+		);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		const payload: UniversePayload = {
-			name: docName,
-			description: docDescription,
+		const payload: EntityPayload = {
+			name: entityName,
+			notDiscoveredName: entityNotDiscoveredName,
 		};
 		try {
 			console.log(payload);
-			const response = await fetch(`/api/universe/${universe.id}`, {
+			const response = await fetch(`/api/entity/${entity.id}`, {
 				method: "PATCH",
 				headers: {
 					"Content-Type": "application/json",
@@ -37,9 +40,9 @@ function UpdateUniverse({
 				body: JSON.stringify(payload),
 				credentials: "include",
 			});
-			if (!response.ok) throw new Error("The doc could not be updated");
+			if (!response.ok) throw new Error("The entity could not be updated");
 			const data = await response.json();
-			console.log("Réponse Api :", data);
+			console.log("Api Response :", data);
 			onUniverseUpdated();
 		} catch (error) {
 			console.log(error);
@@ -50,7 +53,7 @@ function UpdateUniverse({
 	return (
 		<div>
 			<RectangularButton
-				text={"Update Universe"}
+				text={"Update Entity"}
 				onClick={() => setIsOpen(true)}
 			/>
 			{isOpen && (
@@ -65,29 +68,29 @@ function UpdateUniverse({
 						</button>
 					</div>
 					<BaseForm
-						title={"Update a doc"}
-						submitTitle={"Create"}
+						title={"Update an entity"}
+						submitTitle={"Update"}
 						onSubmit={handleSubmit}
 						inputs={[
 							{
 								type: "text",
-								name: "docName",
-								placeholder: "Your new doc's name",
+								name: "entityName",
+								placeholder: "Your new entity's name",
 								required: true,
 								onChange: (e) => {
-									setDocName(e.target.value);
+									setEntityName(e.target.value);
 								},
-								content: universe.name,
+								content: entityName,
 							},
 							{
 								type: "text",
-								name: "docDescription",
-								placeholder: "Your new doc's description",
+								name: "entityNotDiscoverdName",
+								placeholder: "Your new entity's not discovered name",
 								required: false,
 								onChange: (e) => {
-									setDocDescription(e.target.value);
+									setEntityNotDiscoveredName(e.target.value);
 								},
-								content: universe.name,
+								content: entityNotDiscoveredName,
 							},
 						]}
 					/>

@@ -1,21 +1,26 @@
 import { useState } from "react";
-import RectangularButton from "../Button/Rectangular.button";
-import BaseForm from "../Forms/BaseForm";
-import BaseModal from "./BaseModal";
+import type { UniverseInterface } from "@/src/types/universe";
+import RectangularButton from "../../Button/Rectangular.button";
+import BaseForm from "../../Forms/BaseForm";
+import BaseModal from "../BaseModal";
 
 interface UniversePayload {
 	name: string;
 	description: string;
 }
 
-function CreateUniverse({
-	onUniverseCreated,
+function UpdateUniverse({
+	universe,
+	onUniverseUpdated,
 }: {
-	onUniverseCreated: () => void;
+	universe: UniverseInterface;
+	onUniverseUpdated: () => void;
 }) {
 	const [isOpen, setIsOpen] = useState<boolean>(false);
-	const [docName, setDocName] = useState<string>("");
-	const [docDescription, setDocDescription] = useState<string>("");
+	const [docName, setDocName] = useState<string>(universe.name);
+	const [docDescription, setDocDescription] = useState<string>(
+		universe.description,
+	);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -26,18 +31,18 @@ function CreateUniverse({
 		};
 		try {
 			console.log(payload);
-			const response = await fetch("/api/universe/", {
-				method: "POST",
+			const response = await fetch(`/api/universe/${universe.id}`, {
+				method: "PATCH",
 				headers: {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(payload),
 				credentials: "include",
 			});
-			if (!response.ok) throw new Error("The doc could not be created");
+			if (!response.ok) throw new Error("The doc could not be updated");
 			const data = await response.json();
-			console.log("Réponse Api :", data);
-			onUniverseCreated();
+			console.log("Api Response :", data);
+			onUniverseUpdated();
 		} catch (error) {
 			console.log(error);
 		} finally {
@@ -47,7 +52,7 @@ function CreateUniverse({
 	return (
 		<div>
 			<RectangularButton
-				text={"Create Universe"}
+				text={"Update Universe"}
 				onClick={() => setIsOpen(true)}
 			/>
 			{isOpen && (
@@ -62,8 +67,8 @@ function CreateUniverse({
 						</button>
 					</div>
 					<BaseForm
-						title={"Create a new doc"}
-						submitTitle={"Create"}
+						title={"Update a doc"}
+						submitTitle={"Update"}
 						onSubmit={handleSubmit}
 						inputs={[
 							{
@@ -74,7 +79,7 @@ function CreateUniverse({
 								onChange: (e) => {
 									setDocName(e.target.value);
 								},
-								content: undefined,
+								content: docName,
 							},
 							{
 								type: "text",
@@ -84,7 +89,7 @@ function CreateUniverse({
 								onChange: (e) => {
 									setDocDescription(e.target.value);
 								},
-								content: undefined,
+								content: docDescription,
 							},
 						]}
 					/>
@@ -94,4 +99,4 @@ function CreateUniverse({
 	);
 }
 
-export default CreateUniverse;
+export default UpdateUniverse;

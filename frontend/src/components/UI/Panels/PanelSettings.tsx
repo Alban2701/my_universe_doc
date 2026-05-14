@@ -1,47 +1,59 @@
 import { useEffect, useState } from "react";
+import type { EntityInterface } from "@/src/types/entity";
 import type { UniverseInterface } from "../../../types/universe";
-import UpdateUniverse from "../Modals/UpdateUniverse";
+import DeleteUniverse from "../Modals/Universe/DeleteUniverse";
+import UpdateUniverse from "../Modals/Universe/UpdateUniverse";
+import UpdateEntity from "../Modals/Entity/UpdateEntity";
+import DeleteEntity from "../Modals/Entity/DeleteEntity";
 
 function PanelSettings({
-	universeId,
-	onUniverseUpdate,
+	selectedUniverse,
+	selectedEntity,
+	onUniverseEntityUpdated,
+	onUniverseDeleted,
+	onEntityDeleted,
 }: {
-	universeId?: string;
-	onUniverseUpdate: () => void;
+	selectedUniverse?: UniverseInterface;
+	selectedEntity?: EntityInterface;
+	onUniverseEntityUpdated: () => void;
+	onUniverseDeleted: () => void;
+	onEntityDeleted: () => void;
 }) {
-	const [universe, setUniverse] = useState<UniverseInterface>();
-
-	useEffect(() => {
-		if (!universeId) return;
-		const fetchUniverse = async () => {
-			try {
-				const response = await fetch(`/api/universe/${universeId}`, {
-					credentials: "include",
-					method: "GET",
-				});
-				if (!response.ok) throw new Error("Universe not found");
-				const data = await response.json();
-				setUniverse(data);
-			} catch (error) {
-				console.log("Error:", error);
-			}
-		};
-		fetchUniverse();
-	}, [universeId]);
-
 	return (
 		<div className="border-b border-l h-full">
 			<h1 className="text-3xl text-center border-b mb-5">
-				Settings for {universe?.name}
+				Settings for {selectedUniverse?.name}
 			</h1>
-			{universeId && universe ? (
-				<UpdateUniverse
-					universe={universe}
-					onUniverseUpdated={onUniverseUpdate}
-				/>
-			) : (
-				<p>select a universe</p>
-			)}
+			<div className="flex flex-col">
+				{selectedUniverse ? (
+					<div className="flex flex-row p-2 gap-2">
+						<UpdateUniverse
+							universe={selectedUniverse}
+							onUniverseUpdated={onUniverseEntityUpdated}
+						/>
+						<DeleteUniverse
+							universe={selectedUniverse}
+							onUniverseDeleted={onUniverseDeleted}
+						/>
+					</div>
+				) : (
+					<p>select a universe</p>
+				)}
+				{selectedEntity ? (
+					<div className="flex flex-row p-2 gap-2">
+						<UpdateEntity
+							entity={selectedEntity}
+							onUniverseUpdated={onUniverseEntityUpdated}
+						/>
+						<DeleteEntity
+							entity={selectedEntity}
+							onEntityDeleted={onEntityDeleted}
+						/>
+					</div>
+				) : (
+					<p>select an entity</p>
+				)}
+			</div>
 		</div>
 	);
 }
