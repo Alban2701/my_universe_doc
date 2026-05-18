@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
-from models.text_block import InputTextBlock, PartialTextBlock, TextBlock
+from models.text_block import InputTextBlock, PartialTextBlock, TextBlock, TextBlock, UpdateTextBlocks, UpdatedTextBlocks
 from controllers.text_block import TextBlockController
 from factory import Factory, get_factory
 
@@ -28,7 +28,7 @@ async def create_text_block(
         )
 
 @text_block_router.get("/{text_block_id}", status_code=status.HTTP_200_OK)
-async def get_text_block_by_id(text_block_id: int) -> PartialTextBlock:
+async def get_text_block_by_id(text_block_id: int) -> TextBlock:
     """
     Get a text block with the provided ID
     """
@@ -49,7 +49,7 @@ async def get_text_block_by_id(text_block_id: int) -> PartialTextBlock:
         )
 
 @text_block_router.get("/entity/{entity_id}", status_code=status.HTTP_200_OK)
-async def get_text_blocks_by_entity(entity_id: int) -> list[PartialTextBlock]:
+async def get_text_blocks_by_entity(entity_id: int) -> list[TextBlock]:
     """
     Get all the TextBlock from an entity
     """
@@ -68,7 +68,7 @@ async def get_text_blocks_by_entity(entity_id: int) -> list[PartialTextBlock]:
 async def update_text_block(
     text_block_id: int,
     text_block_patch: PartialTextBlock,
-) -> PartialTextBlock:
+) -> TextBlock:
     """
     Patch a text block.
     """
@@ -87,6 +87,24 @@ async def update_text_block(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
+    
+@text_block_router.patch('/', status_code=status.HTTP_200_OK)
+async def update_multiple_text_bloc(
+    text_blocks: UpdateTextBlocks,
+    req: Request
+) -> UpdatedTextBlocks:
+    """
+    Patch multiple texts blocks.
+    """
+    try:
+        user = req.state.user
+        updated_text_blocks = await text_block_controller.updated_multiple_text_blocks(text_blocks, user.id)
+        return updated_text_blocks
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 
 @text_block_router.delete("/{text_block_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_text_block(text_block_id: int) -> Response:
@@ -108,3 +126,4 @@ async def delete_text_block(text_block_id: int) -> Response:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
+    

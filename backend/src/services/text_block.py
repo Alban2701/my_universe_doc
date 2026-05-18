@@ -1,5 +1,5 @@
 from typing import List, Optional
-from src.models.text_block import InputTextBlock, PartialTextBlock, TextBlock
+from src.models.text_block import InputTextBlock, PartialTextBlock, TextBlock, TextBlock, UpdateTextBlocks, UpdatedTextBlocks
 from fastapi import HTTPException, status
 
 from src.repositories.text_block import TextBlockRepository
@@ -27,7 +27,7 @@ class TextBlockService:
                 detail=f"Failed to create text block: {str(e)}"
             )
 
-    async def get_text_block_by_id(self, text_block_id: int) -> Optional[PartialTextBlock]:
+    async def get_text_block_by_id(self, text_block_id: int) -> Optional[TextBlock]:
         """
         Get a text block by its id
 
@@ -45,7 +45,7 @@ class TextBlockService:
                 detail=f"Failed to get text block: {str(e)}"
             )
 
-    async def get_text_blocks_by_entity(self, entity_id: int) -> List[PartialTextBlock]:
+    async def get_text_blocks_by_entity(self, entity_id: int) -> List[TextBlock]:
         """
         Get all text blocks belonging to a specific entity
 
@@ -63,7 +63,7 @@ class TextBlockService:
                 detail=f"Failed to get text blocks by entity: {str(e)}"
             )
 
-    async def update_text_block(self, text_block_id: int, text_block_patch: PartialTextBlock) -> Optional[PartialTextBlock]:
+    async def update_text_block(self, text_block_id: int, text_block_patch: PartialTextBlock) -> Optional[TextBlock]:
         """
         Update a text block with new data
 
@@ -108,3 +108,45 @@ class TextBlockService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to delete text block: {str(e)}"
             )
+        
+    async def updarte_multiple_text_blocks(self, payload: UpdateTextBlocks, creator_id: int):
+        """
+        Update text_blocks from an entity.
+        
+        Parameters:
+        - payload: text_blocks which need to be created, deleted or updated
+        
+        Returns:
+        return_type: return_description
+        """
+
+        to_delete = payload.to_delete
+        to_create = payload.to_create
+        to_move = payload.to_move
+        to_patch = payload.to_patch
+        to_return = UpdatedTextBlocks() 
+
+        if to_delete:
+            ids = tuple([tb.id for tb in to_delete if tb.id is not None])
+            deleted = await self.text_block_repository.delete_multiple_text_blocks(ids)
+            if deleted:
+                await self.text_block_repository.pull_down_text_blocks_for_entity(deleted[0].entity_id)
+                to_return.deleted = deleted
+        
+        if to_create:
+            created = await self.text_block_repository.create_multiple_text_blocks(to_create, creator_id)
+            if created:
+                to_return.created = created
+
+        if to_patch:
+            patched = await self.text_block_repository.update_multiple_text_block(to_patch)
+            if patched:
+                to_return.patched = patched
+        
+        if to_move:
+            moved = await self.text_block_repository.move_multiple_tb(to_move)
+            if moved:
+                to_return.moved = moved
+
+        return to_return
+        

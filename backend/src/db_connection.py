@@ -4,7 +4,7 @@ import psycopg as pg
 from psycopg_pool import AsyncConnectionPool
 from dotenv import load_dotenv
 import os
-from typing import Any, LiteralString, Sequence, Mapping
+from typing import Any, List, LiteralString, Sequence, Mapping
 from psycopg.rows import dict_row, DictRow
 from src.utils.unoptional import unoptional
 
@@ -59,9 +59,8 @@ class DbConnection:
         params: Sequence[Any] | Mapping[str, Any] | None = None,
     ):
         if self.pool == None:
-            raise RuntimeError(
-                "Database not connected. Did you forget to call connect()?"
-            )
+            raise RuntimeError("Database not connected.")
+        
         async with self.pool.connection() as conn:
             conn: pg.AsyncConnection
             cur: pg.AsyncCursor[DictRow]
@@ -75,6 +74,28 @@ class DbConnection:
 
                     await conn.commit()
                     return None
+                except Exception as e:
+                    await conn.rollback()
+                    raise RuntimeError(f"SQL Error: {str(e)}")
+                
+    async def execute_many(self, query, params: List[Any]):
+        if self.pool == None:
+            raise RuntimeError("Database not connected.")
+        
+        async with self.pool.connection() as conn:
+            conn: pg.AsyncConnection
+            cur: pg.AsyncCursor[DictRow]
+            async with conn.cursor(row_factory=dict_row) as cur:
+                try:
+                    await cur.executemany(query, params, returning=True)
+                    if cur.description:
+                        rows = await cur.fetchall()
+                        await conn.commit()
+                        return rows
+                    
+                    await conn.commit()
+                    return None
+                
                 except Exception as e:
                     await conn.rollback()
                     raise RuntimeError(f"SQL Error: {str(e)}")

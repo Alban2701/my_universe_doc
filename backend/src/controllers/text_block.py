@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from typing import List, Optional
-from src.models.text_block import InputTextBlock, PartialTextBlock, TextBlock
+from src.models.text_block import InputTextBlock, PartialTextBlock, TextBlock, TextBlock, UpdateTextBlocks, UpdatedTextBlocks
 from src.services.text_block import TextBlockService
 
 class TextBlockController:
@@ -18,7 +18,7 @@ class TextBlockController:
                 detail=f"Failed to create text block: {str(e)}"
             )
 
-    async def get_text_block_by_id(self, text_block_id: int) -> Optional[PartialTextBlock]:
+    async def get_text_block_by_id(self, text_block_id: int) -> Optional[TextBlock]:
         try:
             text_block = await self.text_block_service.get_text_block_by_id(text_block_id)
             if text_block is None:
@@ -35,7 +35,7 @@ class TextBlockController:
                 detail=f"Failed to get text block: {str(e)}"
             )
 
-    async def get_text_blocks_by_entity(self, entity_id: int) -> List[PartialTextBlock]:
+    async def get_text_blocks_by_entity(self, entity_id: int) -> List[TextBlock]:
         try:
             return await self.text_block_service.get_text_blocks_by_entity(entity_id)
         except HTTPException:
@@ -46,7 +46,7 @@ class TextBlockController:
                 detail=f"Failed to get text blocks by entity: {str(e)}"
             )
 
-    async def update_text_block(self, text_block_id: int, text_block_patch: PartialTextBlock) -> Optional[PartialTextBlock]:
+    async def update_text_block(self, text_block_id: int, text_block_patch: PartialTextBlock) -> Optional[TextBlock]:
         try:
             updated_text_block = await self.text_block_service.update_text_block(text_block_id, text_block_patch)
             if updated_text_block is None:
@@ -79,3 +79,16 @@ class TextBlockController:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to delete text block: {str(e)}"
             )
+        
+    async def updated_multiple_text_blocks(self, payload: UpdateTextBlocks, creator_id: int) -> UpdatedTextBlocks:
+        try:
+            updated = await self.text_block_service.updarte_multiple_text_blocks(payload, creator_id)
+            if not (updated.deleted or updated.created or updated.patched or updated.moved):
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="any update, creation or deletion has been done") 
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to update multiple text blocks"
+            )
+            
+        return updated
