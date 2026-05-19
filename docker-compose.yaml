@@ -16,6 +16,12 @@ services:
     volumes:
       - .:/app
     command: python3 backend/start_uvicorn.py
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   frontend:
     container_name: myd_front
