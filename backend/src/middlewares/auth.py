@@ -40,7 +40,11 @@ class AuthMiddleware(BaseHTTPMiddleware):
             print(res.body)
             return res
         try:
-            user: UserToken = unoptional(await user_controller.get_user_with_session_token(session_token))
+            user: UserToken = unoptional(
+                await user_controller.get_user_with_session_token(session_token), 
+                "user not found", 
+                "HttpException"
+                )
             logged_in = await user_controller.is_logged_in(user.id)
             if logged_in:
                 request.state.user = user
