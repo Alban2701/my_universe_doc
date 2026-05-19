@@ -4,7 +4,7 @@
 
 - python 3.13 minimum installé
 - Docker et Docker Compose installés
-- Fichier .env avec les variables POSTGRES_HOST POSTGRES_PORT DATABASE_NAME POSTGRES_USER POSTGRES_PASSWORD définies
+- git installé et configuré
 - PGAdmin conseillé pour consulter la base de données
 
 ## Installation
@@ -25,36 +25,11 @@ docker compose up -d --build
 
 ## Vérification
 
-- Vérifier que la base de données tourne
-
 ```pwsh
 docker compose logs -f
 ```
 
-## Lancer l'application
-
-### Construire un environnement virtuel python et installer les dépendances
-
-#### Create the virtual environment
-
-`python -m venv .venv`
-
-#### Activate the virtual environment
-
-- on windows : `.venv/Scripts/activate`
-- on linux : `source .venv/bin/activate`
-
-`deactivate` to deactivate the Python venv
-
-#### Installer les dépendances
-
-Dans l'environnement virtuel : `pip install -r requirements.txt`
-
-#### Lancer le serveur
-
-`python start_uvicorn.py` ou `python start_uvicorn.py --reload` pour un hot refresh
-
-- L’API est accessible sur <http://localhost:8000>
+Devrait s'afficher des message  
 
 ## Gestion des conteneurs
 
@@ -75,3 +50,7 @@ docker compose up -d
 
 - PostgreSQL est disponible sur le port interne 5432.
 - Les données sont persistées via le volume Docker db-data.
+
+## Backend
+
+L'api tourne sur le port 8000
