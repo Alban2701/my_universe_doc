@@ -1,49 +1,70 @@
 # Deploy on server
 
-## Kernel used
+## Distribution used
 
 [Ubuntu Server 24.04.4 LTS](https://ubuntu.com/download/server/thank-you?version=24.04.4&architecture=amd64&lts=true)
 
 ## Packages installation
 
 - `apt update`
-- `docker --version`
-- if not installed : `apt install docker.io`
-- `git --version`
-- if not installed : `apt install git`
-
-## Git configuration
-
-### Git configuration globally
-
-`git config --global user.name "Name"`
-`git config --global user.email "admin@example.com"`
-
-### Generate SSH key of the server if needed
-
-`ssh-keygen -t ed25519 -C "ton.email@example.com"`
-let input default, or set it up as you wish.
-
-`cat ~/.ssh/id_ed25519.pub`
-copy the key and put it in your ssh keys in github : [github documentation](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
+- `sudo apt remove $(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)` to uninstall anything that could make conflict
+- follow instructions from the [Official Docker Documentation](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) (visited at 19th of May 2026)
+- follow instructions from the [git official guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) (Linux Installation Part)
 
 ## Clone the project
 
-Before all, make a fork of My Universe Doc's git project
-`git clone git@github.com:Alban2701/my_universe_doc.git`
+cd the target repository
 
-move yourself in the target repository
+clone the project `git clone https://github.com/Alban2701/my_universe_doc.git`
 
-clone the project `git clone git@github.com:your-username/my_universe_doc.git`
+`cd my_universe_doc`
 
-`cd /my_universe_doc`
+## Clean Apache
 
-## Configure Docker
+Apache may be running on your ubuntu.
+We will uninstall it.
 
-Add the user to the docker group
-`sudo usermod -aG docker $USER`
-`newgrp docker`
+```bash
+sudo systemctl stop apache2
+sudo systemctl disable apache2
+sudo apt remove --purge apache2 apache2-utils -y
+sudo apt autoremove -y
+```
 
-pare feu
-écrire la procédure de déploiement
-relire les consignes NSA301
+Check that anything is no more running on port 80
+`sudo ss -tlnp | grep :80`
+It must display nothing.
+
+## Launch the project
+
+`sudo docker compose up --build`
+
+## How to access the app
+
+`ip a` to display your ip adresses.
+Look for inet under enp0s3.
+You should have an IP like 10.xx.xxx.xx/xx
+On your navigator's search bar, search `http://{your-server-ip}`
+You should have the app displayed.
+
+## Configure the firewall
+
+```bash
+sudo ufw enable
+
+# For ssh connection
+sudo ufw allow 22/tcp
+
+sudo ufw allow 80/tcp
+
+# Block anything else
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+
+# check rules
+sudo ufw status verbose
+```
+
+## Congratulations
+
+You have now the app running on your server with a configured firewall.
