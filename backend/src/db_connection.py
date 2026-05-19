@@ -103,6 +103,5 @@ class DbConnection:
 
 _db = DbConnection()
 
-
 def get_db() -> DbConnection:
     return _db
