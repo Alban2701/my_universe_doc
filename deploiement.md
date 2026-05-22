@@ -49,6 +49,8 @@ You should have the app displayed.
 
 ## Configure the firewall
 
+The firewall is important to protect your server and your datas by closing ports your are not using.
+
 ```bash
 sudo ufw enable
 
