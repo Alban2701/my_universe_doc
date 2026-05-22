@@ -11,6 +11,7 @@ export default defineConfig({
 			"@my_types": path.resolve(__dirname, "./src/types"),
 			"@components": path.resolve(__dirname, "./src/components"),
 			"@panels": path.resolve(__dirname, "./src/components/UI/Panels"),
+			"@": path.resolve(__dirname, "./")
 		},
 	},
 	server: {

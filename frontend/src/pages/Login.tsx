@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BadCredentials from "../components/UI/Cards/BadCredentials";
 import BaseForm from "../components/UI/Forms/BaseForm";
+import { fetchLogin } from "@/src/fetchers";
 
 interface LoginPayload {
 	email: string;
@@ -21,14 +22,7 @@ export default function Login() {
 
 		const payload: LoginPayload = { email, password };
 		try {
-			const response = await fetch(`/api/user/login`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				credentials: "include",
-				body: JSON.stringify(payload),
-			});
+			const response = await fetchLogin(payload);
 			if (!response.ok) {
 				setBadCredentials(true);
 				throw new Error("erreur lors de l'inscription");
@@ -55,6 +49,7 @@ export default function Login() {
 						onChange: (e) => {
 							setEmail(e.target.value);
 						},
+						content: undefined,
 					},
 					{
 						type: "password",
@@ -64,6 +59,7 @@ export default function Login() {
 						onChange(e) {
 							setPassword(e.target.value);
 						},
+						content: undefined,
 					},
 				]}
 			/>

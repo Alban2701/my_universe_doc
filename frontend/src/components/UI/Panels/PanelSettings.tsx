@@ -19,10 +19,16 @@ function PanelSettings({
 	onUniverseDeleted: () => void;
 	onEntityDeleted: () => void;
 }) {
+	
+	const [title, setTitle] = useState<string | undefined>("");
+	useEffect(() => {
+		setTitle(selectedUniverse?.name);
+	}, [selectedUniverse]);
+
 	return (
 		<div className="border-b border-l h-full">
 			<h1 className="text-3xl text-center border-b mb-5">
-				Settings for {selectedUniverse?.name}
+				Settings for {title}
 			</h1>
 			<div className="flex flex-col">
 				{selectedUniverse ? (

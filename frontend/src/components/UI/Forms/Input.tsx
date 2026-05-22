@@ -20,7 +20,7 @@ export default function Input({
 	blockPaste = false,
 }: InputInterface) {
 	return (
-		<>
+		<div>
 			<label htmlFor={name}>{name}</label>
 			<br />
 			{content ? (
@@ -52,6 +52,6 @@ export default function Input({
 					className="pt-2 pl-2 w-full h-full justify-center"
 				/>
 			)}
-		</>
+		</div>
 	);
 }

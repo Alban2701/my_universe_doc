@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import type { TextBlockInterface } from "@/src/types/text_blocks";
 import { SortableTextBlock } from "./TextBlocks";
 
-function DragAndDropTextBlock({ entityId }: { entityId?: string }) {
+function DnDTextBlock({ entityId }: { entityId?: string }) {
 	const [textBlocks, setTextBlocks] = useState<TextBlockInterface[]>([]);
 
 	useEffect(() => {
@@ -68,4 +68,4 @@ function DragAndDropTextBlock({ entityId }: { entityId?: string }) {
 	);
 }
 
-export default DragAndDropTextBlock;
+export default DnDTextBlock;

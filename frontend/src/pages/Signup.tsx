@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { redirect, useLocation, useNavigate } from "react-router-dom";
 import BaseForm from "../components/UI/Forms/BaseForm";
+import { fetchSignup } from "@/src/fetchers";
 
 interface SignUpPayload {
 	email: string;
@@ -32,16 +33,7 @@ export default function SignUp() {
 			picture: null,
 		};
 		try {
-			const response = await fetch("/api/user/signup", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(verified_payload),
-				credentials: "include",
-			});
-			if (!response.ok) throw new Error("erreur lors de l'inscription");
-			const data = await response.json();
+			const data = await fetchSignup(verified_payload);
 			console.log("Api Response :", data);
 			const redirectTo = "/login";
 			navigate(redirectTo, { replace: true });
@@ -62,6 +54,7 @@ export default function SignUp() {
 				onChange: (e) => {
 					setUsername(e.target.value);
 				},
+				content: undefined,
 			},
 			{
 				type: "email",
@@ -71,6 +64,7 @@ export default function SignUp() {
 				onChange: (e) => {
 					setEmail(e.target.value);
 				},
+				content: undefined,
 			},
 			{
 				type: "password",
@@ -80,6 +74,7 @@ export default function SignUp() {
 				onChange: (e) => {
 					setPassword(e.target.value);
 				},
+				content: undefined,
 			},
 			{
 				type: "password",
@@ -89,6 +84,7 @@ export default function SignUp() {
 				onChange: (e) => {
 					setCheckPassword(e.target.value);
 				},
+				content: undefined,
 			},
 		],
 	});

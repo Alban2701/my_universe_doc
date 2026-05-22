@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { UniverseInterface } from "../../../types/universe";
 import CreateUniverse from "../Modals/Universe/CreateUniverse";
+import { fetchUniverses } from "@/src/fetchers";
 
 function PanelUniverse() {
 	const [universes, setUniverses] = useState<UniverseInterface[]>([]);
@@ -9,25 +10,17 @@ function PanelUniverse() {
 	const navigate = useNavigate();
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <we need the refresh dependancy to refresh the view once we created a doc. Otherwise we don't want to do anything with the refresh variable>
 	useEffect(() => {
-		const fetchUniverses = async () => {
+		const fetch = async () => {
 			try {
-				const response = await fetch("/api/universe/my-universes", {
-					credentials: "include",
-					method: "GET",
-				});
-				if (!response.ok) {
-					throw new Error(
-						`An error occured while fetching universes\n${await response.json()}`,
-					);
-				}
-				const data = await response.json();
+				const data = await fetchUniverses()
+				console.log(data)
 				setUniverses(data);
 				return data;
 			} catch (error) {
 				console.log("Error:", error);
 			}
 		};
-		fetchUniverses();
+		fetch();
 		return;
 	}, [refresh]);
 

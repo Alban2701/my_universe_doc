@@ -101,7 +101,7 @@ function PanelEntity({
 				<CreateEntity
 					onEntityCreated={handleEntityCreated}
 					universeId={Number(universeId)}
-					parentId={entityParentId}
+					parentId={Number(entityId)}
 				></CreateEntity>
 			</div>
 		</div>

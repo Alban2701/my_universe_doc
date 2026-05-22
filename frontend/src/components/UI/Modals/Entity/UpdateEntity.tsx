@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { EntityInterface } from "@/src/types/entity";
 import RectangularButton from "../../Button/Rectangular.button";
 import BaseForm from "../../Forms/BaseForm";
@@ -17,12 +17,16 @@ function UpdateUniverse({
 	onUniverseUpdated: () => void;
 }) {
 	const [isOpen, setIsOpen] = useState<boolean>(false);
-	const [entityName, setEntityName] = useState<string>(entity.name);
+	const [entityName, setEntityName] = useState<string>("");
 	const [entityNotDiscoveredName, setEntityNotDiscoveredName] =
-		useState<string>(
+		useState<string>("");
+
+	useEffect(() => {
+		setEntityName(entity.name);
+		setEntityNotDiscoveredName(
 			entity.not_discovered_name ? entity.not_discovered_name : "",
 		);
-
+	}, [entity]);
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
