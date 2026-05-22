@@ -1,4 +1,4 @@
-import SquareButton from "../UI/Button/square.button";
+import ProfileButton from "../UI/Button/ProfileButton";
 
 const Header = () => {
 	return (
@@ -10,11 +10,17 @@ const Header = () => {
 				alt=""
 				src={"/my_universe_doc_logo.png"}
 			/>
-			<div>My Universe Doc</div>
-			<SquareButton
-				src={"/profile_icon.svg"}
-				alternativeText={"User Button / Profile"}
-			/>
+			<div>
+				<h1>My Universe Doc</h1>
+			</div>
+			<div>
+				<ProfileButton
+					src={"/profile_icon.svg"}
+					alternativeText={"User Button / Profile"}
+					width={35}
+					height={35}
+				/>
+			</div>
 		</div>
 	);
 };

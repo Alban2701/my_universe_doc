@@ -24,7 +24,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/user/login",
             "/user/signup",
             "/docs",
-            "/openapi.json"
+            "/openapi.json",
         }
 
         if request.url.path in public_paths:
