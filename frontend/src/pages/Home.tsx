@@ -25,16 +25,10 @@ export default function Home() {
 				</p>
 				<div className="flex gap-4">
 					<RectangularButton
-						text="Commnencez maintenant !"
+						text="Commencez maintenant !"
 						onClick={goToMyDocs}
 						color="blue"
 					/>
-					<button
-						type="button"
-						className="border border-blue-600 text-blue-600 font-medium px-6 py-3 rounded-lg hover:bg-blue-50 transition"
-					>
-						En savoir plus
-					</button>
 				</div>
 			</section>
 
@@ -46,11 +40,11 @@ export default function Home() {
 				<div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
 					{/* Feature 1 */}
 					<div className="bg-white rounded-2xl shadow p-6 flex flex-col items-center text-center">
-						<img
+						{/* <img
 							src="/icons/document.svg"
 							alt="Documentation"
 							className="w-16 h-16 mb-4"
-						/>
+						/> */}
 						<h3 className="text-xl font-semibold mb-2">
 							Documentation centralisée
 						</h3>
@@ -61,11 +55,11 @@ export default function Home() {
 
 					{/* Feature 2 */}
 					<div className="bg-white rounded-2xl shadow p-6 flex flex-col items-center text-center">
-						<img
+						{/* <img
 							src="/icons/shield.svg"
 							alt="Accès sécurisé"
 							className="w-16 h-16 mb-4"
-						/>
+						/> */}
 						<h3 className="text-xl font-semibold mb-2">Contrôle des accès</h3>
 						<p className="text-gray-600">
 							Gérez qui peut consulter ou modifier vos univers.
@@ -74,11 +68,11 @@ export default function Home() {
 
 					{/* Feature 3 */}
 					<div className="bg-white rounded-2xl shadow p-6 flex flex-col items-center text-center">
-						<img
+						{/* <img
 							src="/icons/collab.svg"
 							alt="Collaboration"
 							className="w-16 h-16 mb-4"
-						/>
+						/> */}
 						<h3 className="text-xl font-semibold mb-2">
 							Collaboration avec suivi et validation des changements
 						</h3>
@@ -98,9 +92,10 @@ export default function Home() {
 					</h2>
 					<p className="text-gray-700 leading-relaxed">
 						My Universe Doc est né d'un besoin simple : permettre aux créateurs
-						d'univers de garder une trace claire et structurée de leur travail.
-						Fini les fichiers dispersés et les notes introuvables — tout est
-						organisé, connecté et accessible depuis une interface fluide.
+						d'univers et aux documentalistes de rédiger de manière simple et
+						collaborative leurs ouvrages. Un système de hierarchie permet de
+						fragmenter les différents éléments de leurs documentation et gérer
+						facilement les droits d'accès
 					</p>
 				</div>
 			</section>
