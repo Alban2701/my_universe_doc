@@ -1,0 +1,55 @@
+name: Units and Integration Tests
+
+on:
+  push:
+    branches: [main, dev]
+    paths: 
+        - "backend/**"
+  pull_request:
+    branches: [main, dev]
+    paths: 
+        - "backend/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Start test DB
+        run: docker compose -f docker-compose.test.yml up -d
+
+      - name: Wait for DB
+        run: |
+          for i in $(seq 1 15); do
+            docker exec myd_db_test pg_isready -U postgres && break
+            echo "Waiting... ($i)"
+            sleep 2
+          done
+
+      - name: Run tests
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5433
+          DATABASE_NAME: my_universe_doc_db_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: myuniversedocpwdb
+        run: pytest tests/functional/ -v
+
+      - name: Stop test DB
+        if: always()
+        run: docker compose -f docker-compose.test.yml down -v

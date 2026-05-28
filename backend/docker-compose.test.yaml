@@ -1,0 +1,17 @@
+services:
+  db_test:
+    image: postgres:18
+    container_name: myd_db_test
+    environment:
+      POSTGRES_DB: my_universe_doc_db_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: myuniversedocpwdb
+    volumes:
+      - ./src/data:/docker-entrypoint-initdb.d
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
