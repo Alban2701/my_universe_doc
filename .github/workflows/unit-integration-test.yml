@@ -3,12 +3,14 @@ name: Units and Integration Tests
 on:
   push:
     branches: [main, dev]
-    paths: 
+    paths:
         - "backend/**"
+        - ".github/workflows/unit-integration-test.yml"
   pull_request:
     branches: [main, dev]
-    paths: 
+    paths:
         - "backend/**"
+        - ".github/workflows/unit-integration-test.yml"
 
 jobs:
   test:
@@ -44,11 +46,11 @@ jobs:
       - name: Run tests
         env:
           POSTGRES_HOST: localhost
-          POSTGRES_PORT: 5433
+          POSTGRES_PORT: 5434
           DATABASE_NAME: my_universe_doc_db_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: myuniversedocpwdb
-        run: pytest tests/functional/ -v
+        run: pytest tests/integration/ -v
 
       - name: Stop test DB
         if: always()
