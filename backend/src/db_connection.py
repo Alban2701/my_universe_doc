@@ -21,7 +21,14 @@ class DbConnection:
 
     def __init__(self, env_path: str | None = None):
         try:
-            load_dotenv(env_path, override=True)
+            # `override=True` uniquement si un env_path explicite est fourni
+            # (cas des tests avec `.env.test`) : on veut alors écraser les vars
+            # déjà chargées depuis `.env`. En prod, `env_path` est None et on
+            # garde le comportement standard (env vars système prioritaires sur
+            # le fichier `.env`), pour ne pas écraser une config injectée par
+            # Docker/k8s/systemd avec d'éventuelles valeurs d'un `.env` resté
+            # dans l'image.
+            load_dotenv(env_path, override=bool(env_path))
             self.port = int(unoptional(os.getenv("POSTGRES_PORT", 5432), "db_port"))
             self.host = unoptional(os.getenv("POSTGRES_HOST"), "db_host")
             self.db_name = unoptional(os.getenv("DATABASE_NAME"), "db_name")

@@ -53,7 +53,7 @@ async def reset_db(test_db: DbConnection):
         )
         # Reseed avec le contenu de 99.sql
         seed_path = os.path.join("src", "data", "99.sql")
-        with open(seed_path, "r") as f:
+        with open(seed_path, "r", encoding="utf-8") as f:
             seed_sql = f.read()
         await conn.execute(cast(LiteralString, seed_sql))
         await conn.commit()
