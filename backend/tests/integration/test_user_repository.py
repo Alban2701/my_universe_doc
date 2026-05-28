@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from src.factory import Factory
 from src.models.user import PartialUser
 
