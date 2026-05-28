@@ -213,3 +213,6 @@ __marimo__/
 # docker-compose.yaml
 docker-compose.y*ml
 zdocuments_files/
+
+.claude
+
