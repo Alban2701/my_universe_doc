@@ -6,11 +6,7 @@ import pytest
 from src.middlewares.auth import AuthMiddleware
 from src.models.user import UserToken
 
-# Important : on importe `errors` via le même chemin que `auth.py`
-# (`from errors import errors`) — sinon Python charge le module deux fois
-# (errors.errors vs src.errors.errors) et les classes d'exception ne matchent
-# plus le `except` du middleware.
-from errors import errors  # noqa: E402
+from src.errors import errors
 
 
 def make_request(path: str = "/protected", session_token: str | None = None):

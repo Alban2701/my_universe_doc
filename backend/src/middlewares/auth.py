@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from starlette import status
 from starlette.middleware.base import BaseHTTPMiddleware
 from repositories import user as cuser
-from errors import errors
+from src.errors import errors
 from src.factory import get_factory
 from src.models.user import UserToken
 from src.utils.unoptional import unoptional
