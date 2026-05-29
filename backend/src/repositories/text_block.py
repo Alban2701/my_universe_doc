@@ -1,4 +1,5 @@
 from pydantic import TypeAdapter
+from psycopg.rows import dict_row
 
 from src.models.text_block import (
     InputTextBlock,
@@ -25,20 +26,37 @@ class TextBlockRepository(BaseRepository):
         Returns:
         PartialTextBlock: the created text block
         """
-        sql = """
-            UPDATE text_blocks
-            SET position = position + 1
-            WHERE entity_id = %(entity_id)s AND position >= %(position)s;
-
-            INSERT INTO text_blocks (title, content, position, creator_id, entity_id)
-            VALUES (%(title)s, %(content)s, %(position)s, %(creator_id)s, %(entity_id)s)
-            RETURNING *;
-        """
+        # Two-phase shift to dodge UNIQUE(entity_id, position) row-by-row:
+        # Phase 1 negates affected positions (they become unique negatives),
+        # Phase 2 restores them shifted by +1 (negatives -> positives, no
+        # overlap with the source set, no collisions). Then the INSERT lands
+        # in the freshly vacated slot.
+        phase1_sql = (
+            "UPDATE text_blocks SET position = -position "
+            "WHERE entity_id = %(entity_id)s AND position >= %(position)s"
+        )
+        phase2_sql = (
+            "UPDATE text_blocks SET position = -position + 1 "
+            "WHERE entity_id = %(entity_id)s AND position < 0"
+        )
+        insert_sql = (
+            "INSERT INTO text_blocks (title, content, position, creator_id, entity_id) "
+            "VALUES (%(title)s, %(content)s, %(position)s, %(creator_id)s, %(entity_id)s) "
+            "RETURNING *"
+        )
 
         model_tb = text_block.model_dump()
         model_tb["creator_id"] = creator_id
 
-        rows = unoptional(await self.db.execute(sql, model_tb))
+        rows = unoptional(
+            await self.db.execute_transactional(
+                [
+                    (phase1_sql, model_tb),
+                    (phase2_sql, model_tb),
+                    (insert_sql, model_tb),
+                ]
+            )
+        )
         returned_tb = TextBlock.model_validate(rows[0])
         return returned_tb
 
@@ -102,28 +120,54 @@ class TextBlockRepository(BaseRepository):
         # If position is changed, increments the position of other blocks
         new_position = text_block_patch.position
         if new_position is not None and new_position != old_position:
-            sql = """
+            # Two-phase update to avoid violating UNIQUE(entity_id, position)
+            # mid-statement. Phase 1: park every block in the affected range at
+            # its negated position (still unique, but out of the positive range,
+            # so no row-level collision can happen during phase 2). Phase 2:
+            # assign the final positions; sources are negative, targets are
+            # positive, so no collisions either.
+            phase1_sql = """
                 UPDATE text_blocks
-                SET position = CASE
-                    WHEN id = %(text_block_id)s THEN %(new_position)s
-                    WHEN position >= %(new_position)s AND position < %(old_position)s THEN position + 1
-                    WHEN position > %(old_position)s AND position <= %(new_position)s THEN position - 1
-                    ELSE position
-                END
-                WHERE id IN (
-                    SELECT id FROM text_blocks
-                    WHERE entity_id = %(entity_id)s
-                    AND position BETWEEN LEAST(%(new_position)s, %(old_position)s) AND GREATEST(%(new_position)s, %(old_position)s)
-                )
-                RETURNING *;
+                SET position = -position
+                WHERE entity_id = %(entity_id)s
+                AND position BETWEEN LEAST(%(new_position)s, %(old_position)s)
+                                 AND GREATEST(%(new_position)s, %(old_position)s)
+            """
+            phase2_sql = """
+                UPDATE text_blocks
+                SET
+                    position = CASE
+                        WHEN id = %(text_block_id)s THEN %(new_position)s
+                        WHEN -position >= %(new_position)s AND -position < %(old_position)s THEN -position + 1
+                        WHEN -position > %(old_position)s AND -position <= %(new_position)s THEN -position - 1
+                        ELSE -position
+                    END,
+                    title = CASE
+                        WHEN id = %(text_block_id)s THEN COALESCE(%(title)s, title)
+                        ELSE title
+                    END,
+                    content = CASE
+                        WHEN id = %(text_block_id)s THEN COALESCE(%(content)s, content)
+                        ELSE content
+                    END,
+                    updated_at = CASE
+                        WHEN id = %(text_block_id)s THEN NOW()
+                        ELSE updated_at
+                    END
+                WHERE entity_id = %(entity_id)s AND position < 0
+                RETURNING *
             """
             params = {
                 "text_block_id": text_block_id,
                 "new_position": new_position,
                 "old_position": old_position,
                 "entity_id": entity_id,
+                "title": text_block_patch.title,
+                "content": text_block_patch.content,
             }
-            rows = await self.db.execute(sql, params)
+            rows = await self.db.execute_transactional(
+                [(phase1_sql, params), (phase2_sql, params)]
+            )
         else:
             sql = (
                 "UPDATE text_blocks SET "
@@ -139,7 +183,12 @@ class TextBlockRepository(BaseRepository):
 
         if not rows:
             return None
-        returned_tb = TextBlock.model_validate(rows[0])
+        # The position-change branch returns several rows (all the shifted
+        # blocks). Return the one matching the targeted id.
+        target_row = next(
+            (row for row in rows if row["id"] == text_block_id), rows[0]
+        )
+        returned_tb = TextBlock.model_validate(target_row)
         return returned_tb
 
     async def get_position(self, text_block_id: int) -> Optional[int]:
@@ -163,9 +212,10 @@ class TextBlockRepository(BaseRepository):
         self, text_blocks: List[PartialTextBlock]
     ) -> List[TextBlock]:
         sql = (
-            "UPDATE text_block SET "
-            "title = COALESCE(%(title)s) "
-            "content = COALESCE(%(content)s) "
+            "UPDATE text_blocks SET "
+            "title = COALESCE(%(title)s, title), "
+            "content = COALESCE(%(content)s, content), "
+            "updated_at = NOW() "
             "WHERE id = %(id)s "
             "RETURNING *"
         )
@@ -180,34 +230,62 @@ class TextBlockRepository(BaseRepository):
     async def move_multiple_tb(
         self, text_blocks: List[MovingTextBlock]
     ) -> List[TextBlock]:
-        sql = (
-            "UPDATE text_blocks"
-            "SET position = CASE "
-            "WHEN id = %(text_block_id)s THEN %(new_position)s "
-            "WHEN position >= %(new_position)s AND position < %(old_position)s THEN position + 1 "
-            "WHEN position > %(old_position)s AND position <= %(new_position)s THEN position - 1 "
-            "ELSE position "
-            "END "
-            "WHERE id IN ( "
-            "SELECT id FROM text_blocks "
-            "WHERE entity_id = %(entity_id)s "
-            "AND position BETWEEN LEAST(%(new_position)s, %(old_position)s) AND GREATEST(%(new_position)s, %(old_position)s) "
-            ") "
-            "RETURNING *;"
+        # Apply moves one at a time, re-reading the current position from DB
+        # before each swap. The client-provided `old_position` becomes stale
+        # as soon as the first move shifts other blocks, so we cannot trust it.
+        # Two-phase update (negate then assign) to avoid mid-statement UNIQUE
+        # violations on (entity_id, position). The two phases run in the same
+        # transaction because phase 2 must see phase 1's negations.
+        phase1_sql = """
+            UPDATE text_blocks
+            SET position = -position
+            WHERE entity_id = %(entity_id)s
+            AND position BETWEEN LEAST(%(new_position)s, %(old_position)s)
+                             AND GREATEST(%(new_position)s, %(old_position)s)
+        """
+        phase2_sql = """
+            UPDATE text_blocks
+            SET position = CASE
+                WHEN id = %(text_block_id)s THEN %(new_position)s
+                WHEN -position >= %(new_position)s AND -position < %(old_position)s THEN -position + 1
+                WHEN -position > %(old_position)s AND -position <= %(new_position)s THEN -position - 1
+                ELSE -position
+            END
+            WHERE entity_id = %(entity_id)s AND position < 0
+            RETURNING *
+        """
+        current_position_sql = (
+            "SELECT position FROM text_blocks WHERE id = %(id)s"
         )
 
-        params = [
-            {
+        moved: List[TextBlock] = []
+        for tb in text_blocks:
+            current_rows = await self.db.execute(
+                current_position_sql, {"id": tb.id}
+            )
+            if not current_rows:
+                continue
+            current_position = current_rows[0]["position"]
+            if current_position == tb.new_position:
+                continue
+
+            params = {
                 "text_block_id": tb.id,
                 "new_position": tb.new_position,
-                "old_position": tb.old_position,
+                "old_position": current_position,
                 "entity_id": tb.entity_id,
             }
-            for tb in text_blocks
-        ]
-        rows = await self.db.execute_many(sql, params)
-        adapter = TypeAdapter(List[TextBlock])
-        return adapter.validate_python(rows)
+            rows = await self.db.execute_transactional(
+                [(phase1_sql, params), (phase2_sql, params)]
+            )
+            if not rows:
+                continue
+            target_row = next(
+                (row for row in rows if row["id"] == tb.id), None
+            )
+            if target_row is not None:
+                moved.append(TextBlock.model_validate(target_row))
+        return moved
 
     async def delete_text_block(self, text_block_id: int) -> Optional[TextBlock]:
         """
@@ -220,22 +298,43 @@ class TextBlockRepository(BaseRepository):
         bool: True if deleted, False otherwise
         """
 
-        sql = "DELETE FROM text_blocks WHERE id = %(id)s RETURNING *"
-        deleted_rows = await self.db.execute(sql, {"id": text_block_id})
-        if not deleted_rows:
-            return None
-        deleted = TextBlock.model_validate(deleted_rows[0])
-        switch_sql = (
+        # Two-step: delete the row, then pull subsequent positions down by 1.
+        # Both must be in the same transaction so we never leave a hole if the
+        # second step fails.
+        delete_sql = "DELETE FROM text_blocks WHERE id = %(id)s RETURNING *"
+        reshift_sql = (
             "UPDATE text_blocks "
             "SET position = position - 1 "
             "WHERE position > %(position)s "
-            "AND entity_id = %(entity_id)"
-        )
-        await self.db.execute(
-            switch_sql, {"position": deleted.position, "entity_id": deleted.entity_id}
+            "AND entity_id = %(entity_id)s"
         )
 
-        return deleted
+        # The reshift's params depend on the delete's RETURNING, so we cannot
+        # use execute_transactional (which only forwards predefined params).
+        # Drive the cursor ourselves on a single connection / single transaction.
+        if self.db.pool is None:
+            raise RuntimeError("Database not connected.")
+        async with self.db.pool.connection() as conn:
+            async with conn.cursor(row_factory=dict_row) as cur:
+                try:
+                    await cur.execute(delete_sql, {"id": text_block_id})
+                    deleted_rows = await cur.fetchall() if cur.description else []
+                    if not deleted_rows:
+                        await conn.rollback()
+                        return None
+                    deleted = TextBlock.model_validate(deleted_rows[0])
+                    await cur.execute(
+                        reshift_sql,
+                        {
+                            "position": deleted.position,
+                            "entity_id": deleted.entity_id,
+                        },
+                    )
+                    await conn.commit()
+                    return deleted
+                except Exception as e:
+                    await conn.rollback()
+                    raise RuntimeError(f"SQL Error: {str(e)}")
 
     async def delete_multiple_text_blocks(
         self, tb_ids: Tuple[int, ...]
@@ -249,8 +348,8 @@ class TextBlockRepository(BaseRepository):
         Returns:
         Optional[List[TextBlock]]: the text_blocks deleted
         """
-        sql = "DELETE FROM text_blocks WHERE id IN %(tb_ids)s RETURNING id"
-        deleted_rows = await self.db.execute(sql, params={"tb_ids": tb_ids})
+        sql = "DELETE FROM text_blocks WHERE id = ANY(%(tb_ids)s) RETURNING *"
+        deleted_rows = await self.db.execute(sql, params={"tb_ids": list(tb_ids)})
         if not deleted_rows:
             return None
         adapter = TypeAdapter(List[TextBlock])
@@ -266,13 +365,13 @@ class TextBlockRepository(BaseRepository):
             "SELECT "
             "id, "
             "ROW_NUMBER() OVER (ORDER BY position) AS new_position "
-            "FROM text_block "
+            "FROM text_blocks "
             "WHERE entity_id = %(entity_id)s "
             ") "
-            "UPDATE text_block "
+            "UPDATE text_blocks "
             "SET position = ranked_blocks.new_position "
             "FROM ranked_blocks "
-            "WHERE text_block.id = ranked_blocks.id; "
+            "WHERE text_blocks.id = ranked_blocks.id; "
         )
         await self.db.execute(sql, {"entity_id": entity_id})
 
@@ -290,27 +389,39 @@ class TextBlockRepository(BaseRepository):
         Optional[List[TextBlock]]: The TextBlocks created
         """
 
-        sql = """
-            UPDATE text_blocks
-            SET position = position + 1
-            WHERE entity_id = %(entity_id)s AND position >= %(position)s;
+        phase1_sql = (
+            "UPDATE text_blocks SET position = -position "
+            "WHERE entity_id = %(entity_id)s AND position >= %(position)s"
+        )
+        phase2_sql = (
+            "UPDATE text_blocks SET position = -position + 1 "
+            "WHERE entity_id = %(entity_id)s AND position < 0"
+        )
+        insert_sql = (
+            "INSERT INTO text_blocks (title, content, position, creator_id, entity_id) "
+            "VALUES (%(title)s, %(content)s, %(position)s, %(creator_id)s, %(entity_id)s) "
+            "RETURNING *"
+        )
+        # Insert in ascending position order so that each per-row shift is
+        # contained to existing blocks (not the ones we just inserted).
+        sorted_blocks = sorted(text_blocks, key=lambda tb: tb.position)
 
-            INSERT INTO text_blocks (title, content, position, creator_id, entity_id)
-            VALUES (%(title)s, %(content)s, %(position)s, %(creator_id)s, %(entity_id)s)
-            RETURNING *;
-        """
-        params: List[Dict] = []
-        for tb in text_blocks:
-            params.append(
-                {
-                    "title": tb.title,
-                    "content": tb.content,
-                    "position": tb.position,
-                    "creator_id": creator_id,
-                    "entity_id": tb.entity_id,
-                }
+        created: List[TextBlock] = []
+        for tb in sorted_blocks:
+            params = {
+                "title": tb.title,
+                "content": tb.content,
+                "position": tb.position,
+                "creator_id": creator_id,
+                "entity_id": tb.entity_id,
+            }
+            rows = await self.db.execute_transactional(
+                [
+                    (phase1_sql, params),
+                    (phase2_sql, params),
+                    (insert_sql, params),
+                ]
             )
-
-        rows = await self.db.execute_many(sql, params)
-        adapter = TypeAdapter(List[TextBlock])
-        return adapter.validate_python(rows)
+            if rows:
+                created.append(TextBlock.model_validate(rows[0]))
+        return created

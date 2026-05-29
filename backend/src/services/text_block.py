@@ -148,9 +148,12 @@ class TextBlockService:
             ids = tuple([tb.id for tb in to_delete if tb.id is not None])
             deleted = await self.text_block_repository.delete_multiple_text_blocks(ids)
             if deleted:
-                await self.text_block_repository.pull_down_text_blocks_for_entity(
-                    deleted[0].entity_id
-                )
+                # Re-pack positions for every distinct entity touched, not just
+                # the first one. Otherwise other entities are left with holes.
+                for entity_id in {tb.entity_id for tb in deleted}:
+                    await self.text_block_repository.pull_down_text_blocks_for_entity(
+                        entity_id
+                    )
                 to_return.deleted = deleted
 
         if to_create:

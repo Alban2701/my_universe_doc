@@ -5,7 +5,7 @@ from psycopg.sql import SQL
 from psycopg_pool import AsyncConnectionPool
 from dotenv import load_dotenv
 import os
-from typing import Any, List, LiteralString, Sequence, Mapping
+from typing import Any, List, LiteralString, Sequence, Mapping, Tuple, Union
 from psycopg.rows import dict_row, DictRow
 from src.utils.unoptional import unoptional
 
@@ -90,6 +90,46 @@ class DbConnection:
                     await conn.rollback()
                     raise RuntimeError(f"SQL Error: {str(e)}")
 
+    async def execute_transactional(
+        self,
+        statements: List[
+            Tuple[
+                Union[LiteralString, SQL],
+                Sequence[Any] | Mapping[str, Any] | None,
+            ]
+        ],
+    ):
+        """
+        Execute several statements within a single connection and a single
+        transaction (one COMMIT at the end, ROLLBACK on any failure).
+
+        Use this when multiple statements must be atomic AND must see each
+        other's writes (which CTEs cannot offer because they share a snapshot).
+        psycopg3 / PostgreSQL forbids sending multi-command SQL through a
+        prepared statement, so we run them one by one on the same cursor.
+
+        Returns the rows from the LAST statement that produced a result set,
+        or None if no statement returned rows.
+        """
+        if self.pool is None:
+            raise RuntimeError("Database not connected.")
+
+        async with self.pool.connection() as conn:
+            conn: pg.AsyncConnection
+            cur: pg.AsyncCursor[DictRow]
+            async with conn.cursor(row_factory=dict_row) as cur:
+                try:
+                    last_rows: List[DictRow] | None = None
+                    for sql, params in statements:
+                        await cur.execute(sql, params)
+                        if cur.description:
+                            last_rows = await cur.fetchall()
+                    await conn.commit()
+                    return last_rows
+                except Exception as e:
+                    await conn.rollback()
+                    raise RuntimeError(f"SQL Error: {str(e)}")
+
     async def execute_many(self, query, params: List[Any]):
         if self.pool is None:
             raise RuntimeError("Database not connected.")
@@ -100,13 +140,17 @@ class DbConnection:
             async with conn.cursor(row_factory=dict_row) as cur:
                 try:
                     await cur.executemany(query, params, returning=True)
+                    # With returning=True, psycopg3 produces one result set per
+                    # batch. fetchall() only reads the current one; we must
+                    # advance with nextset() to gather them all.
+                    all_rows: List[DictRow] = []
                     if cur.description:
-                        rows = await cur.fetchall()
-                        await conn.commit()
-                        return rows
-
+                        all_rows.extend(await cur.fetchall())
+                        while cur.nextset():
+                            if cur.description:
+                                all_rows.extend(await cur.fetchall())
                     await conn.commit()
-                    return None
+                    return all_rows if all_rows else None
 
                 except Exception as e:
                     await conn.rollback()
