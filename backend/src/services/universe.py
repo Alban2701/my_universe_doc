@@ -11,11 +11,14 @@ from fastapi import HTTPException, status
 from src.repositories.user import UserRepository
 from src.repositories.user_entity import UserEntityRepository
 
+
 class UniverseService:
-    def __init__(self,
-                universe_repository: UniverseRepository,
-                user_repository: UserRepository,
-                entity_repository: EntityRepository):
+    def __init__(
+        self,
+        universe_repository: UniverseRepository,
+        user_repository: UserRepository,
+        entity_repository: EntityRepository,
+    ):
         """
         Initialise le contrôleur pour la gestion des universes.
 
@@ -26,7 +29,9 @@ class UniverseService:
         self.user_repository = user_repository
         self.entity_repository = entity_repository
 
-    async def create_universe(self, universe_data: InputUniverse, creator_id: int) -> Universe:
+    async def create_universe(
+        self, universe_data: InputUniverse, creator_id: int
+    ) -> Universe:
         """
         Crée un nouvel univers dans la base de données.
 
@@ -72,7 +77,9 @@ class UniverseService:
         """
         return await self.universe_repository.get_universes_by_creator(creator_id)
 
-    async def update_universe(self, universe_id: int, universe_patch: PartialUniverse) -> Universe | None:
+    async def update_universe(
+        self, universe_id: int, universe_patch: PartialUniverse
+    ) -> Universe | None:
         """
         Met à jour un univers avec les nouvelles données fournies.
 
@@ -83,7 +90,9 @@ class UniverseService:
         Returns:
         PartialUniverse | None: L'univers mis à jour ou None s'il n'existe pas.
         """
-        return await self.universe_repository.update_universe(universe_id, universe_patch)
+        return await self.universe_repository.update_universe(
+            universe_id, universe_patch
+        )
 
     async def delete_universe(self, universe_id: int) -> Optional[Universe]:
         """
@@ -119,17 +128,35 @@ class UniverseService:
         if not universe:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Universe not found with the provided Id: {universe_id}"
+                detail=f"Universe not found with the provided Id: {universe_id}",
             )
 
         if await self.is_user_superadmin_universe(user.id, universe_id):
-            entities = await self.entity_repository.get_entities_by_universe(universe.id)
+            entities = await self.entity_repository.get_entities_by_universe(
+                universe.id
+            )
             return entities
         else:
-            entities_as_reader = await self.entity_repository.get_entities_with_user_role(user.id, universe_id, UserEntityRole.reader)
-            entities_as_editor = await self.entity_repository.get_entities_with_user_role(user.id, universe_id, UserEntityRole.editor)
-            entities_as_admin = await self.entity_repository.get_entities_with_user_role(user.id, universe_id, UserEntityRole.administrator)
-            return {"as_reader": entities_as_reader, "as_editor": entities_as_editor, "as_admin": entities_as_admin}
+            entities_as_reader = (
+                await self.entity_repository.get_entities_with_user_role(
+                    user.id, universe_id, UserEntityRole.reader
+                )
+            )
+            entities_as_editor = (
+                await self.entity_repository.get_entities_with_user_role(
+                    user.id, universe_id, UserEntityRole.editor
+                )
+            )
+            entities_as_admin = (
+                await self.entity_repository.get_entities_with_user_role(
+                    user.id, universe_id, UserEntityRole.administrator
+                )
+            )
+            return {
+                "as_reader": entities_as_reader,
+                "as_editor": entities_as_editor,
+                "as_admin": entities_as_admin,
+            }
 
     async def is_user_superadmin_universe(self, user_id: int, universe_id: int) -> bool:
         """
@@ -151,15 +178,19 @@ class UniverseService:
             return False
         else:
             return True
-        
-    async def get_firsts_entities_from_a_universe(self, universe_id: int) -> Optional[List[Entity]]:
+
+    async def get_firsts_entities_from_a_universe(
+        self, universe_id: int
+    ) -> Optional[List[Entity]]:
         """
         Gets the entities in a universe which have no parents
-        
+
         Parameters:
         - universe_id (int): id of the universe
-        
+
         Returns:
         List[Entity]: a list of the universe's entities which have no parents
         """
-        return await self.entity_repository.get_firsts_entities_from_a_universe(universe_id)
+        return await self.entity_repository.get_firsts_entities_from_a_universe(
+            universe_id
+        )

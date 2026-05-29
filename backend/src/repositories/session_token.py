@@ -7,8 +7,11 @@ from models.user import PartialUser
 from errors import errors
 from src.repositories.base_repository import BaseRepository
 
+
 class SessionTokenRepository(BaseRepository):
-    async def create_session_token(self, user_id: int, expires_in_days: int = 7, nb_bytes: int = 32) -> SessionToken:
+    async def create_session_token(
+        self, user_id: int, expires_in_days: int = 7, nb_bytes: int = 32
+    ) -> SessionToken:
         """
         Create a session token for a user
 
@@ -23,9 +26,11 @@ class SessionTokenRepository(BaseRepository):
         token = create_token(nb_bytes=nb_bytes)
         expires_at = datetime.now() + timedelta(days=expires_in_days)
 
-        sql = ("INSERT INTO session_token (value, user_id, expires_at)"
-               " VALUES (%(value)s, %(user_id)s, %(expires_at)s)"
-               " RETURNING id, value, user_id, created_at, updated_at, expires_at")
+        sql = (
+            "INSERT INTO session_token (value, user_id, expires_at)"
+            " VALUES (%(value)s, %(user_id)s, %(expires_at)s)"
+            " RETURNING id, value, user_id, created_at, updated_at, expires_at"
+        )
         params = {
             "value": token,
             "user_id": user_id,
@@ -45,7 +50,7 @@ class SessionTokenRepository(BaseRepository):
         Returns:
         SessionToken: the session token
         """
-        sql = ("SELECT * from session_token WHERE user_id = %(user_id)s;")
+        sql = "SELECT * from session_token WHERE user_id = %(user_id)s;"
         params = {"user_id": user_id}
         rows = await self.db.execute(sql, params)
         if not rows:
@@ -59,7 +64,9 @@ class SessionTokenRepository(BaseRepository):
 
         return session
 
-    async def update_expires_date_token(self, user_id: int, expires_in_days: int = 7) -> None:
+    async def update_expires_date_token(
+        self, user_id: int, expires_in_days: int = 7
+    ) -> None:
         """
         Update the expire_date of a token
 
@@ -68,15 +75,19 @@ class SessionTokenRepository(BaseRepository):
         - expires_in_days (int): expire time in days
         """
         expires_at = datetime.now(timezone.utc) + timedelta(days=expires_in_days)
-        sql = ("UPDATE session_token SET "
-               "updated_at = NOW(), "
-               "expires_at = %(expires_at)s "
-               "WHERE user_id = %(user_id)s;")
+        sql = (
+            "UPDATE session_token SET "
+            "updated_at = NOW(), "
+            "expires_at = %(expires_at)s "
+            "WHERE user_id = %(user_id)s;"
+        )
         params = {"expires_at": expires_at, "user_id": user_id}
         await self.db.execute(sql, params)
         return
 
-    async def delete_session_token(self, user_id: int | None = None, session_value: str | None = None) -> None:
+    async def delete_session_token(
+        self, user_id: int | None = None, session_value: str | None = None
+    ) -> None:
         """
         Delete a session_token
 
@@ -85,10 +96,10 @@ class SessionTokenRepository(BaseRepository):
         - session_value (str): the session token value to delete
         """
         if user_id:
-            sql = ("DELETE FROM session_token WHERE user_id = %(user_id)s;")
+            sql = "DELETE FROM session_token WHERE user_id = %(user_id)s;"
             params = {"user_id": user_id}
         else:
-            sql = ("DELETE FROM session_token WHERE value = %(value)s;")
+            sql = "DELETE FROM session_token WHERE value = %(value)s;"
             params = {"value": session_value}
         await self.db.execute(sql, params)
         return
@@ -97,6 +108,6 @@ class SessionTokenRepository(BaseRepository):
         """
         Delete every expired session_token
         """
-        sql = ("DELETE FROM session_token WHERE expires_at < NOW();")
+        sql = "DELETE FROM session_token WHERE expires_at < NOW();"
         await self.db.execute(sql)
         return

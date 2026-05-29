@@ -9,9 +9,11 @@ class Invitation(BaseModel):
     universe_id: int
     status: InvitationStatus
 
+
 class InputInvitation(BaseModel):
     receiver_id: int
     universe_id: int
+
 
 class PartialInvitation(BaseModel):
     id: int | None
@@ -19,4 +21,3 @@ class PartialInvitation(BaseModel):
     receiver_id: int | None
     universe_id: int | None
     status: InvitationStatus | None
-

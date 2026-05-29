@@ -5,6 +5,7 @@ from typing import List, Optional
 from src.repositories.base_repository import BaseRepository
 from src.utils.unoptional import unoptional
 
+
 class CommentRepository(BaseRepository):
     async def create_comment(self, comment: InputComment, creator_id: int) -> Comment:
         """
@@ -60,7 +61,9 @@ class CommentRepository(BaseRepository):
         adapter = TypeAdapter(List[PartialComment])
         return adapter.validate_python(rows)
 
-    async def get_comments_by_text_block(self, text_block_id: int) -> List[PartialComment]:
+    async def get_comments_by_text_block(
+        self, text_block_id: int
+    ) -> List[PartialComment]:
         """
         Get all comments for a given text block
 
@@ -75,7 +78,9 @@ class CommentRepository(BaseRepository):
         adapter = TypeAdapter(List[PartialComment])
         return adapter.validate_python(rows)
 
-    async def update_comment(self, comment_id: int, comment_patch: PartialComment) -> Optional[PartialComment]:
+    async def update_comment(
+        self, comment_id: int, comment_patch: PartialComment
+    ) -> Optional[PartialComment]:
         """
         Update a comment's content
 

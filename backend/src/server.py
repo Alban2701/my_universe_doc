@@ -9,12 +9,14 @@ from db_connection import get_db
 import os
 from middlewares.auth import AuthMiddleware
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     db = get_db()
     await db.connect()
     yield
     await db.close()
+
 
 app = FastAPI(title="My Universe Doc", lifespan=lifespan)
 
@@ -40,5 +42,3 @@ app.add_middleware(
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
-
-

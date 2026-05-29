@@ -4,6 +4,7 @@ from src.models.enums import UserEntityRole
 from src.models.relations import UserEntity
 from src.repositories.base_repository import BaseRepository
 
+
 class UserEntityRepository(BaseRepository):
     async def get_user_entities_by_user_id(self, user_id: int) -> List[UserEntity]:
         """
@@ -42,10 +43,7 @@ class UserEntityRepository(BaseRepository):
             "WHERE e.universe_id = %(universe_id)s "
             "AND ue.user_id = %(user_id)s "
         )
-        params = {
-            "user_id": user_id,
-            "universe_id": universe_id
-        }
+        params = {"user_id": user_id, "universe_id": universe_id}
         rows = await self.db.execute(sql, params)
         adapter = TypeAdapter(List[UserEntity])
         return adapter.validate_python(rows)

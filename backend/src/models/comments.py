@@ -9,11 +9,13 @@ class Comment(BaseModel):
     text_block_id: int | None
     comment_id: int | None
 
+
 class InputComment(BaseModel):
     content: str
     entity_id: int
     text_block_id: int | None
     comment_id: int | None
+
 
 class PartialComment(BaseModel):
     id: int | None

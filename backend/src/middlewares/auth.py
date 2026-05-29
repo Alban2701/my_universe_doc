@@ -13,10 +13,9 @@ user_controller = factory.user_controller
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
-
     async def dispatch(self, request: Request, call_next) -> Response:
         """
-        Check if the user is logged in. 
+        Check if the user is logged in.
         """
 
         public_paths = {
@@ -29,50 +28,43 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
         if request.url.path in public_paths:
             return await call_next(request)
-        
+
         session_token = request.cookies.get("session_token")
         print(session_token)
         if not session_token:
             res = JSONResponse(
-                status_code=401,
-                content={"detail": "session not initialized"}
+                status_code=401, content={"detail": "session not initialized"}
             )
             print(res.body)
             return res
         try:
             user: UserToken = unoptional(
-                await user_controller.get_user_with_session_token(session_token), 
-                "user not found", 
-                "HttpException"
-                )
+                await user_controller.get_user_with_session_token(session_token),
+                "user not found",
+                "HttpException",
+            )
             logged_in = await user_controller.is_logged_in(user.id)
             if logged_in:
                 request.state.user = user
                 return await call_next(request)
-            
+
             else:
                 res = JSONResponse(
-                status_code=401,
-                content={"detail": "user not connected"}
-            )
+                    status_code=401, content={"detail": "user not connected"}
+                )
                 res.delete_cookie("session_token")
                 print(res.body)
                 return res
-        
+
         except (errors.SessionNotFoundError, errors.SessionExpiredError) as e:
-            
-            res = JSONResponse(
-                status_code=401,
-                content={"detail": e.message}
-            )
+            res = JSONResponse(status_code=401, content={"detail": e.message})
             res.delete_cookie("session_token")
             print(res.body)
             return res
-        
+
         except Exception as e:
             res = JSONResponse(
-                status_code=500,
-                content={"detail": "An server error occured"}
+                status_code=500, content={"detail": "An server error occured"}
             )
             print(e)
             print(res.body)

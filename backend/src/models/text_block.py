@@ -11,19 +11,22 @@ class TextBlock(BaseModel):
     creator_id: int
     entity_id: int
 
+
 class InputTextBlock(BaseModel):
     title: str | None
     content: str | None
     position: int
     entity_id: int
 
+
 class PartialTextBlock(BaseModel):
-    id: int | None=None
-    title: str | None=None
-    content: str | None=None
-    position: int | None=None
-    creator_id: int | None=None
-    entity_id: int | None=None
+    id: int | None = None
+    title: str | None = None
+    content: str | None = None
+    position: int | None = None
+    creator_id: int | None = None
+    entity_id: int | None = None
+
 
 class MovingTextBlock(BaseModel):
     id: int
@@ -31,11 +34,13 @@ class MovingTextBlock(BaseModel):
     new_position: int
     entity_id: int
 
+
 class UpdateTextBlocks(BaseModel):
     to_create: List[InputTextBlock]
     to_delete: List[PartialTextBlock]
     to_move: List[MovingTextBlock]
     to_patch: List[PartialTextBlock]
+
 
 class UpdatedTextBlocks(BaseModel):
     created: List[TextBlock] | None = None

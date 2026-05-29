@@ -5,8 +5,11 @@ from src.models.user import User
 from src.repositories.base_repository import BaseRepository
 from src.utils.unoptional import unoptional
 
+
 class UniverseRepository(BaseRepository):
-    async def create_universe(self, universe: InputUniverse, creator_id: int) -> Universe:
+    async def create_universe(
+        self, universe: InputUniverse, creator_id: int
+    ) -> Universe:
         """
         Create a new universe in the database
 
@@ -73,7 +76,9 @@ class UniverseRepository(BaseRepository):
         adapter = TypeAdapter(List[Universe])
         return adapter.validate_python(rows)
 
-    async def update_universe(self, universe_id: int, universe_patch: PartialUniverse) -> Universe | None:
+    async def update_universe(
+        self, universe_id: int, universe_patch: PartialUniverse
+    ) -> Universe | None:
         """
         Update a universe with new data
 

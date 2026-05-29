@@ -13,6 +13,7 @@ from src.services.text_block import TextBlockService
 from src.services.universe import UniverseService
 from src.services.user import UserService
 
+
 class Factory:
     def __init__(self):
         self.build_repositories()
@@ -30,7 +31,9 @@ class Factory:
 
     def build_services(self):
         self._user_service = UserService(self.user_repository, self.session_repository)
-        self._universe_service = UniverseService(self.universe_repository, self.user_repository, self.entity_repository)
+        self._universe_service = UniverseService(
+            self.universe_repository, self.user_repository, self.entity_repository
+        )
         self._entity_service = EntityService(self.entity_repository)
         self._text_block_service = TextBlockService(self.text_block_repository)
 
@@ -67,7 +70,7 @@ class Factory:
     @property
     def user_entity_repository(self) -> UserEntityRepository:
         return self._user_entity_repository
-    
+
     # --- User ---
 
     @property
@@ -95,22 +98,24 @@ class Factory:
     @property
     def entity_controller(self) -> EntityController:
         return self._entity_controller
-    
+
     # --- Text block ---
 
     @property
     def text_block_repository(self) -> TextBlockRepository:
         return self._text_block_repository
-    
+
     @property
     def text_block_service(self) -> TextBlockService:
         return self._text_block_service
-    
+
     @property
     def text_block_controller(self) -> TextBlockController:
         return self._text_block_controller
 
+
 _factory = Factory()
+
 
 def get_factory():
     return _factory

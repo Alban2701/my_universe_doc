@@ -38,7 +38,9 @@ class TestCreateMultipleTextBlocks:
             InputTextBlock(title="N2", content="c2", position=4, entity_id=1),
         ]
 
-        created = await self.repository.create_multiple_text_blocks(new_blocks, creator_id=1)
+        created = await self.repository.create_multiple_text_blocks(
+            new_blocks, creator_id=1
+        )
 
         assert created is not None
         assert len(created) == 2
@@ -58,7 +60,9 @@ class TestCreateMultipleTextBlocks:
             InputTextBlock(title="N1", content="c1", position=3, entity_id=1),
         ]
 
-        created = await self.repository.create_multiple_text_blocks(new_blocks, creator_id=1)
+        created = await self.repository.create_multiple_text_blocks(
+            new_blocks, creator_id=1
+        )
 
         assert created is not None
         assert len(created) == 2
@@ -223,9 +227,7 @@ class TestUpdateTextBlockSinglePositionAndContent:
     async def test_update_position_keeps_title_and_content_changes(self):
         """Regression test for fix F: when position changes, title and content
         from the patch must also be applied — previously they were dropped."""
-        patch = PartialTextBlock(
-            title="Histoire v2", content="contenu v2", position=2
-        )
+        patch = PartialTextBlock(title="Histoire v2", content="contenu v2", position=2)
 
         updated = await self.repository.update_text_block(1, patch)
 

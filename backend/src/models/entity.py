@@ -9,11 +9,13 @@ class Entity(BaseModel):
     universe_id: int
     creator_id: int
 
+
 class InputEntity(BaseModel):
     name: str
     not_discoverd_name: str | None = None
     parent: int | None
     universe_id: int
+
 
 class PartialEntity(BaseModel):
     id: int | None = None

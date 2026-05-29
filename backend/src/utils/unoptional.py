@@ -5,7 +5,9 @@ from fastapi import HTTPException
 T = TypeVar("T")
 
 
-def unoptional(elem: T | None, exception_message: str | None = None, to_raise: str = "ValueError") -> T:
+def unoptional(
+    elem: T | None, exception_message: str | None = None, to_raise: str = "ValueError"
+) -> T:
     """Take an element which can be optional, and raise an error if it is None
 
     Args:
@@ -22,7 +24,7 @@ def unoptional(elem: T | None, exception_message: str | None = None, to_raise: s
         if to_raise:
             if to_raise == "HttpException":
                 raise HTTPException(status_code=404, detail=exception_message)
-        
+
         raise ValueError(exception_message)
     else:
         return elem

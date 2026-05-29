@@ -7,19 +7,23 @@ from src.models.user import UserToken
 from src.services.universe import UniverseService
 from src.utils.unoptional import unoptional
 
+
 class UniverseController:
     def __init__(self, universe_service: UniverseService):
         self.universe_service = universe_service
 
-    async def create_universe(self, universe_data: InputUniverse, creator_id: int) -> Universe:
+    async def create_universe(
+        self, universe_data: InputUniverse, creator_id: int
+    ) -> Universe:
         try:
-            return await self.universe_service.create_universe(universe_data, creator_id)
+            return await self.universe_service.create_universe(
+                universe_data, creator_id
+            )
         except HTTPException:
             raise
         except Exception as e:
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=str(e)
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
             )
 
     async def get_all_universes(self) -> List[Universe]:
@@ -27,8 +31,7 @@ class UniverseController:
             return await self.universe_service.get_all_universes()
         except Exception as e:
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=str(e)
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
             )
 
     async def get_universe_by_id(self, universe_id: int) -> Universe:
@@ -37,15 +40,14 @@ class UniverseController:
             if universe is None:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Universe not found with the provided Id: {universe_id}"
+                    detail=f"Universe not found with the provided Id: {universe_id}",
                 )
             return universe
         except HTTPException:
             raise
         except Exception as e:
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=str(e)
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
             )
 
     async def get_universes_by_creator(self, creator_id: int) -> List[Universe]:
@@ -53,25 +55,27 @@ class UniverseController:
             return await self.universe_service.get_universes_by_creator(creator_id)
         except Exception as e:
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=str(e)
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
             )
 
-    async def update_universe(self, universe_id: int, universe_patch: PartialUniverse) -> Universe:
+    async def update_universe(
+        self, universe_id: int, universe_patch: PartialUniverse
+    ) -> Universe:
         try:
-            updated_universe = await self.universe_service.update_universe(universe_id, universe_patch)
+            updated_universe = await self.universe_service.update_universe(
+                universe_id, universe_patch
+            )
             if updated_universe is None:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Universe not found with the provided Id: {universe_id}"
+                    detail=f"Universe not found with the provided Id: {universe_id}",
                 )
             return updated_universe
         except HTTPException:
             raise
         except Exception as e:
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=str(e)
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
             )
 
     async def delete_universe(self, universe_id: int) -> Universe:
@@ -80,15 +84,14 @@ class UniverseController:
             if not deleted_universe:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Universe not found with the provided Id: {universe_id}"
+                    detail=f"Universe not found with the provided Id: {universe_id}",
                 )
             return deleted_universe
         except HTTPException:
-            raise 
+            raise
         except Exception as e:
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=str(e)
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
             )
 
     async def get_universe_entities(
@@ -102,13 +105,19 @@ class UniverseController:
             raise
         except Exception as e:
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=str(e)
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
             )
-        
-            
-    async def get_firsts_entities_from_a_universe(self, universe_id: int) -> List[Entity]:
+
+    async def get_firsts_entities_from_a_universe(
+        self, universe_id: int
+    ) -> List[Entity]:
         try:
-            return unoptional(await self.universe_service.get_firsts_entities_from_a_universe(universe_id), exception_message="universe_id", to_raise="HttpException")
+            return unoptional(
+                await self.universe_service.get_firsts_entities_from_a_universe(
+                    universe_id
+                ),
+                exception_message="universe_id",
+                to_raise="HttpException",
+            )
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))

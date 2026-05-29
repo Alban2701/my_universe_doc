@@ -3,6 +3,7 @@ from typing import Any
 from pydantic import BaseModel
 from src.models.enums import CommitsStatus
 
+
 class Commit(BaseModel):
     id: int
     message: str | None
@@ -11,9 +12,11 @@ class Commit(BaseModel):
     status: CommitsStatus | None
     admin_comment: str | None
 
+
 class InputCommit(BaseModel):
     message: str | None
     content: dict[str, Any]
+
 
 class PartialCommit(BaseModel):
     id: int | None

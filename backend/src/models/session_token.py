@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 
+
 class SessionToken(BaseModel):
     id: int
     value: str

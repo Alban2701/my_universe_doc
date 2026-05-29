@@ -7,10 +7,12 @@ class UserUniverse(BaseModel):
     universe_id: int
     admin_role: UserUniverseRole
 
+
 class UserEntity(BaseModel):
     user_id: int
     entity_id: int
     role: UserEntityRole
+
 
 class UserTextBlock(BaseModel):
     user_id: int

@@ -24,7 +24,5 @@ class TestFunctionalUserUniverse:
         assert role.admin_role == UserUniverseRole.super_administrator
 
     async def test_get_role_returns_none_when_no_link(self):
-        role = await self.user_repository.get_user_role(
-            user_id=999, universe_id=1
-        )
+        role = await self.user_repository.get_user_role(user_id=999, universe_id=1)
         assert role is None

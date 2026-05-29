@@ -1,12 +1,20 @@
 from pydantic import TypeAdapter
 
-from models.invitation import Invitation, InputInvitation, PartialInvitation, InvitationStatus
+from models.invitation import (
+    Invitation,
+    InputInvitation,
+    PartialInvitation,
+    InvitationStatus,
+)
 from typing import List, Optional
 from src.repositories.base_repository import BaseRepository
 from src.utils.unoptional import unoptional
 
+
 class InvitationRepository(BaseRepository):
-    async def create_invitation(self, sender_id: int, invitation: InputInvitation) -> Invitation:
+    async def create_invitation(
+        self, sender_id: int, invitation: InputInvitation
+    ) -> Invitation:
         """
         Create a new invitation in the database
 
@@ -29,7 +37,9 @@ class InvitationRepository(BaseRepository):
         returned_invitation = Invitation.model_validate(rows[0])
         return returned_invitation
 
-    async def get_invitation_by_id(self, invitation_id: int) -> Optional[PartialInvitation]:
+    async def get_invitation_by_id(
+        self, invitation_id: int
+    ) -> Optional[PartialInvitation]:
         """
         Get an invitation by its id
 
@@ -46,7 +56,9 @@ class InvitationRepository(BaseRepository):
         returned_invitation = PartialInvitation.model_validate(rows[0])
         return returned_invitation
 
-    async def get_invitations_by_receiver(self, receiver_id: int) -> List[PartialInvitation]:
+    async def get_invitations_by_receiver(
+        self, receiver_id: int
+    ) -> List[PartialInvitation]:
         """
         Get all invitations received by a user
 
@@ -61,7 +73,9 @@ class InvitationRepository(BaseRepository):
         adapter = TypeAdapter(List[PartialInvitation])
         return adapter.validate_python(rows)
 
-    async def update_invitation_status(self, invitation_id: int, status: InvitationStatus) -> Optional[PartialInvitation]:
+    async def update_invitation_status(
+        self, invitation_id: int, status: InvitationStatus
+    ) -> Optional[PartialInvitation]:
         """
         Update the status of an invitation (pending, accepted, rejected)
 

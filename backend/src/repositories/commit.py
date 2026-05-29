@@ -6,6 +6,7 @@ from typing import List, Optional
 from src.repositories.base_repository import BaseRepository
 from src.utils.unoptional import unoptional
 
+
 class CommitRepository(BaseRepository):
     async def create_commit(self, commit: InputCommit, creator_id: int) -> Commit:
         """
@@ -63,7 +64,9 @@ class CommitRepository(BaseRepository):
         adapter = TypeAdapter(List[PartialCommit])
         return adapter.validate_python(rows)
 
-    async def update_commit_status(self, commit_id: int, status: CommitsStatus, admin_comment: str | None) -> Optional[PartialCommit]:
+    async def update_commit_status(
+        self, commit_id: int, status: CommitsStatus, admin_comment: str | None
+    ) -> Optional[PartialCommit]:
         """
         Update the status of a commit (pending, accepted, rejected) and optional admin comment
 
@@ -83,7 +86,9 @@ class CommitRepository(BaseRepository):
             "WHERE id = %(id)s "
             "RETURNING *"
         )
-        rows = await self.db.execute(sql, {"id": commit_id, "status": status, "admin_comment": admin_comment})
+        rows = await self.db.execute(
+            sql, {"id": commit_id, "status": status, "admin_comment": admin_comment}
+        )
         if not rows:
             return None
         returned_commit = PartialCommit.model_validate(rows[0])

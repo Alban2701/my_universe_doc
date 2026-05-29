@@ -5,6 +5,7 @@ from src.models.enums import UserEntityRole
 from src.repositories.base_repository import BaseRepository
 from src.utils.unoptional import unoptional
 
+
 class EntityRepository(BaseRepository):
     async def get_all_entities(self) -> List[Entity]:
         """
@@ -18,7 +19,9 @@ class EntityRepository(BaseRepository):
         adapter = TypeAdapter(List[Entity])
         return adapter.validate_python(rows)
 
-    async def create_entity(self, entity: InputEntity, creator_id: int, universe_id: int) -> Entity:
+    async def create_entity(
+        self, entity: InputEntity, creator_id: int, universe_id: int
+    ) -> Entity:
         """
         Create a new entity in the database.
         If not_discovered_name is not set, then set it up by default as '???'
@@ -39,7 +42,10 @@ class EntityRepository(BaseRepository):
         model_entity = entity.model_dump()
         model_entity["creator_id"] = creator_id
         model_entity["universe_id"] = universe_id
-        if "not_discovered_name" not in model_entity or model_entity["not_discovered_name"] is None:
+        if (
+            "not_discovered_name" not in model_entity
+            or model_entity["not_discovered_name"] is None
+        ):
             model_entity["not_discovered_name"] = "???"
         rows = unoptional(await self.db.execute(sql, model_entity))
         returned_entity = Entity.model_validate(rows[0])
@@ -77,7 +83,9 @@ class EntityRepository(BaseRepository):
         adapter = TypeAdapter(List[Entity])
         return adapter.validate_python(rows)
 
-    async def update_entity(self, entity_id: int, entity_patch: PartialEntity) -> Optional[Entity]:
+    async def update_entity(
+        self, entity_id: int, entity_patch: PartialEntity
+    ) -> Optional[Entity]:
         """
         Update an entity with new data
 
@@ -157,14 +165,16 @@ class EntityRepository(BaseRepository):
         rows = await self.db.execute(sql, params)
         adapter = TypeAdapter(List[Entity])
         return adapter.validate_python(rows)
-    
-    async def get_firsts_entities_from_a_universe(self, universe_id: int) -> Optional[List[Entity]]:
+
+    async def get_firsts_entities_from_a_universe(
+        self, universe_id: int
+    ) -> Optional[List[Entity]]:
         """
         Gets the entities in a universe which have no parents
-        
+
         Parameters:
         - universe_id (int): id of the universe
-        
+
         Returns:
         List[Entity]: a list of the universe's entities which have no parents
         """
@@ -176,7 +186,9 @@ class EntityRepository(BaseRepository):
         adapter = TypeAdapter(List[Entity])
         return adapter.validate_python(rows)
 
-    async def get_entities_where_user_has_reader_access(self, user_id: int, universe_id: int) -> List[Entity]:
+    async def get_entities_where_user_has_reader_access(
+        self, user_id: int, universe_id: int
+    ) -> List[Entity]:
         """
         For a universe, access to all entities the user has access to text_bloc in
 
@@ -194,18 +206,17 @@ class EntityRepository(BaseRepository):
             "WHERE utb.user_id = %(user_id)s "
             "AND e.universe_id = %(universe_id)s"
         )
-        params = {
-            "user_id": user_id,
-            "universe_id": universe_id
-        }
+        params = {"user_id": user_id, "universe_id": universe_id}
         rows = await self.db.execute(sql, params)
         adapter = TypeAdapter(List[Entity])
         return adapter.validate_python(rows)
-    
-    async def get_entities_with_user_role(self, user_id: int, universe_id: int, role: UserEntityRole) -> List[Entity]:
+
+    async def get_entities_with_user_role(
+        self, user_id: int, universe_id: int, role: UserEntityRole
+    ) -> List[Entity]:
         """
         For a universe, access to all entities for which the user is editor
-        
+
         Parameters:
         - user_id (int): the user's id
         - universe_id (int): the universe the entities must be in
@@ -220,11 +231,7 @@ class EntityRepository(BaseRepository):
             "AND ue.role = %(role)s"
             "AND e.universe_id = %(universe_id)s"
         )
-        params = {
-            "user_id": user_id,
-            "role": role,
-            "universe_id": universe_id
-        }
+        params = {"user_id": user_id, "role": role, "universe_id": universe_id}
 
         rows = await self.db.execute(sql, params)
         adapter = TypeAdapter(List[Entity])
