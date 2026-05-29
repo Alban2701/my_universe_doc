@@ -185,9 +185,7 @@ class TextBlockRepository(BaseRepository):
             return None
         # The position-change branch returns several rows (all the shifted
         # blocks). Return the one matching the targeted id.
-        target_row = next(
-            (row for row in rows if row["id"] == text_block_id), rows[0]
-        )
+        target_row = next((row for row in rows if row["id"] == text_block_id), rows[0])
         returned_tb = TextBlock.model_validate(target_row)
         return returned_tb
 
@@ -254,15 +252,11 @@ class TextBlockRepository(BaseRepository):
             WHERE entity_id = %(entity_id)s AND position < 0
             RETURNING *
         """
-        current_position_sql = (
-            "SELECT position FROM text_blocks WHERE id = %(id)s"
-        )
+        current_position_sql = "SELECT position FROM text_blocks WHERE id = %(id)s"
 
         moved: List[TextBlock] = []
         for tb in text_blocks:
-            current_rows = await self.db.execute(
-                current_position_sql, {"id": tb.id}
-            )
+            current_rows = await self.db.execute(current_position_sql, {"id": tb.id})
             if not current_rows:
                 continue
             current_position = current_rows[0]["position"]
@@ -280,9 +274,7 @@ class TextBlockRepository(BaseRepository):
             )
             if not rows:
                 continue
-            target_row = next(
-                (row for row in rows if row["id"] == tb.id), None
-            )
+            target_row = next((row for row in rows if row["id"] == tb.id), None)
             if target_row is not None:
                 moved.append(TextBlock.model_validate(target_row))
         return moved
