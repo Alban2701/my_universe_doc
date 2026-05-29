@@ -1,0 +1,79 @@
+# Isolated stack for end-to-end tests.
+#
+# Uses distinct container names, an isolated network and non-conflicting host
+# ports so it can coexist with the dev stack (docker-compose.yaml) and the
+# integration-test DB (backend/docker-compose.test.yaml). The DB is reseeded
+# from backend/src/data/*.sql on every `docker compose up -d`.
+#
+# Host ports exposed:
+#   - Frontend (nginx)  -> http://localhost:8080
+#   - API (FastAPI)     -> http://localhost:8001
+#   - Postgres          -> localhost:5435
+
+services:
+  e2e_db:
+    image: postgres:18
+    container_name: myd_db_e2e
+    environment:
+      POSTGRES_DB: my_universe_doc_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: myuniversedocpwdb
+    volumes:
+      - ../backend/src/data:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  e2e_api:
+    container_name: myd_api_e2e
+    build:
+      context: ../backend
+    # nginx in the frontend container proxies /api/ to host "api" — make
+    # this service resolvable under that name on the e2e network.
+    networks:
+      default:
+        aliases:
+          - api
+    environment:
+      POSTGRES_HOST: e2e_db
+      POSTGRES_PORT: 5432
+      DATABASE_NAME: my_universe_doc_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: myuniversedocpwdb
+      SERVER_PORT: 8000
+    depends_on:
+      e2e_db:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+    # The backend Dockerfile only installs requirements; the source is
+    # injected at runtime via a read-only mount, just like the dev compose.
+    volumes:
+      - ../backend:/app:ro
+    working_dir: /app
+    command: python3 start_uvicorn.py
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import urllib.request, sys; sys.exit(0) if urllib.request.urlopen(\"http://localhost:8000/\").status == 200 else sys.exit(1)'"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+
+  e2e_frontend:
+    container_name: myd_front_e2e
+    build:
+      context: ../frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      e2e_api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:80/ >/dev/null 2>&1 || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 20

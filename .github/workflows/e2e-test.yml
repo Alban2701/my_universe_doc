@@ -1,0 +1,65 @@
+name: End-to-end tests
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "e2e/**"
+      - ".github/workflows/e2e-test.yml"
+  pull_request:
+    branches: [main, dev]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "e2e/**"
+      - ".github/workflows/e2e-test.yml"
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: e2e
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.10"
+
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright browser
+        run: playwright install --with-deps chromium
+
+      # The stack is built and started by the pytest session fixture.
+      # Build images up-front so the readiness wait inside the fixture
+      # stays well under its 180s budget on a cold runner.
+      - name: Pre-build docker images
+        run: docker compose -f docker-compose.e2e.yaml build
+
+      - name: Run e2e tests
+        run: pytest --tracing=retain-on-failure
+
+      - name: Upload Playwright traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: e2e/test-results/
+          if-no-files-found: ignore
+
+      - name: Stack logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.e2e.yaml logs
+
+      - name: Tear down stack
+        if: always()
+        run: docker compose -f docker-compose.e2e.yaml down -v
