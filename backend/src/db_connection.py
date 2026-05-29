@@ -39,7 +39,7 @@ class DbConnection:
 
         except Exception:
             print(traceback.format_exc())
-            raise Exception
+            raise
 
     async def connect(self):
         """
@@ -157,8 +157,20 @@ class DbConnection:
                     raise RuntimeError(f"SQL Error: {str(e)}")
 
 
-_db = DbConnection()
+_db: DbConnection | None = None
 
 
 def get_db() -> DbConnection:
+    """
+    Lazy accessor for the singleton DbConnection.
+
+    Construction is deferred until the first call so that importing this
+    module has no side effect — in particular, no env vars need to be
+    present at import time. Useful for test environments and CI where the
+    DB config might not be set yet (or where conftest swaps the singleton
+    via ``db_module._db = ...``).
+    """
+    global _db
+    if _db is None:
+        _db = DbConnection()
     return _db
