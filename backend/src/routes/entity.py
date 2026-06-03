@@ -27,9 +27,7 @@ async def create_entity(entity_data: InputEntity, request: Request):
 
 @entity_router.get("/", status_code=status.HTTP_200_OK)
 async def get_all_entities(request: Request):
-    user: UserToken = request.state.user
     try:
-        # Récupère toutes les entités (à adapter selon tes besoins)
         entities = await entity_controller.get_all_entities()
         return entities
     except HTTPException:
@@ -42,7 +40,6 @@ async def get_all_entities(request: Request):
 
 @entity_router.get("/{entity_id}", status_code=status.HTTP_200_OK)
 async def get_entity(entity_id: int, request: Request):
-    user: UserToken = request.state.user
     try:
         entity = await entity_controller.get_entity_by_id(entity_id)
         if entity is None:
@@ -61,7 +58,6 @@ async def get_entity(entity_id: int, request: Request):
 
 @entity_router.patch("/{entity_id}", status_code=status.HTTP_200_OK)
 async def update_entity(entity_id: int, entity_patch: PartialEntity, request: Request):
-    user: UserToken = request.state.user
     try:
         updated_entity = await entity_controller.update_entity(entity_id, entity_patch)
         return updated_entity
@@ -75,7 +71,6 @@ async def update_entity(entity_id: int, entity_patch: PartialEntity, request: Re
 
 @entity_router.delete("/{entity_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_entity(entity_id: int, request: Request):
-    user: UserToken = request.state.user
     try:
         success = await entity_controller.delete_entity(entity_id)
         if not success:
@@ -94,7 +89,6 @@ async def delete_entity(entity_id: int, request: Request):
 
 @entity_router.get("/{entity_id}/children", status_code=status.HTTP_200_OK)
 async def get_entity_children(entity_id: int, request: Request):
-    user: UserToken = request.state.user
     try:
         children = await entity_controller.get_entity_and_children(entity_id)
         return children
@@ -108,7 +102,6 @@ async def get_entity_children(entity_id: int, request: Request):
 
 @entity_router.get("/{entity_id}/direct-children", status_code=status.HTTP_200_OK)
 async def get_entity_direct_children(entity_id: int, request: Request):
-    user: UserToken = request.state.user
     try:
         children = await entity_controller.get_entity_direct_children(entity_id)
         return children
@@ -122,7 +115,6 @@ async def get_entity_direct_children(entity_id: int, request: Request):
 
 @entity_router.get("/{entity_id}/parents", status_code=status.HTTP_200_OK)
 async def get_entity_parents(entity_id: int, request: Request):
-    user: UserToken = request.state.user
     try:
         parents = await entity_controller.get_entity_parents(entity_id)
         return parents
