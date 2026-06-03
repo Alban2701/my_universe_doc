@@ -76,14 +76,10 @@ function MyDoc() {
 		}
 	}, [selectedEntity, universeId, navigate]);
 
-	const handleUniverseEntityUpdate = useCallback(
-		(selectedEntity?: EntityInterface) => {
-			const fetch = async () =>
-				await loadData(universeId, selectedEntity?.id.toString());
-			fetch();
-		},
-		[universeId, loadData],
-	);
+	const handleUniverseEntityUpdate = useCallback(() => {
+		const fetch = async () => await loadData(universeId, entityId);
+		fetch();
+	}, [universeId, entityId, loadData]);
 
 	const handleEntityDeleted = useCallback(() => {
 		selectedEntity?.parent
@@ -128,6 +124,10 @@ function MyDoc() {
 		} else {
 			setTitle("Choose a universe");
 		}
+		console.log({
+			selectedEntity: selectedEntity,
+			selectedUniverse: selectedUniverse,
+		});
 	}, [selectedUniverse, selectedEntity]);
 
 	return (

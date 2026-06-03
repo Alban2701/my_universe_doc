@@ -13,7 +13,6 @@ function PanelUniverse() {
 		const fetch = async () => {
 			try {
 				const data = await fetchUniverses()
-				console.log(data)
 				setUniverses(data);
 				return data;
 			} catch (error) {

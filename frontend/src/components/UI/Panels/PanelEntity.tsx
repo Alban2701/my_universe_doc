@@ -8,7 +8,6 @@ import EntityPath from "./entity_components/EntityPath";
 function PanelEntity({
 	universeId,
 	entityId,
-	entityParentId,
 	onEntityUpdate,
 	onPreviousButton,
 }: {

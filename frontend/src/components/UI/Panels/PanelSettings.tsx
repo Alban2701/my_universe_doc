@@ -19,7 +19,6 @@ function PanelSettings({
 	onUniverseDeleted: () => void;
 	onEntityDeleted: () => void;
 }) {
-	
 	const [title, setTitle] = useState<string | undefined>("");
 	useEffect(() => {
 		setTitle(selectedUniverse?.name);
@@ -49,7 +48,7 @@ function PanelSettings({
 					<div className="flex flex-row p-2 gap-2">
 						<UpdateEntity
 							entity={selectedEntity}
-							onUniverseUpdated={onUniverseEntityUpdated}
+							onEntityUpdated={onUniverseEntityUpdated}
 						/>
 						<DeleteEntity
 							entity={selectedEntity}

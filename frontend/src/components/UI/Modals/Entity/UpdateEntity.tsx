@@ -9,12 +9,12 @@ interface EntityPayload {
 	notDiscoveredName: string;
 }
 
-function UpdateUniverse({
+function UpdateEntity({
 	entity,
-	onUniverseUpdated,
+	onEntityUpdated,
 }: {
 	entity: EntityInterface;
-	onUniverseUpdated: () => void;
+	onEntityUpdated: () => void;
 }) {
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const [entityName, setEntityName] = useState<string>("");
@@ -47,7 +47,7 @@ function UpdateUniverse({
 			if (!response.ok) throw new Error("The entity could not be updated");
 			const data = await response.json();
 			console.log("Api Response :", data);
-			onUniverseUpdated();
+			onEntityUpdated();
 		} catch (error) {
 			console.log(error);
 		} finally {
@@ -104,4 +104,4 @@ function UpdateUniverse({
 	);
 }
 
-export default UpdateUniverse;
+export default UpdateEntity;
