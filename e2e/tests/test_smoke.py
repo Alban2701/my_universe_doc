@@ -29,3 +29,21 @@ def test_api_proxy_is_reachable(base_url: str, page: Page) -> None:
         f"API proxy unreachable: HTTP {response.status} — "
         "is the api container healthy?"
     )
+
+
+@pytest.mark.smoke
+def test_api_proxy_strips_prefix(base_url: str, page: Page) -> None:
+    """Regression guard for an nginx misconfig: when proxy_pass uses a
+    variable, the trailing-slash URI rewrite is silently dropped, so every
+    /api/<anything> falls back to the backend root. This made the frontend
+    believe /api/user/me succeeded and broke the whole auth flow.
+
+    Without a session cookie, /api/user/me MUST hit the auth-guarded
+    endpoint (→ 401), not the unauthenticated root route (→ 200).
+    """
+    response = page.request.get(f"{base_url}/api/user/me")
+    assert response.status == 401, (
+        f"/api/user/me returned HTTP {response.status} without a session — "
+        "the nginx /api/ rewrite is not stripping the prefix. "
+        f"Body: {response.text()[:120]!r}"
+    )
