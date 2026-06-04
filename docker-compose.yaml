@@ -17,11 +17,14 @@ services:
       - .:/app
     command: python3 backend/start_uvicorn.py
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/" ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - db-network
+      - frontend-network
 
   frontend:
     container_name: myd_front
@@ -33,6 +36,8 @@ services:
       - .:/app
     depends_on:
       - api
+    networks:
+      - frontend-network
 
   db:
     image: postgres:18
@@ -52,8 +57,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - db-network
 
 volumes:
   db-data:
-
 
