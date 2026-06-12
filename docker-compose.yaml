@@ -1,3 +1,7 @@
+networks:
+  db-network:
+  frontend-network:
+
 services:
   api:
     container_name: myd_api
@@ -51,7 +55,7 @@ services:
       - db-data:/var/lib/postgresql
       - ./backend/src/data:/docker-entrypoint-initdb.d
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "postgres" ]
       interval: 10s
