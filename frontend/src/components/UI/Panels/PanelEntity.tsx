@@ -101,7 +101,7 @@ function PanelEntity({
 					onEntityCreated={handleEntityCreated}
 					universeId={Number(universeId)}
 					parentId={Number(entityId)}
-				></CreateEntity>
+				/>
 			</div>
 		</div>
 	);

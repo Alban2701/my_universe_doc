@@ -124,10 +124,10 @@ function MyDoc() {
 		} else {
 			setTitle("Choose a universe");
 		}
-		console.log({
-			selectedEntity: selectedEntity,
-			selectedUniverse: selectedUniverse,
-		});
+		// console.log({
+		// 	selectedEntity: selectedEntity,
+		// 	selectedUniverse: selectedUniverse,
+		// });
 	}, [selectedUniverse, selectedEntity]);
 
 	return (
