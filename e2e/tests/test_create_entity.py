@@ -3,6 +3,8 @@ from playwright.sync_api import Page, expect
 
 def test_full_create_entity(page: Page, base_url: str) -> None:
     page.goto(base_url)
+
+    # Connexion
     page.get_by_role("button", name="User Button / Profile").click()
     page.get_by_role("button", name="Login").click()
     page.get_by_role("textbox", name="email").click()
@@ -10,6 +12,8 @@ def test_full_create_entity(page: Page, base_url: str) -> None:
     page.get_by_role("textbox", name="email").press("Tab")
     page.get_by_role("textbox", name="password").fill("azer")
     page.get_by_role("button", name="Log In").click()
+
+    # Accès à la page souhaitée
     page.get_by_role("button", name="Commencez maintenant !").click()
     expect(page.get_by_role("button", name="Royaume de Boréalis")).to_be_visible()
     page.get_by_role("button", name="Royaume de Boréalis").click()
@@ -17,6 +21,8 @@ def test_full_create_entity(page: Page, base_url: str) -> None:
     page.get_by_role("button", name="Forêt d'Ébène").click()
     expect(page.get_by_role("heading", name="Forêt d'Ébène")).to_be_visible()
     expect(page.locator("#root")).to_contain_text("Forêt d'Ébène")
+    
+    # Création d'une entité
     page.get_by_role("button", name="Create Entity").click()
     page.get_by_role("textbox", name="entityName").click()
     page.get_by_role("textbox", name="entityName").fill("L'arbre Primaire")

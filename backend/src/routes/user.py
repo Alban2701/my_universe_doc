@@ -1,3 +1,5 @@
+import os
+
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from models.user import InputUser, LoginUser, PartialUser, User, UserToken
 from controllers.user import UserController
@@ -28,12 +30,13 @@ async def signup(user: InputUser) -> PartialUser:
 async def login(credentials: LoginUser, response: Response):
     try:
         token = await user_controller.login(credentials)
+        secure = os.getenv("IN_DEV") is None
         response.set_cookie(
             key="session_token",
             value=token,
             httponly=True,
             samesite="lax",
-            secure=False,
+            secure=secure,
             max_age=3600 * 24,
         )
         return {"message": "login successful"}

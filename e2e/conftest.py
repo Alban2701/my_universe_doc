@@ -56,7 +56,7 @@ def _wait_until_ready(url: str, deadline: float, label: str) -> None:
 
 
 @pytest.fixture(scope="session")
-def e2e_stack() -> str:
+def e2e_stack():
     """Boot the stack, yield the frontend base URL, then tear it down."""
     use_running = os.getenv("E2E_USE_RUNNING_STACK") == "1"
 
