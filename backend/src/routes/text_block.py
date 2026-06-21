@@ -1,13 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
+from fastapi import APIRouter, HTTPException, status, Request, Response
 from models.text_block import (
     InputTextBlock,
     PartialTextBlock,
     TextBlock,
-    TextBlock,
     UpdateTextBlocks,
     UpdatedTextBlocks,
 )
-from controllers.text_block import TextBlockController
 from factory import Factory, get_factory
 
 text_block_router = APIRouter(prefix="/text-block")
@@ -113,7 +111,7 @@ async def update_multiple_text_bloc(
         return updated_text_blocks
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

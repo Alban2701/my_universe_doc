@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, HTTPException, status, Request
 from src.models.entity import Entity
 from src.models.user import UserToken
 from src.models.universe import InputUniverse, PartialUniverse, Universe

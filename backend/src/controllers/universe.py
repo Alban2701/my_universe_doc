@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from typing import List, Optional, Dict
+from typing import List, Dict
 
 from src.models.entity import Entity
 from src.models.universe import InputUniverse, PartialUniverse, Universe

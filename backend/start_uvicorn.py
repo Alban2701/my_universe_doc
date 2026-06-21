@@ -41,7 +41,7 @@ if __name__ == "__main__":
     server = uvicorn.Server(config)
     try:
         asyncio.run(server.serve())
-    except Exception as e:
+    except Exception:
         print(traceback.format_exc())
         print("Asking the server to stop, closing...")
     finally:

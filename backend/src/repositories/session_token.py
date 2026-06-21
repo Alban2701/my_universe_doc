@@ -1,9 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from src.utils.unoptional import unoptional
 from utils.token_creator import create_token
-from db_connection import DbConnection
 from models.session_token import SessionToken
-from models.user import PartialUser
 from errors import errors
 from src.repositories.base_repository import BaseRepository
 

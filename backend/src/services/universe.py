@@ -5,11 +5,9 @@ from src.repositories.entity import EntityRepository
 from src.repositories.universe import UniverseRepository
 from src.models.user import UserToken
 from src.models.entity import Entity
-from src.controllers.entity import EntityController
 from fastapi import HTTPException, status
 
 from src.repositories.user import UserRepository
-from src.repositories.user_entity import UserEntityRepository
 
 
 class UniverseService:

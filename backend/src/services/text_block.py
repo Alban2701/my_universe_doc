@@ -3,7 +3,6 @@ from src.models.text_block import (
     InputTextBlock,
     PartialTextBlock,
     TextBlock,
-    TextBlock,
     UpdateTextBlocks,
     UpdatedTextBlocks,
 )

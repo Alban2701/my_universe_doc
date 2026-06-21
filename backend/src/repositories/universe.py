@@ -1,7 +1,6 @@
 from models.universe import Universe, InputUniverse, PartialUniverse
 from typing import List, Optional
 from pydantic import TypeAdapter
-from src.models.user import User
 from src.repositories.base_repository import BaseRepository
 from src.utils.unoptional import unoptional
 

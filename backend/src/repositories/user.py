@@ -1,13 +1,9 @@
 from src.models.relations import UserUniverse
 from src.utils.unoptional import unoptional
-import traceback
 from typing import Optional
 
-from models.user import User, InputUser, PartialUser, UserToken
+from models.user import InputUser, PartialUser, UserToken
 from pydantic import EmailStr
-from models.user import PartialUser
-from errors import errors
-from src.models.enums import UserUniverseRole
 from src.repositories.base_repository import BaseRepository
 from src.repositories.session_token import SessionTokenRepository
 

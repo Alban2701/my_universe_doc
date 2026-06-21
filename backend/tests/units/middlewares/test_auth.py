@@ -1,7 +1,6 @@
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
 
 from src.middlewares.auth import AuthMiddleware
 from src.models.user import UserToken

@@ -1,6 +1,5 @@
 from typing import List
 from pydantic import TypeAdapter
-from src.models.enums import UserEntityRole
 from src.models.relations import UserEntity
 from src.repositories.base_repository import BaseRepository
 

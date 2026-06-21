@@ -1,10 +1,10 @@
 import traceback
 
 from fastapi import HTTPException, status
-from typing import Dict, Optional
+from typing import Optional
 
 from src.models.enums import UserUniverseRole
-from src.models.user import InputUser, LoginUser, PartialUser, User, UserToken
+from src.models.user import InputUser, LoginUser, PartialUser, UserToken
 from src.services.user import UserService
 
 

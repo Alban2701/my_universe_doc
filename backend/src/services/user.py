@@ -1,9 +1,9 @@
-from models.user import User, InputUser, PartialUser, UserToken, LoginUser
+from models.user import InputUser, PartialUser, UserToken, LoginUser
 from repositories.user import UserRepository
 from repositories.session_token import SessionTokenRepository
 from pwdlib import PasswordHash
 from fastapi import HTTPException, status
-from typing import Dict, Optional
+from typing import Optional
 
 from src.models.enums import UserUniverseRole
 from src.utils.unoptional import unoptional

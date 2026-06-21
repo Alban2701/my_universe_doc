@@ -1,12 +1,11 @@
 import os
 
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
-from models.user import InputUser, LoginUser, PartialUser, User, UserToken
+from fastapi import APIRouter, HTTPException, status, Response, Request
+from models.user import InputUser, LoginUser, PartialUser, UserToken
 from controllers.user import UserController
 from factory import get_factory
 import traceback
 
-from db_connection import get_db
 
 user_router = APIRouter(prefix="/user")
 

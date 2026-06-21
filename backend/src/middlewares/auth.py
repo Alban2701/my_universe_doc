@@ -1,8 +1,6 @@
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
-from starlette import status
 from starlette.middleware.base import BaseHTTPMiddleware
-from repositories import user as cuser
 from src.errors import errors
 from src.factory import get_factory
 from src.models.user import UserToken

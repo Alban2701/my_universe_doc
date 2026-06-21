@@ -1,7 +1,6 @@
 import sys
 import platform
 
-import src.db_connection
 
 sys.modules["db_connection"] = sys.modules["src.db_connection"]
 
