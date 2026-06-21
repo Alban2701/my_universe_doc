@@ -18,7 +18,7 @@ From the project root:
 docker compose up -d --build
 ```
 
-The application is then available at [http://localhost](http://localhost).
+The application is then available at <http://localhost>.
 
 The stack starts three containers:
 
@@ -88,6 +88,15 @@ Finally, stop the test database:
 docker compose -f docker-compose.test.yaml down -v
 ```
 
+#### If an integration test fails
+
+1. Read the failing assertion, then re-run just that test: `pytest tests/integration/ -k <name> -v`.
+2. Most failures come from a stale DB. Reseed it from scratch:
+    `docker compose -f docker-compose.test.yaml down -v && docker compose -f docker-compose.test.yaml up -d`.
+3. Check the DB is reachable on port 5434 and that `backend/.env.test` matches the compose file.
+4. The integration tests share the same schema/seed as production (`backend/src/data/*.sql). A failure there often means a real refression in the repository layer. Fix the code, don't adjust the test to make it green, except if you really wanted to change the program comportment.
+5. Never merge while this suite is red.
+
 ### End-to-end tests (Playwright + pytest)
 
 The e2e suite boots its own isolated Docker stack (frontend + api + PostgreSQL on ports 8080/8001/5435) before the tests run, and tears it down at the end.
@@ -97,7 +106,7 @@ First-time setup:
 ```bash
 cd e2e
 python -m venv .venv
-. .venv/Scripts/activate        # Windows (Git Bash) — or: source .venv/bin/activate
+. .venv/Scripts/activate        # Windows (Git Bash) or: source .venv/bin/activate
 pip install -r requirements.txt
 playwright install --with-deps chromium
 ```
@@ -117,6 +126,31 @@ The full procedure for deploying on an Ubuntu server (installing Docker, startin
 
 ## Additional documentation
 
-- [backend/README.md](backend/README.md) — backend setup guide
-- [e2e/README.md](e2e/README.md) — full end-to-end testing guide
-- [deploiement.md](deploiement.md) — deployment on an Ubuntu server
+- [backend/README.md](backend/README.md): backend setup guide
+- [e2e/README.md](e2e/README.md): full end-to-end testing guide
+- [deploiement.md](deploiement.md): deployment on an Ubuntu server
+
+## Conntinuous integration
+
+CI runs on Github Actions and is defined by two workflows:
+
+- [`.github/workflows/unit-integration-test.yml`](.github/workflows/unit-integration-test.yml) corresponding to units tests and integration/functional tests (TI/TF)
+- [`.github/workflows/e2e-test.yml`](.github/workflows/e2e-test.yml) corresponding to end-to-dend tests. (TE2E)
+
+Both triggre on push and pull request to `main` and `dev`.
+
+### Scope TU / TI / TF / TE2E
+
+Unit tests and integration tests, plus end-to-end suite. There is no separate functional test layer. The integration thests are the functional tests, exercising the repository layer against a real PostGreSQL.
+
+### Where to find the results
+
+The **Action** tab on Github and the checks shown on each pull request. On an e2e failure, the Playwright trace is attached to the run as the `playwright-traces` artifact.
+
+### If CI fails
+
+Open the failed job, read the step logs and reproduce locally with the exact same command (`pytest tests/units/`, `pytest tests/integration/`, or `pytest` from `e2e/`). Fix the cause and push again. A red pipline blocs the merge.
+
+### Static analysis
+
+The frontend is linted with  [Biome](https://biomejs.dev/) (`frontend/biome.json`, `pnpm lint`); the backend with [Ruff](https://docs.astral.sh/ruff/).

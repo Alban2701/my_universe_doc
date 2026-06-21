@@ -1,0 +1,26 @@
+name: Frontend lint
+
+on:
+    push:
+        branches: [main, dev]
+        paths: 
+            - "frontend/**"
+            - ".github/workflows/frontend-lint.yml"
+
+jobs:
+    biome:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: frontend
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up biome
+              uses: biomejs/setup-biome@v2
+              with:
+                  version: 2.3.2
+
+            - name: Biome (static analysis)
+              run: biome ci .
