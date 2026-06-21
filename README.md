@@ -18,7 +18,7 @@ From the project root:
 docker compose up -d --build
 ```
 
-The application is then available at [http://localhost](http://localhost).
+The application is then available at <http://localhost>.
 
 The stack starts three containers:
 
@@ -106,7 +106,7 @@ First-time setup:
 ```bash
 cd e2e
 python -m venv .venv
-. .venv/Scripts/activate        # Windows (Git Bash) — or: source .venv/bin/activate
+. .venv/Scripts/activate        # Windows (Git Bash) or: source .venv/bin/activate
 pip install -r requirements.txt
 playwright install --with-deps chromium
 ```
@@ -126,6 +126,6 @@ The full procedure for deploying on an Ubuntu server (installing Docker, startin
 
 ## Additional documentation
 
-- [backend/README.md](backend/README.md) — backend setup guide
-- [e2e/README.md](e2e/README.md) — full end-to-end testing guide
-- [deploiement.md](deploiement.md) — deployment on an Ubuntu server
+- [backend/README.md](backend/README.md): backend setup guide
+- [e2e/README.md](e2e/README.md): full end-to-end testing guide
+- [deploiement.md](deploiement.md): deployment on an Ubuntu server
