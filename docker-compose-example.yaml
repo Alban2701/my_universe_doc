@@ -1,16 +1,32 @@
+# Template for docker-compose.yaml.
+#
+# Copy this file to `docker-compose.yaml` and replace the placeholder values
+# (your_db_name / your_db_user / your_db_password). Those three credentials
+# MUST be identical between the `api` and `db` services.
+#
+# Mirrors the production layout: the API is NOT published directly (nginx
+# proxies /api/), and PostgreSQL is bound to 127.0.0.1 only.
+
+networks:
+  db-network:
+  frontend-network:
+
 services:
   api:
     container_name: myd_api
     build:
       context: ./backend
-    ports:
-      - "8000:8000"
+    # No published port on purpose: the API stays internal and is reached only
+    # through the nginx proxy in the frontend container.
+    # To hit it directly while debugging, uncomment:
+    # ports:
+    #   - "8000:8000"
     environment:
-      POSTGRES_HOST: db_host_example
+      POSTGRES_HOST: db                  # must match the db service name below
       POSTGRES_PORT: 5432
-      DATABASE_NAME: db_name_example
-      POSTGRES_USER: db_user_example
-      POSTGRES_PASSWORD: db_password_example
+      DATABASE_NAME: your_db_name
+      POSTGRES_USER: your_db_user
+      POSTGRES_PASSWORD: your_db_password
       SERVER_PORT: 8000
     depends_on:
       db:
@@ -18,6 +34,16 @@ services:
     volumes:
       - .:/app
     command: python3 backend/start_uvicorn.py
+    healthcheck:
+      # python3 is in the image; curl is not.
+      test: ["CMD-SHELL", "python3 -c 'import urllib.request, sys; sys.exit(0) if urllib.request.urlopen(\"http://localhost:8000/\").status == 200 else sys.exit(1)'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - db-network
+      - frontend-network
 
   frontend:
     container_name: myd_front
@@ -28,28 +54,32 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    networks:
+      - frontend-network
 
   db:
     image: postgres:18
     restart: always
     container_name: myd_db
     environment:
-      POSTGRES_DB: db_name_example
-      POSTGRES_USER: db_user_example
-      POSTGRES_PASSWORD: db_password_example
+      POSTGRES_DB: your_db_name           # must match DATABASE_NAME above
+      POSTGRES_USER: your_db_user         # must match POSTGRES_USER above
+      POSTGRES_PASSWORD: your_db_password # must match POSTGRES_PASSWORD above
     volumes:
       - db-data:/var/lib/postgresql
-      - ./src/data/migration:/docker-entrypoint-initdb.d
+      - ./backend/src/data:/docker-entrypoint-initdb.d
     ports:
-      - "5432:5432"
+      # Bound to localhost only. The DB is never exposed to the outside.
+      - "127.0.0.1:5432:5432"
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - db-network
 
 volumes:
   db-data:
-
-
