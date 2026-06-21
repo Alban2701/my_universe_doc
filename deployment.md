@@ -27,13 +27,13 @@ Use key-based authentication and disable password / root login:
 
 ```bash
 # From your local machine (once): copy your public key
-ssh-copyèid user@server-ip
+ssh-copèid user@server-ip
 
 # Then connect
 ssh user@server-ip
 ```
 
-One the eserver, in /etc/ssh/sshd_config:
+One the server, in /etc/ssh/sshd_config:
 
 ```conf
 PasswordAuthentication no
@@ -69,7 +69,7 @@ It must display nothing.
 ```bash
 sudo docker compose down  # stop the stack
 sudo docker compose down -v  # stop and wipe the database volume
-sudo docker compose up -d --build  # rebuild and start int the background
+sudo docker compose up -d --build  # rebuild and start in the background
 ```
 
 ## How to access the app
