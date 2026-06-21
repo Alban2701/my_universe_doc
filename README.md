@@ -122,7 +122,7 @@ See [e2e/README.md](e2e/README.md) for details: faster iteration against an alre
 
 ## Deploying on a server
 
-The full procedure for deploying on an Ubuntu server (installing Docker, starting the stack, configuring the firewall) is described in [deploiement.md](deploiement.md).
+The full procedure for deploying on an Ubuntu server (installing Docker, starting the stack, configuring the firewall) is described in [deployment.md](deployment.md).
 
 ## Additional documentation
 
