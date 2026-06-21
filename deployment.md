@@ -19,6 +19,31 @@ clone the project `git clone https://github.com/Alban2701/my_universe_doc.git`
 
 `cd my_universe_doc`
 
+## Access the server (SSH)
+
+All operations on the server are done over SSH (the only port opened for administration. See the firewall section below).
+
+Use key-based authentication and disable password / root login:
+
+```bash
+# From your local machine (once): copy your public key
+ssh-copyèid user@server-ip
+
+# Then connect
+ssh user@server-ip
+```
+
+One the eserver, in /etc/ssh/sshd_config:
+
+```conf
+PasswordAuthentication no
+PermitRootLogin no
+```
+
+```bash
+sudo systemctl restart ssh
+```
+
 ## Clean Apache
 
 Apache may be running on your ubuntu.
