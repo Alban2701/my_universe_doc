@@ -27,7 +27,7 @@ Use key-based authentication and disable password / root login:
 
 ```bash
 # From your local machine (once): copy your public key
-ssh-copèid user@server-ip
+ssh-copy-id user@server-ip
 
 # Then connect
 ssh user@server-ip
