@@ -1,8 +1,8 @@
 import { useState } from "react";
 import RectangularButton from "../../Button/Rectangular.button";
 import BaseForm from "../../Forms/BaseForm";
+import type { InputInterface } from "../../Forms/Input";
 import BaseModal from "../BaseModal";
-import { InputInterface } from "../../Forms/Input";
 
 interface EntityPayload {
 	name: string;
@@ -26,27 +26,27 @@ function CreateEntity({
 		useState<string>("");
 
 	const inputs: InputInterface[] = [
-							{
-								type: "text",
-								name: "entityName",
-								placeholder: "Your entity's name",
-								required: true,
-								onChange: (e) => {
-									setEntityName(e.target.value);
-								},
-								content: undefined,
-							},
-							{
-								type: "text",
-								name: "entityNotDiscoveredName",
-								placeholder: "Your not discovered entity's name ",
-								required: false,
-								onChange: (e) => {
-									setEntityNotDiscoveredName(e.target.value);
-								},
-								content: undefined,
-							},
-						]
+		{
+			type: "text",
+			name: "entityName",
+			placeholder: "Your entity's name",
+			required: true,
+			onChange: (e) => {
+				setEntityName(e.target.value);
+			},
+			content: undefined,
+		},
+		{
+			type: "text",
+			name: "entityNotDiscoveredName",
+			placeholder: "Your not discovered entity's name ",
+			required: false,
+			onChange: (e) => {
+				setEntityNotDiscoveredName(e.target.value);
+			},
+			content: undefined,
+		},
+	];
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();

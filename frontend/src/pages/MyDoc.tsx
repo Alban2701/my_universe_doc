@@ -18,10 +18,10 @@ function MyDoc() {
 	const [selectedUniverse, setSelectedUniverse] = useState<UniverseInterface>();
 	const [selectedEntity, setSelectedEntity] = useState<EntityInterface>();
 	const [title, setTitle] = useState<string>("");
-	const [loadedTextBlocks, setLoadedTextBlocks] = useState<
+	const [_loadedTextBlocks, setLoadedTextBlocks] = useState<
 		TextBlockInterface[]
 	>([]);
-	const [neTextBlocks, setNewTextBlocks] = useState<TextBlockInterface[]>([]);
+	const [_newTextBlocks, setNewTextBlocks] = useState<TextBlockInterface[]>([]);
 	const navigate = useNavigate();
 	const location = useLocation();
 

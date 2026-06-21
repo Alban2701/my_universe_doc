@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import SquareButton, { type SquareButtonInterface } from "./square.button";
 import ProfileActionCard from "../Cards/ProfileActionCard";
+import SquareButton, { type SquareButtonInterface } from "./square.button";
 
 interface ProfileButtonInterface {
 	src: string;

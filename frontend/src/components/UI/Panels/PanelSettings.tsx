@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import type { EntityInterface } from "@/src/types/entity";
 import type { UniverseInterface } from "../../../types/universe";
+import DeleteEntity from "../Modals/Entity/DeleteEntity";
+import UpdateEntity from "../Modals/Entity/UpdateEntity";
 import DeleteUniverse from "../Modals/Universe/DeleteUniverse";
 import UpdateUniverse from "../Modals/Universe/UpdateUniverse";
-import UpdateEntity from "../Modals/Entity/UpdateEntity";
-import DeleteEntity from "../Modals/Entity/DeleteEntity";
 
 function PanelSettings({
 	selectedUniverse,

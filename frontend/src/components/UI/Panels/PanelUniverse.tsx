@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchUniverses } from "@/src/fetchers";
 import type { UniverseInterface } from "../../../types/universe";
 import CreateUniverse from "../Modals/Universe/CreateUniverse";
-import { fetchUniverses } from "@/src/fetchers";
 
 function PanelUniverse() {
 	const [universes, setUniverses] = useState<UniverseInterface[]>([]);
@@ -12,7 +12,7 @@ function PanelUniverse() {
 	useEffect(() => {
 		const fetch = async () => {
 			try {
-				const data = await fetchUniverses()
+				const data = await fetchUniverses();
 				setUniverses(data);
 				return data;
 			} catch (error) {

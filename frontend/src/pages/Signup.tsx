@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { redirect, useLocation, useNavigate } from "react-router-dom";
-import BaseForm from "../components/UI/Forms/BaseForm";
 import { fetchSignup } from "@/src/fetchers";
+import BaseForm from "../components/UI/Forms/BaseForm";
 
 interface SignUpPayload {
 	email: string;

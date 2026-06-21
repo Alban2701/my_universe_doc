@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { fetchLogin } from "@/src/fetchers";
 import BadCredentials from "../components/UI/Cards/BadCredentials";
 import BaseForm from "../components/UI/Forms/BaseForm";
-import { fetchLogin } from "@/src/fetchers";
 
 interface LoginPayload {
 	email: string;
