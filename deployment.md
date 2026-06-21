@@ -64,6 +64,14 @@ It must display nothing.
 
 `sudo docker compose up --build`
 
+### Stop / restart the project
+
+```bash
+sudo docker compose down  # stop the stack
+sudo docker compose down -v  # stop and wipe the database volume
+sudo docker compose up -d --build  # rebuild and start int the background
+```
+
 ## How to access the app
 
 `ip a` to display your ip adresses.
