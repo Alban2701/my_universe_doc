@@ -88,6 +88,15 @@ Finally, stop the test database:
 docker compose -f docker-compose.test.yaml down -v
 ```
 
+#### If an integration test fails
+
+1. Read the failing assertion, then re-run just that test: `pytest tests/integration/ -k <name> -v`.
+2. Most failures come from a stale DB. Reseed it from scratch:
+    `docker compose -f docker-compose.test.yaml down -v && docker compose -f docker-compose.test.yaml up -d`.
+3. Check the DB is reachable on port 5434 and that `backend/.env.test` matches the compose file.
+4. The integration tests share the same schema/seed as production (`backend/src/data/*.sql). A failure there often means a real refression in the repository layer. Fix the code, don't adjust the test to make it green, except if you really wanted to change the program comportment.
+5. Never merge while this suite is red.
+
 ### End-to-end tests (Playwright + pytest)
 
 The e2e suite boots its own isolated Docker stack (frontend + api + PostgreSQL on ports 8080/8001/5435) before the tests run, and tears it down at the end.
