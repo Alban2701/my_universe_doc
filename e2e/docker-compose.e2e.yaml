@@ -32,7 +32,7 @@ services:
     container_name: myd_api_e2e
     build:
       context: ../backend
-    # nginx in the frontend container proxies /api/ to host "api" — make
+    # nginx in the frontend container proxies /api/ to host "api"; make
     # this service resolvable under that name on the e2e network.
     networks:
       default:
