@@ -10,7 +10,7 @@ on:
         branches: [main, dev]
         paths:
             - "backend/**"
-            - ".github/workflows/unit-integration-test.yml"
+            - ".github/workflows/frontend-integration-test.yml"
 
 jobs:
     biome:
