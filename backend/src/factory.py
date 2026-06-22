@@ -114,8 +114,13 @@ class Factory:
         return self._text_block_controller
 
 
-_factory = Factory()
+_factory: Factory | None = None
 
 
 def get_factory():
+    global _factory
+
+    if _factory is None:
+        _factory = Factory()
+        
     return _factory
