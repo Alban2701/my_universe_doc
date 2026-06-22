@@ -28,12 +28,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         session_token = request.cookies.get("session_token")
-        print(session_token)
         if not session_token:
             res = JSONResponse(
                 status_code=401, content={"detail": "session not initialized"}
             )
-            print(res.body)
             return res
         try:
             user: UserToken = unoptional(
@@ -51,13 +49,11 @@ class AuthMiddleware(BaseHTTPMiddleware):
                     status_code=401, content={"detail": "user not connected"}
                 )
                 res.delete_cookie("session_token")
-                print(res.body)
                 return res
 
         except (errors.SessionNotFoundError, errors.SessionExpiredError) as e:
             res = JSONResponse(status_code=401, content={"detail": e.message})
             res.delete_cookie("session_token")
-            print(res.body)
             return res
 
         except Exception as e:
@@ -65,5 +61,4 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 status_code=500, content={"detail": "An server error occured"}
             )
             print(e)
-            print(res.body)
             return res
