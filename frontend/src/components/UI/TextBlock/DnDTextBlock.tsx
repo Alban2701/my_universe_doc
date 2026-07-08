@@ -4,12 +4,22 @@ import {
 	SortableContext,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useEffect, useState } from "react";
-import type { TextBlockInterface } from "@/src/types/text_blocks";
+import { useCallback, useEffect, useState } from "react";
+import type {
+	TextBlockInterface,
+	TextBlocksPayloadInterface,
+} from "@/src/types/text_blocks";
 import { SortableTextBlock } from "./TextBlocks";
+import { itemsEqual } from "@dnd-kit/sortable/dist/utilities";
 
 function DnDTextBlock({ entityId }: { entityId?: string }) {
 	const [textBlocks, setTextBlocks] = useState<TextBlockInterface[]>([]);
+	const [loadedTextBlocks, setLoadedTextBlocks] = useState<
+		TextBlockInterface[]
+	>([]);
+	const [updateIsActive, setUpdateIsActive] = useState<boolean>(false);
+	const [textBlocksPayload, setTextBlocksPayload] =
+		useState<TextBlocksPayloadInterface>();
 
 	useEffect(() => {
 		const fetchTextBlocks = async () => {
@@ -21,6 +31,7 @@ function DnDTextBlock({ entityId }: { entityId?: string }) {
 				if (!response.ok) throw new Error("Entity not found");
 				const data = await response.json();
 				setTextBlocks(data);
+				setLoadedTextBlocks(data);
 				// console.log(data);
 			} catch (err) {
 				console.error("Error while fetching text blocks", err);
@@ -28,6 +39,10 @@ function DnDTextBlock({ entityId }: { entityId?: string }) {
 		};
 		fetchTextBlocks();
 	}, [entityId]);
+
+	useEffect(() => {
+		setUpdateIsActive(textBlocks === loadedTextBlocks);
+	}, [textBlocks, loadedTextBlocks]);
 
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event;
@@ -47,6 +62,40 @@ function DnDTextBlock({ entityId }: { entityId?: string }) {
 			),
 		);
 	};
+
+	useEffect(() => {
+		const partialPayload: Omit<TextBlocksPayloadInterface, "to_delete"> = {
+			to_create: [],
+			to_move: [],
+			to_update: [],
+		};
+		textBlocks.forEach((tb) => {
+			const loaded = loadedTextBlocks.find((loadedTb) => tb.id === loadedTb.id);
+
+			if (!loaded) {
+				partialPayload.to_create.push(tb);
+			} else if (JSON.stringify(loaded) !== JSON.stringify(tb)) {
+				const { position: _loaded_position, ...loaded_no_pos } = loaded;
+				const { position: _tb_position, ...tb_no_pos } = tb;
+				if (
+					loaded.position !== tb.position &&
+					JSON.stringify(loaded_no_pos) === JSON.stringify(tb_no_pos)
+				) {
+					partialPayload.to_move.push(tb);
+				} else {
+					partialPayload.to_update.push(tb);
+				}
+			}
+		});
+
+		const to_delete = loadedTextBlocks.filter((ltb) => {
+			return !textBlocks.some((tb) => tb.id === ltb.id);
+		});
+		setTextBlocksPayload({
+			...partialPayload,
+			to_delete: to_delete,
+		});
+	}, [loadedTextBlocks, textBlocks]);
 
 	return (
 		<DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

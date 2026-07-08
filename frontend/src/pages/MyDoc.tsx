@@ -18,10 +18,6 @@ function MyDoc() {
 	const [selectedUniverse, setSelectedUniverse] = useState<UniverseInterface>();
 	const [selectedEntity, setSelectedEntity] = useState<EntityInterface>();
 	const [title, setTitle] = useState<string>("");
-	const [_loadedTextBlocks, setLoadedTextBlocks] = useState<
-		TextBlockInterface[]
-	>([]);
-	const [_newTextBlocks, setNewTextBlocks] = useState<TextBlockInterface[]>([]);
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -124,10 +120,6 @@ function MyDoc() {
 		} else {
 			setTitle("Choose a universe");
 		}
-		// console.log({
-		// 	selectedEntity: selectedEntity,
-		// 	selectedUniverse: selectedUniverse,
-		// });
 	}, [selectedUniverse, selectedEntity]);
 
 	return (
