@@ -6,3 +6,10 @@ export interface TextBlockInterface {
 	creator_id: number;
 	entity_id: number;
 }
+
+export interface TextBlocksPayloadInterface {
+	to_create: TextBlockInterface[];
+	to_delete: TextBlockInterface[];
+	to_move: TextBlockInterface[];
+	to_update: TextBlockInterface[];
+}
