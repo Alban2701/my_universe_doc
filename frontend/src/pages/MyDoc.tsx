@@ -44,13 +44,6 @@ function MyDoc() {
 					} catch (err) {
 						console.error("Error fetching entity:", err);
 					}
-					try {
-						const tbData = await fetchTextBlock(entityId);
-						setLoadedTextBlocks(tbData);
-						setNewTextBlocks(tbData);
-					} catch (error) {
-						console.error("Error while fetching text blocks", error);
-					}
 				};
 				fetch();
 			} else {

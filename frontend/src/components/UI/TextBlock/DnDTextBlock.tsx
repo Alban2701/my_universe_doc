@@ -17,8 +17,8 @@ function DnDTextBlock({ entityId }: { entityId?: string }) {
 	const [loadedTextBlocks, setLoadedTextBlocks] = useState<
 		TextBlockInterface[]
 	>([]);
-	const [updateIsActive, setUpdateIsActive] = useState<boolean>(false);
-	const [textBlocksPayload, setTextBlocksPayload] =
+	const [_updateIsActive, setUpdateIsActive] = useState<boolean>(false);
+	const [_textBlocksPayload, setTextBlocksPayload] =
 		useState<TextBlocksPayloadInterface>();
 
 	useEffect(() => {
