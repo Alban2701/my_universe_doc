@@ -20,11 +20,12 @@ function PanelEntity({
 	const [entities, setEntities] = useState<EntityInterface[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
-	const [refresh, setRefresh] = useState<boolean>(false);
+	const [refresh, setRefresh] = useState<number>(0);
 	const navigate = useNavigate();
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <need Refresh>
 	useEffect(() => {
+		const controller = new AbortController(); // Controller pour éviter des erreurs lorsque deux cliques rapides sur une entité
 		if (!(universeId || entityId)) return;
 		const fetchEntityChildren = async () => {
 			try {
@@ -33,10 +34,12 @@ function PanelEntity({
 					? await fetch(`/api/entity/${entityId}/direct-children`, {
 							credentials: "include",
 							method: "GET",
+							signal: controller.signal, // Signal du controller envoyé au fetch
 						})
 					: await fetch(`/api/universe/${universeId}/first-entities`, {
 							credentials: "include",
 							method: "GET",
+							signal: controller.signal,
 						});
 				if (!response.ok) {
 					throw new Error("An error occurred while fetching entity's children");
@@ -45,6 +48,7 @@ function PanelEntity({
 				setEntities(data);
 				setError(null);
 			} catch (err) {
+				if (err instanceof DOMException && err.name === "AbortError") return; // On ne fait rien si l'erreur est un avortement
 				setError(err instanceof Error ? err.message : "Unknown error");
 				console.error("Error fetching entities:", err);
 			} finally {
@@ -53,13 +57,14 @@ function PanelEntity({
 		};
 
 		fetchEntityChildren();
+		return () => controller.abort();
 	}, [universeId, entityId, refresh]);
 
 	const handleEntityCreated = () => {
-		setRefresh(!refresh);
+		setRefresh((prev) => prev + 1);
 	};
 
-	if (loading) {
+	if (loading && entities.length === 0) {
 		return <div className="text-sm text-gray-500">Loading...</div>;
 	}
 
@@ -80,27 +85,32 @@ function PanelEntity({
 			>
 				Previous
 			</button>
-			<ul className="m-2 overflow-y-auto">
-				{entities.map((entity) => (
-					<li key={entity.id}>
-						<button
-							type="button"
-							onClick={() => {
-								onEntityUpdate(entity);
-								navigate(`/mydoc/${universeId}/entities/${entity.id}`);
-							}}
-							className="hover:cursor-pointer border-y my-1 p-1 w-full"
-						>
-							{entity.name}
-						</button>
-					</li>
-				))}
-			</ul>
+			{loading && entities.length !== 0 ? (
+				<div className="text-sm text-gray-500">Loading...</div>
+			) : (
+				<ul className="m-2 overflow-y-auto">
+					{entities.map((entity) => (
+						<li key={entity.id}>
+							<button
+								type="button"
+								onClick={() => {
+									onEntityUpdate(entity);
+									navigate(`/mydoc/${universeId}/entities/${entity.id}`);
+								}}
+								className="hover:cursor-pointer border-y my-1 p-1 w-full"
+							>
+								{entity.name}
+							</button>
+						</li>
+					))}
+				</ul>
+			)}
+
 			<div className="place-self-center mt-auto mb-5 p-2 border-t">
 				<CreateEntity
 					onEntityCreated={handleEntityCreated}
 					universeId={Number(universeId)}
-					parentId={Number(entityId)}
+					parentId={entityId ? Number(entityId) : null}
 				/>
 			</div>
 		</div>
