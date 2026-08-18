@@ -1,6 +1,6 @@
 services:
   api:
-    container_name: myd_api
+    container_name: myd_api_be
     ports:
       - 8000:8000
     build:
@@ -23,7 +23,7 @@ services:
   db:
     image: postgres:18
     restart: always
-    container_name: myd_db
+    container_name: myd_db_be
     environment:
       POSTGRES_DB: my_universe_doc_db
       POSTGRES_USER: postgres
