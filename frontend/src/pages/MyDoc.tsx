@@ -134,8 +134,13 @@ function MyDoc() {
 				</div>
 				<span className="flex flex-row flex-auto justify-center-safe">
 					<div className="overflow-y-clip w-full">
-						<h1 className="text-center text-4xl">{title}</h1>
-						{entityId && <DnDTextBlock entityId={entityId} />}
+						<h1 className="text-center text-4xl mb-5">{title}</h1>
+						{entityId && (
+							<DnDTextBlock
+								entityId={entityId}
+								onTextBlockUpdate={() => console.warn("update tb to do...")}
+							/>
+						)}
 					</div>
 				</span>
 				<span className="basis-1/7">

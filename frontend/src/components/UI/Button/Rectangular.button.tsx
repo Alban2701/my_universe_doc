@@ -3,7 +3,7 @@ import type { MouseEventHandler } from "react";
 interface RectangularButtonProps {
 	text: string;
 	onClick: MouseEventHandler | undefined;
-	color?: "blue" | "red" | "green" | "purple" | "orange";
+	color?: "blue" | "red" | "green" | "purple" | "orange" | "gray";
 }
 
 const colorMap: Record<string, string> = {
@@ -12,6 +12,7 @@ const colorMap: Record<string, string> = {
 	green: "bg-green-600 hover:bg-green-700",
 	purple: "bg-purple-600 hover:bg-purple-700",
 	orange: "bg-orange-600 hover:bg-orange-700",
+	gray: "bg-gray-400 hover:bg-gray-500",
 };
 
 const RectangularButton: React.FC<RectangularButtonProps> = ({

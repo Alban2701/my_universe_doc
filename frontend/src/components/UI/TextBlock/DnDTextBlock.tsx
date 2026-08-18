@@ -4,23 +4,29 @@ import {
 	SortableContext,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useCallback, useEffect, useState } from "react";
+import { useMemo, useEffect, useState, useCallback } from "react";
 import type {
 	TextBlockInterface,
 	TextBlocksPayloadInterface,
 } from "@/src/types/text_blocks";
 import { SortableTextBlock } from "./TextBlocks";
-import { itemsEqual } from "@dnd-kit/sortable/dist/utilities";
+import AddTextBlockButton from "../Button/AddTextBlockButton";
+import CreateTextBlock from "../Modals/TextBlock/CreateTextBlock";
 
-function DnDTextBlock({ entityId }: { entityId?: string }) {
+function DnDTextBlock({
+	entityId,
+	onTextBlockUpdate,
+}: {
+	entityId?: string;
+	onTextBlockUpdate: () => void;
+}) {
 	const [textBlocks, setTextBlocks] = useState<TextBlockInterface[]>([]);
 	const [loadedTextBlocks, setLoadedTextBlocks] = useState<
 		TextBlockInterface[]
 	>([]);
-	const [_updateIsActive, setUpdateIsActive] = useState<boolean>(false);
-	const [_textBlocksPayload, setTextBlocksPayload] =
-		useState<TextBlocksPayloadInterface>();
+	const [refresh, setRefresh] = useState<number>(0);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <refresh>
 	useEffect(() => {
 		const fetchTextBlocks = async () => {
 			try {
@@ -38,11 +44,26 @@ function DnDTextBlock({ entityId }: { entityId?: string }) {
 			}
 		};
 		fetchTextBlocks();
-	}, [entityId]);
+	}, [entityId, refresh]);
 
-	useEffect(() => {
-		setUpdateIsActive(textBlocks === loadedTextBlocks);
-	}, [textBlocks, loadedTextBlocks]);
+	const addTextBlock = async (position: number) => {
+		try {
+			const response = await fetch(`/api/text-block/`, {
+				credentials: "include",
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ position: position, entityId: entityId }),
+			});
+			if (!response.ok) throw new Error("The textblock could not be created");
+			const data = response.json();
+			console.log(`API response :\n${data}`);
+			setRefresh((prev) => prev + 1);
+		} catch (err) {
+			console.error(err);
+		}
+	};
 
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event;
@@ -55,25 +76,26 @@ function DnDTextBlock({ entityId }: { entityId?: string }) {
 		}
 	};
 
-	const handleTextChange = (id: number, newValue: string) => {
+	const handleTextChange = useCallback((id: number, newValue: string) => {
 		setTextBlocks((items) =>
 			items.map((item) =>
 				item.id === id ? { ...item, content: newValue } : item,
 			),
 		);
-	};
+	}, []);
 
-	useEffect(() => {
-		const partialPayload: Omit<TextBlocksPayloadInterface, "to_delete"> = {
+	const textBlockPayload = useMemo<TextBlocksPayloadInterface>(() => {
+		const payload: TextBlocksPayloadInterface = {
 			to_create: [],
 			to_move: [],
 			to_update: [],
+			to_delete: [],
 		};
 		textBlocks.forEach((tb) => {
 			const loaded = loadedTextBlocks.find((loadedTb) => tb.id === loadedTb.id);
 
 			if (!loaded) {
-				partialPayload.to_create.push(tb);
+				payload.to_create.push(tb);
 			} else if (JSON.stringify(loaded) !== JSON.stringify(tb)) {
 				const { position: _loaded_position, ...loaded_no_pos } = loaded;
 				const { position: _tb_position, ...tb_no_pos } = tb;
@@ -81,39 +103,57 @@ function DnDTextBlock({ entityId }: { entityId?: string }) {
 					loaded.position !== tb.position &&
 					JSON.stringify(loaded_no_pos) === JSON.stringify(tb_no_pos)
 				) {
-					partialPayload.to_move.push(tb);
+					payload.to_move.push(tb);
 				} else {
-					partialPayload.to_update.push(tb);
+					payload.to_update.push(tb);
 				}
+			} else {
+				payload.to_delete = loadedTextBlocks.filter((ltb) => {
+					return !textBlocks.some((tb) => tb.id === ltb.id);
+				});
 			}
 		});
-
-		const to_delete = loadedTextBlocks.filter((ltb) => {
-			return !textBlocks.some((tb) => tb.id === ltb.id);
-		});
-		setTextBlocksPayload({
-			...partialPayload,
-			to_delete: to_delete,
-		});
+		return payload;
 	}, [loadedTextBlocks, textBlocks]);
 
+	const updateIsActive = Object.values(textBlockPayload).some(
+		(list) => list.length > 0,
+	);
+
 	return (
-		<DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-			<SortableContext
-				items={textBlocks}
-				strategy={verticalListSortingStrategy}
-			>
-				{textBlocks.map((item) => (
-					<SortableTextBlock
-						key={item.id}
-						id={item.id}
-						value={item.content ? item.content : "no-content"}
-						title={item.title}
-						onChange={handleTextChange}
-					/>
-				))}
-			</SortableContext>
-		</DndContext>
+		<span className="transition-all duration-300">
+			<DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+				<SortableContext
+					items={textBlocks}
+					strategy={verticalListSortingStrategy}
+				>
+					{textBlocks.map((item) => (
+						<div key={item.id} className="group flex flex-col items-center">
+							<span className="invisible opacity-0 transition-all duration-500 w-2/7 group-hover:visible group-hover:opacity-70 hover:opacity-100 hover:w-5/7">
+								<CreateTextBlock
+									onTextBlockCreated={() => setRefresh((prev) => prev + 1)}
+									entityId={Number(entityId)}
+									position={item.position}
+								/>
+							</span>
+							<SortableTextBlock
+								id={item.id}
+								value={item.content ? item.content : "no-content"}
+								title={item.title}
+								onChange={handleTextChange}
+							/>
+							<span className="mt-2 h-0 invisible opacity-0 transition-all duration-500 w-2/7 group-hover:visible group-hover:opacity-70 hover:opacity-100 hover:w-5/7">
+								<CreateTextBlock
+									onTextBlockCreated={() => setRefresh((prev) => prev + 1)}
+									entityId={Number(entityId)}
+									position={item.position}
+								/>
+							</span>
+						</div>
+					))}
+				</SortableContext>
+			</DndContext>
+		</span>
 	);
 }
 

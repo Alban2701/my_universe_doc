@@ -41,11 +41,7 @@ export function SortableTextBlock({
 	};
 
 	return (
-		<div
-			ref={setNodeRef}
-			style={style}
-			className="flex flex-col mb-2 p-2 rounded-md w-full"
-		>
+		<div ref={setNodeRef} style={style} className="flex flex-col px-2 w-full">
 			<h3 className="text-xl mb-2">{title}</h3>
 			<div className="flex flex-row items-center ml-2 p-1 bg-gray-200 rounded w-full">
 				<TextareaAutosize
