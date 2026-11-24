@@ -53,15 +53,10 @@ class UserService:
         HTTPException: if email not found or password is wrong
         """
         user = await self.user_repository.get_user_by_email(credentials.email)
-        if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-            )
-
-        if not self.hasher.verify(credentials.password, unoptional(user.password)):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong password"
-            )
+        if user is None or not self.hasher.verify(
+            credentials.password, unoptional(user.password)
+        ):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
         session = await self.session_token_repository.create_session_token(
             unoptional(user.id)
