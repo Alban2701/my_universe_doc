@@ -108,26 +108,6 @@ class UserRepository(BaseRepository):
         returned_user = UserToken.model_validate(rows[0])
         return returned_user
 
-    async def is_logged_in(self, user_id: int) -> bool:
-        """
-        Check if a user is logged in
-
-        Parameters:
-        -   user_id: the id of the user
-        -   db: the db object
-
-        Returns:
-        bool: True if the user is connected, False otherwise
-        """
-
-        try:
-            token = await self.session_token_repository.get_token_by_user_id(
-                user_id=user_id
-            )
-            return bool(token)
-        except Exception as e:
-            raise e
-
     async def get_user_role(
         self, user_id: int, universe_id: int
     ) -> Optional[UserUniverse]:
