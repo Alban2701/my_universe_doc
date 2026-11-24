@@ -128,8 +128,25 @@ Légende : 🔴 critique (sécurité) · 🟠 important · 🟢 confort / nettoy
   - `backend/requirements.txt`
 - [ ] Remplacer les `print` / `traceback.print` par le module `logging`
   - `backend/src/routes/*.py`, `backend/src/db_connection.py`, `backend/src/middlewares/auth.py`, `backend/start_uvicorn.py`
-- [ ] Ne plus renvoyer `str(e)` au client dans les erreurs 500 (fuite d'infos SQL)
-  - `backend/src/routes/entity.py`, `backend/src/routes/user.py`, `backend/src/routes/text_block.py`, `backend/src/services/entity.py`
+- [ ] **Centraliser la gestion des erreurs** (aujourd'hui triplée : le service lève une `HTTPException`, le controller l'attrape et la relève, la route refait pareil, et les 500 renvoient `str(e)`, donc le détail SQL, au client)
+  - [ ] Définir les exceptions métier : `NotFoundError`, `ForbiddenError`, `ConflictError`, `InvalidCredentialsError` (garder `SessionExpiredError`, `SessionNotFoundError`, `UserNotFoundError`)
+    - `backend/src/errors/errors.py`
+  - [ ] Faire lever ces exceptions par les services à la place des `HTTPException` (les services ne doivent plus importer FastAPI)
+    - `backend/src/services/entity.py` (17 occurrences), `backend/src/services/text_block.py` (8), `backend/src/services/user.py` (5), `backend/src/services/universe.py` (2)
+  - [ ] `unoptional(..., to_raise="HttpException")` lève une 404 HTTP depuis un utilitaire : remplacer par `NotFoundError`
+    - `backend/src/utils/unoptional.py`, `backend/src/middlewares/auth.py` (seul appelant avec `"HttpException"`)
+  - [ ] Ajouter les exception handlers globaux : `errors.Error` → 404 / 403 / 409 / 401 selon une table de correspondance ; `Exception` → log + 500 avec un message générique
+    - `backend/src/server.py`
+  - [ ] Supprimer tous les `try/except` des controllers (le 404 sur `None` est déjà levé par le service, ne pas le tester deux fois)
+    - `backend/src/controllers/entity.py`, `backend/src/controllers/text_block.py`, `backend/src/controllers/universe.py`, `backend/src/controllers/user.py`
+  - [ ] Supprimer tous les `try/except` des routes : une route = récupérer les entrées → appeler le controller → renvoyer le résultat (seule exception : la gestion des cookies dans `login` / `logout`)
+    - `backend/src/routes/entity.py`, `backend/src/routes/text_block.py`, `backend/src/routes/universe.py`, `backend/src/routes/user.py`
+  - [ ] Décider du rôle des controllers une fois vidés : les garder (conversion modèle métier → modèle de réponse, ex. `ReturnedUser`) ou appeler directement les services depuis les routes
+    - `backend/src/controllers/*.py`, `backend/src/factory.py`
+  - [ ] Garder les `JSONResponse` dans le middleware d'auth : il s'exécute avant FastAPI, les exception handlers ne s'appliquent pas à lui
+    - `backend/src/middlewares/auth.py`
+  - [ ] Adapter les tests qui attendent une `HTTPException` (`pytest.raises(NotFoundError)` etc.)
+    - `backend/tests/units/services/test_universe_service.py`, `backend/tests/units/services/test_user_service.py`, `backend/tests/units/utils/test_unoptional.py`
 - [ ] Remplacer `GET /user/logout` par `POST` (action avec effet de bord)
   - `backend/src/routes/user.py`, `frontend/src/components/UI/Cards/ProfileActionCard.tsx` (ligne 15), Postman
 - [ ] Corriger les origines CORS (slash final → ne matchent jamais)
