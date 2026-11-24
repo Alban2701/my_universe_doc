@@ -5,6 +5,7 @@ from models.user import (
     InputUser,
     LoginUser,
     PartialUser,
+    ReturnedUser,
     UpdateCredentials,
     UpdateUser,
     UserToken,
@@ -86,7 +87,7 @@ async def logout(request: Request):
 
 
 @user_router.patch("/myself", status_code=status.HTTP_200_OK)
-async def patch_myself(req: Request, user_patch: UpdateUser) -> PartialUser:
+async def patch_myself(req: Request, user_patch: UpdateUser) -> ReturnedUser:
     try:
         user: UserToken = req.state.user
         patched_user = await user_controller.patch_user(user.id, user_patch)

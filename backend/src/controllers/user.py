@@ -8,6 +8,7 @@ from src.models.user import (
     InputUser,
     LoginUser,
     PartialUser,
+    ReturnedUser,
     UpdateCredentials,
     UpdateUser,
     UserToken,
@@ -104,7 +105,7 @@ class UserController:
 
     async def patch_user(
         self, user_id: int, user_patch: UpdateUser
-    ) -> PartialUser | None:
+    ) -> ReturnedUser | None:
         try:
             return await self.user_service.patch_user(user_id, user_patch)
         except Exception as e:

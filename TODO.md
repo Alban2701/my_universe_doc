@@ -21,9 +21,9 @@ Légende : 🔴 critique (sécurité) · 🟠 important · 🟢 confort / nettoy
   - `backend/src/models/user.py` (nouveau modèle, ex. `UpdatePassword`), `backend/src/services/user.py` (`patch_user`), `backend/src/routes/user.py` (`patch_myself`), `frontend/src/pages/UpdatePassword.tsx`
 - [x] Ne plus accepter `id`, `created_at`, `updated_at` dans le body de `PATCH /user/myself` (utiliser un modèle dédié au lieu de `PartialUser`)
   - `backend/src/models/user.py`, `backend/src/routes/user.py`
-- [ ] Ne pas révéler si un email existe au login : renvoyer un 401 unique « Invalid credentials » au lieu de 404 / 401
+- [x] Ne pas révéler si un email existe au login : renvoyer un 401 unique « Invalid credentials » au lieu de 404 / 401
   - `backend/src/services/user.py` (`login`), `frontend/src/pages/Login.tsx` + `frontend/src/components/UI/Cards/BadCredentials.tsx` si le message dépend du code
-- [ ] Typer la réponse de `PATCH /user/myself` avec `ReturnedUser` au lieu de `PartialUser` (le hash n'est pas renvoyé aujourd'hui, mais le champ `password: null` apparaît dans la réponse et rien n'empêche une future régression)
+- [x] Typer la réponse de `PATCH /user/myself` avec `ReturnedUser` au lieu de `PartialUser` (le hash n'est pas renvoyé aujourd'hui, mais le champ `password: null` apparaît dans la réponse et rien n'empêche une future régression)
   - `backend/src/routes/user.py`, `backend/src/repositories/user.py` (`patch_user`)
 
 ### Sessions

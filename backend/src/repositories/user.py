@@ -2,7 +2,7 @@ from src.models.relations import UserUniverse
 from src.utils.unoptional import unoptional
 from typing import Optional
 
-from models.user import InputUser, PartialUser, UpdateUser, UserToken
+from models.user import InputUser, PartialUser, ReturnedUser, UpdateUser, UserToken
 from pydantic import EmailStr
 from src.repositories.base_repository import BaseRepository
 from src.repositories.session_token import SessionTokenRepository
@@ -156,7 +156,7 @@ class UserRepository(BaseRepository):
 
     async def patch_user(
         self, user_id: int, user_patch: UpdateUser
-    ) -> PartialUser | None:
+    ) -> ReturnedUser | None:
         sql = (
             "UPDATE users SET "
             "email = COALESCE(%(email)s, email), "
@@ -174,6 +174,6 @@ class UserRepository(BaseRepository):
         print(f"rows: {rows}")
         if not rows:
             return None
-        returned_user = PartialUser.model_validate(rows[0])
+        returned_user = ReturnedUser.model_validate(rows[0])
 
         return returned_user

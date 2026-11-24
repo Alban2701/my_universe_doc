@@ -1,6 +1,7 @@
 from models.user import (
     InputUser,
     PartialUser,
+    ReturnedUser,
     UpdateUser,
     UserToken,
     LoginUser,
@@ -65,7 +66,7 @@ class UserService:
 
     async def patch_user(
         self, user_id: int, user_patch: UpdateUser
-    ) -> PartialUser | None:
+    ) -> ReturnedUser | None:
         if user_patch.password:
             user_patch.password = self.hasher.hash(user_patch.password)
 
