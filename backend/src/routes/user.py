@@ -1,7 +1,7 @@
 import os
 
 from fastapi import APIRouter, HTTPException, status, Response, Request
-from models.user import InputUser, LoginUser, PartialUser, UserToken
+from models.user import InputUser, LoginUser, PartialUser, UpdateCredentials, UserToken
 from controllers.user import UserController
 from factory import get_factory
 import traceback
@@ -99,6 +99,20 @@ async def patch_myself(req: Request, user_patch: PartialUser) -> PartialUser:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
+
+
+@user_router.patch("change-credentials", status_code=status.HTTP_200_OK)
+async def change_credentials(req: Request, update_credentials: UpdateCredentials):
+    try:
+        user: UserToken = req.state.user
+        patched_user = await user_controller.change_credentials(
+            user.id, update_credentials
+        )
+        if not patched_user:
+            raise HTTPException(404)
+    except Exception as e:
+        raise e
+
 
 @user_router.get("/is-superadmin-in/{universe_id}", status_code=status.HTTP_200_OK)
 async def is_superadmin_in(universe_id: int, req: Request):

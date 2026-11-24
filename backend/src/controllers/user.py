@@ -4,7 +4,13 @@ from fastapi import HTTPException, status
 from typing import Optional
 
 from src.models.enums import UserUniverseRole
-from src.models.user import InputUser, LoginUser, PartialUser, UserToken
+from src.models.user import (
+    InputUser,
+    LoginUser,
+    PartialUser,
+    UpdateCredentials,
+    UserToken,
+)
 from src.services.user import UserService
 
 
@@ -109,3 +115,15 @@ class UserController:
             return await self.user_service.get_user_with_session_token(token_value)
         except Exception as e:
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+    async def change_credentials(
+        self, user_id: int, update_credentials: UpdateCredentials
+    ):
+        try:
+            return await self.user_service.change_credentials(
+                update_credentials, user_id
+            )
+        except HTTPException as e:
+            raise e
+        except Exception:
+            raise HTTPException(500)

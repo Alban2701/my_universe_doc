@@ -51,3 +51,8 @@ class ReturnedUser(BaseModel):
     picture: bytes | None = None
     created_at: datetime
     updated_at: datetime | None = None
+
+
+class UpdateCredentials(BaseModel):
+    check_password: str
+    new_datas: PartialUser
