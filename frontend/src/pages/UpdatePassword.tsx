@@ -56,7 +56,7 @@ export default function UpdateUserPassword() {
 				onChange: (e) => {
 					setPassword(e.target.value);
 				},
-				content: undefined
+				content: undefined,
 			},
 			{
 				type: "password",
@@ -66,7 +66,7 @@ export default function UpdateUserPassword() {
 				onChange: (e) => {
 					setCheckPassword(e.target.value);
 				},
-				content: undefined
+				content: undefined,
 			},
 		],
 	});

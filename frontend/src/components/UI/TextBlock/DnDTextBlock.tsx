@@ -4,14 +4,14 @@ import {
 	SortableContext,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useMemo, useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
 	TextBlockInterface,
 	TextBlocksPayloadInterface,
 } from "@/src/types/text_blocks";
-import { SortableTextBlock } from "./TextBlocks";
 import AddTextBlockButton from "../Button/AddTextBlockButton";
 import CreateTextBlock from "../Modals/TextBlock/CreateTextBlock";
+import { SortableTextBlock } from "./TextBlocks";
 
 function DnDTextBlock({
 	entityId,

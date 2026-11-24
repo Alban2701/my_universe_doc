@@ -1,10 +1,10 @@
 import { useState } from "react";
+import type { TextBlockPayloadInterface } from "@/src/types/text_blocks";
+import AddTextBlockButton from "../../Button/AddTextBlockButton";
 import RectangularButton from "../../Button/Rectangular.button";
 import BaseForm from "../../Forms/BaseForm";
 import type { InputInterface } from "../../Forms/Input";
 import BaseModal from "../BaseModal";
-import type { TextBlockPayloadInterface } from "@/src/types/text_blocks";
-import AddTextBlockButton from "../../Button/AddTextBlockButton";
 
 function CreateTextBlock({
 	onTextBlockCreated,
