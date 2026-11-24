@@ -12,6 +12,7 @@ from repositories.session_token import SessionTokenRepository
 from pwdlib import PasswordHash
 from fastapi import HTTPException, status
 from typing import Optional
+from datetime import datetime
 
 from src.models.enums import UserUniverseRole
 from src.utils.unoptional import unoptional
@@ -110,8 +111,9 @@ class UserService:
         bool: True if the user has an active session, False otherwise
         """
         try:
-            token = await self.session_token_repository.get_token_by_user_id(user_id)
-            return token is not None
+            return bool(
+                await self.session_token_repository.get_token_by_user_id(user_id)
+            )
         except Exception:
             return False
 

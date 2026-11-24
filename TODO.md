@@ -40,7 +40,7 @@ Légende : 🔴 critique (sécurité) · 🟠 important · 🟢 confort / nettoy
   - `backend/src/routes/user.py` (`logout`), `backend/src/services/user.py`
 - [ ] Utiliser des dates timezone-aware partout (`datetime.now()` vs `datetime.now(timezone.utc)` mélangés)
   - `backend/src/repositories/session_token.py`
-- [ ] Ajouter un nettoyage des tokens expirés (`delete_expired_token` n'est jamais appelé)
+- [x] Ajouter un nettoyage des tokens expirés (`delete_expired_token` n'est jamais appelé)
   - `backend/src/server.py` (lifespan / tâche périodique)
 
 ### Contrôle d'accès (aucun aujourd'hui)

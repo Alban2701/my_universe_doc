@@ -48,19 +48,18 @@ class SessionTokenRepository(BaseRepository):
         Returns:
         SessionToken: the session token
         """
-        sql = "SELECT * from session_token WHERE user_id = %(user_id)s;"
+        sql = (
+            "SELECT 1 from session_token WHERE user_id = %(user_id)s"
+            " AND expires_at > NOW() LIMIT 1;"
+        )
         params = {"user_id": user_id}
         rows = await self.db.execute(sql, params)
         if not rows:
             raise errors.SessionNotFoundError
 
-        session = SessionToken.model_validate(rows[0])
+        token = SessionToken.model_validate(rows[0])
 
-        if session.expires_at < datetime.now():
-            await self.delete_session_token(session_value=session.value)
-            raise errors.SessionExpiredError
-
-        return session
+        return token
 
     async def update_expires_date_token(
         self, user_id: int, expires_in_days: int = 7
