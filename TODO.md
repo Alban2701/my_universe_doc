@@ -28,9 +28,9 @@ Légende : 🔴 critique (sécurité) · 🟠 important · 🟢 confort / nettoy
 
 ### Sessions
 
-- [ ] Vérifier l'expiration du token **présenté** et non du premier token de l'utilisateur (`get_token_by_user_id` lit `rows[0]`)
+- [x] Vérifier l'expiration du token **présenté** et non du premier token de l'utilisateur (`get_token_by_user_id` lit `rows[0]`)
   - `backend/src/repositories/session_token.py`, `backend/src/services/user.py` (`is_logged_in`), `backend/src/middlewares/auth.py`
-- [ ] Simplifier le middleware : une seule requête « token valide + non expiré → user » au lieu de `get_user_with_session_token` puis `is_logged_in`
+- [x] Simplifier le middleware : une seule requête « token valide + non expiré → user » au lieu de `get_user_with_session_token` puis `is_logged_in`
   - `backend/src/middlewares/auth.py`, `backend/src/repositories/user.py` (`get_user_with_session_token`)
 - [ ] Stocker un hash du token (SHA-256) en base plutôt que la valeur brute
   - `backend/src/repositories/session_token.py`, `backend/src/repositories/user.py`
@@ -38,8 +38,11 @@ Légende : 🔴 critique (sécurité) · 🟠 important · 🟢 confort / nettoy
   - `backend/src/routes/user.py` (`max_age`), `backend/src/repositories/session_token.py` (`expires_in_days`)
 - [ ] Logout : `delete_cookie` avec le même `secure` que le login (actuellement `secure=False` en dur) ; décider si le logout supprime toutes les sessions ou seulement la courante
   - `backend/src/routes/user.py` (`logout`), `backend/src/services/user.py`
-- [ ] Utiliser des dates timezone-aware partout (`datetime.now()` vs `datetime.now(timezone.utc)` mélangés)
-  - `backend/src/repositories/session_token.py`
+- [ ] Écrire `expires_at` en SQL plutôt que depuis Python : `datetime.now()` (heure locale du processus) est comparé à `NOW()` (heure du serveur Postgres), ce qui décale les expirations de 1 à 2 h si les deux ne sont pas dans le même fuseau (ex. Python sous Windows à l'heure de Paris, Postgres en UTC)
+  - `backend/src/repositories/session_token.py` : `create_session_token` → `VALUES (..., NOW() + make_interval(days => %(days)s))` et supprimer le calcul `expires_at` en Python ; idem pour `update_expires_date_token` (`SET expires_at = NOW() + make_interval(days => %(days)s)`)
+  - test d'intégration : un token créé avec `expires_in_days=0` (ou `-1`) n'est pas accepté par `get_user_with_session_token`, un token créé avec 7 jours l'est : `backend/tests/integration/` (nouveau `test_session_token_repository.py`)
+- [ ] Utiliser des dates timezone-aware partout (`datetime.now()` vs `datetime.now(timezone.utc)` mélangés) ; envisager `timestamptz` pour `session_token.created_at`, `updated_at`, `expires_at`
+  - `backend/src/repositories/session_token.py`, `backend/src/data/00.sql`
 - [x] Ajouter un nettoyage des tokens expirés (`delete_expired_token` n'est jamais appelé)
   - `backend/src/server.py` (lifespan / tâche périodique)
 

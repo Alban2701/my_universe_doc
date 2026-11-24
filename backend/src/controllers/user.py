@@ -56,14 +56,6 @@ class UserController:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
             )
 
-    async def is_logged_in(self, user_id: int) -> bool:
-        try:
-            return await self.user_service.is_logged_in(user_id)
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-            )
-
     async def get_user_by_id(self, user_id: int) -> Optional[PartialUser]:
         try:
             return await self.user_service.get_user_by_id(user_id)

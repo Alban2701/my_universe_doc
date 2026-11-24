@@ -3,8 +3,6 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from src.errors import errors
 from src.factory import get_factory
-from src.models.user import UserToken
-from src.utils.unoptional import unoptional
 
 factory = get_factory()
 user_controller = factory.user_controller
@@ -34,22 +32,15 @@ class AuthMiddleware(BaseHTTPMiddleware):
             )
             return res
         try:
-            user: UserToken = unoptional(
-                await user_controller.get_user_with_session_token(session_token),
-                "user not found",
-                "HttpException",
-            )
-            logged_in = await user_controller.is_logged_in(user.id)
-            if logged_in:
-                request.state.user = user
-                return await call_next(request)
-
-            else:
+            user = await user_controller.get_user_with_session_token(session_token)
+            if user is None:  # Aucun token valide
                 res = JSONResponse(
-                    status_code=401, content={"detail": "user not connected"}
+                    status_code=401, content={"detail": "session invalid or expired"}
                 )
                 res.delete_cookie("session_token")
                 return res
+            request.state.user = user
+            return await call_next(request)
 
         except (errors.SessionNotFoundError, errors.SessionExpiredError) as e:
             res = JSONResponse(status_code=401, content={"detail": e.message})

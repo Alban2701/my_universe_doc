@@ -95,10 +95,10 @@ class UserRepository(BaseRepository):
         User: The user get
         """
         sql = (
-            "SELECT u.* from users as u "
+            "SELECT u.* FROM users as u "
             "JOIN session_token as s "
             "ON s.user_id = u.id "
-            "WHERE s.value = %(token_value)s"
+            "WHERE s.value = %(token_value)s AND s.expires_at > NOW()"
         )
         params = {"token_value": token_value}
         rows = await self.db.execute(sql, params)

@@ -100,23 +100,6 @@ class UserService:
             await self.user_repository.get_user_with_session_token(token_value)
         )
 
-    async def is_logged_in(self, user_id: int) -> bool:
-        """
-        Check if a user is currently logged in.
-
-        Parameters:
-        - user_id: the id of the user
-
-        Returns:
-        bool: True if the user has an active session, False otherwise
-        """
-        try:
-            return bool(
-                await self.session_token_repository.get_token_by_user_id(user_id)
-            )
-        except Exception:
-            return False
-
     async def get_user_by_id(self, user_id: int) -> Optional[PartialUser]:
         """
         Get a user by their id.
