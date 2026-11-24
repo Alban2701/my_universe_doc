@@ -1,7 +1,7 @@
 import os
 
 from fastapi import APIRouter, HTTPException, status, Response, Request
-from models.user import InputUser, LoginUser, PartialUser, UserToken
+from models.user import InputUser, LoginUser, PartialUser, UpdateCredentials, UserToken
 from controllers.user import UserController
 from factory import get_factory
 import traceback
@@ -101,26 +101,17 @@ async def patch_myself(req: Request, user_patch: PartialUser) -> PartialUser:
         )
 
 
-@user_router.patch("/{user_id}", status_code=status.HTTP_200_OK)
-async def patch_user(user_id: int, user_patch: PartialUser) -> PartialUser:
+@user_router.patch("change-credentials", status_code=status.HTTP_200_OK)
+async def change_credentials(req: Request, update_credentials: UpdateCredentials):
     try:
-        patched_user = await user_controller.patch_user(user_id, user_patch)
-        if patched_user is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"user not found with id {user_id}",
-            )
-        return patched_user
-
-    except HTTPException:
-        print(traceback.format_exc())
-        raise
-
-    except Exception as e:
-        print(traceback.format_exc())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        user: UserToken = req.state.user
+        patched_user = await user_controller.change_credentials(
+            user.id, update_credentials
         )
+        if not patched_user:
+            raise HTTPException(404)
+    except Exception as e:
+        raise e
 
 
 @user_router.get("/is-superadmin-in/{universe_id}", status_code=status.HTTP_200_OK)

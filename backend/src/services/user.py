@@ -1,4 +1,4 @@
-from models.user import InputUser, PartialUser, UserToken, LoginUser
+from models.user import InputUser, PartialUser, UserToken, LoginUser, UpdateCredentials
 from repositories.user import UserRepository
 from repositories.session_token import SessionTokenRepository
 from pwdlib import PasswordHash
@@ -158,13 +158,13 @@ class UserService:
 
     async def is_super_admin(self, user_id: int, universe_id: int) -> bool:
         """
-        Returns:
-        - True if the user is super admin
-        - False otherwise
-
         Parameters:
         - user_id: the user's id
         - universe_id: the universe's id
+
+        Returns:
+        - True if the user is super admin
+        - False otherwise
         """
         user_role = unoptional(
             await self.user_repository.get_user_role(user_id, universe_id)
@@ -177,3 +177,27 @@ class UserService:
     async def get_user_with_session_token(self, token_value: str) -> UserToken | None:
         user_token = await self.user_repository.get_user_with_session_token(token_value)
         return user_token
+
+    async def change_credentials(
+        self, update_credentials: UpdateCredentials, user_id: int
+    ):
+        """
+        Change the user's credentials once password is checked
+
+        Parameters:
+        - update_credentials: UpdateCredentials -> Contains the password used for
+        checking and the datas to change
+        """
+
+        user_datas = unoptional(
+            await self.user_repository.get_user_password_by_id(user_id)
+        )
+        password_checked = self.hasher.verify(
+            update_credentials.check_password, unoptional(user_datas.password)
+        )
+        if password_checked:
+            return await self.user_repository.patch_user(
+                user_id, update_credentials.new_datas
+            )
+        else:
+            raise HTTPException(403)

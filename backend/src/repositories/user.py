@@ -54,6 +54,17 @@ class UserRepository(BaseRepository):
         returned_user = PartialUser.model_validate(rows[0])
         return returned_user
 
+    async def get_user_password_by_id(self, id: int) -> Optional[PartialUser]:
+        """
+        get the user's password if exists. It only must be used to check the password
+        when the user want to change their email or password
+        """
+        sql = "SELECT password FROM users WHERE id = %(id)s"
+        rows = await self.db.execute(sql, {"id": id})
+        if rows is None or len(rows) == 0:
+            return None
+        return PartialUser.model_validate(rows[0])
+
     async def get_user_by_email(self, email: EmailStr) -> Optional[PartialUser]:
         """
         get a user in database with the provided email

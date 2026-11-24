@@ -3,13 +3,11 @@ import { redirect, useLocation, useNavigate } from "react-router-dom";
 import BaseForm from "../components/UI/Forms/BaseForm";
 
 interface UpdateUserPayload {
-	id: number;
 	password: string;
 	checkPassword: string;
 }
 
 export default function UpdateUserPassword() {
-	const [id, setId] = useState<number>(1);
 	const [password, setPassword] = useState<string>("");
 	const [checkPassword, setCheckPassword] = useState<string>("");
 
@@ -18,18 +16,17 @@ export default function UpdateUserPassword() {
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		const payload: UpdateUserPayload = { id, password, checkPassword };
+		const payload: UpdateUserPayload = { password, checkPassword };
 		if (payload.password !== payload.checkPassword) {
 			throw new Error("Les mots de passes ne correspondent pas");
 		}
 		const verified_payload = {
-			id: payload.id,
 			password: payload.password,
 			bio: null,
 			picture: null,
 		};
 		try {
-			const response = await fetch(`/api/user/${id}`, {
+			const response = await fetch(`/api/user/myself`, {
 				method: "PATCH",
 				headers: {
 					"Content-Type": "application/json",
@@ -52,15 +49,6 @@ export default function UpdateUserPassword() {
 		onSubmit: handleSubmit,
 		inputs: [
 			{
-				type: "number",
-				name: "id",
-				placeholder: "Input the user's id",
-				required: true,
-				onChange: (e) => {
-					setId(e.target.valueAsNumber);
-				},
-			},
-			{
 				type: "password",
 				name: "password",
 				placeholder: "Input your Password",
@@ -68,6 +56,7 @@ export default function UpdateUserPassword() {
 				onChange: (e) => {
 					setPassword(e.target.value);
 				},
+				content: undefined
 			},
 			{
 				type: "password",
@@ -77,6 +66,7 @@ export default function UpdateUserPassword() {
 				onChange: (e) => {
 					setCheckPassword(e.target.value);
 				},
+				content: undefined
 			},
 		],
 	});
