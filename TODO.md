@@ -17,7 +17,7 @@ Légende : 🔴 critique (sécurité) · 🟠 important · 🟢 confort / nettoy
 - [x] Mettre à jour les requêtes Postman qui pointent encore sur `/user/1`
   - `backend/postman/collections/my-universe-doc/user/patch.request.yaml`
   - `backend/postman/collections/My Universe Doc API/User/patch.request.yaml`
-- [ ] Exiger le mot de passe actuel pour changer de mot de passe ou d'email
+- [x] Exiger le mot de passe actuel pour changer de mot de passe ou d'email
   - `backend/src/models/user.py` (nouveau modèle, ex. `UpdatePassword`), `backend/src/services/user.py` (`patch_user`), `backend/src/routes/user.py` (`patch_myself`), `frontend/src/pages/UpdatePassword.tsx`
 - [ ] Ne plus accepter `id`, `created_at`, `updated_at` dans le body de `PATCH /user/myself` (utiliser un modèle dédié au lieu de `PartialUser`)
   - `backend/src/models/user.py`, `backend/src/routes/user.py`
