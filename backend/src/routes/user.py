@@ -100,29 +100,6 @@ async def patch_myself(req: Request, user_patch: PartialUser) -> PartialUser:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
-
-@user_router.patch("/{user_id}", status_code=status.HTTP_200_OK)
-async def patch_user(user_id: int, user_patch: PartialUser) -> PartialUser:
-    try:
-        patched_user = await user_controller.patch_user(user_id, user_patch)
-        if patched_user is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"user not found with id {user_id}",
-            )
-        return patched_user
-
-    except HTTPException:
-        print(traceback.format_exc())
-        raise
-
-    except Exception as e:
-        print(traceback.format_exc())
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
-
-
 @user_router.get("/is-superadmin-in/{universe_id}", status_code=status.HTTP_200_OK)
 async def is_superadmin_in(universe_id: int, req: Request):
     try:

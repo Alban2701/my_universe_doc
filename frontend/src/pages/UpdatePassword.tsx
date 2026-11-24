@@ -29,7 +29,7 @@ export default function UpdateUserPassword() {
 			picture: null,
 		};
 		try {
-			const response = await fetch(`/api/user/${id}`, {
+			const response = await fetch(`/api/user/myself`, {
 				method: "PATCH",
 				headers: {
 					"Content-Type": "application/json",
