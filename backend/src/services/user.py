@@ -1,4 +1,11 @@
-from models.user import InputUser, PartialUser, UserToken, LoginUser, UpdateCredentials
+from models.user import (
+    InputUser,
+    PartialUser,
+    UpdateUser,
+    UserToken,
+    LoginUser,
+    UpdateCredentials,
+)
 from repositories.user import UserRepository
 from repositories.session_token import SessionTokenRepository
 from pwdlib import PasswordHash
@@ -62,7 +69,7 @@ class UserService:
         return session.value
 
     async def patch_user(
-        self, user_id: int, user_patch: PartialUser
+        self, user_id: int, user_patch: UpdateUser
     ) -> PartialUser | None:
         if user_patch.password:
             user_patch.password = self.hasher.hash(user_patch.password)

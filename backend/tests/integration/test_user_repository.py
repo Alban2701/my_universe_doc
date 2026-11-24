@@ -10,7 +10,7 @@ factory = Factory()
 # déterministes, sans rien valider de l'API.
 #
 # Le `password` est également ignoré : le repository ne le renvoie pas dans le
-# `RETURNING` et ces tests d'intégration ne cherchent qu'à vérifier que la DB 
+# `RETURNING` et ces tests d'intégration ne cherchent qu'à vérifier que la DB
 # et l'API communiquent correctement.
 
 IGNORED_FIELDS = {"created_at", "updated_at", "password"}

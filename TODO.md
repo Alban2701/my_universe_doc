@@ -19,7 +19,7 @@ Légende : 🔴 critique (sécurité) · 🟠 important · 🟢 confort / nettoy
   - `backend/postman/collections/My Universe Doc API/User/patch.request.yaml`
 - [x] Exiger le mot de passe actuel pour changer de mot de passe ou d'email
   - `backend/src/models/user.py` (nouveau modèle, ex. `UpdatePassword`), `backend/src/services/user.py` (`patch_user`), `backend/src/routes/user.py` (`patch_myself`), `frontend/src/pages/UpdatePassword.tsx`
-- [ ] Ne plus accepter `id`, `created_at`, `updated_at` dans le body de `PATCH /user/myself` (utiliser un modèle dédié au lieu de `PartialUser`)
+- [x] Ne plus accepter `id`, `created_at`, `updated_at` dans le body de `PATCH /user/myself` (utiliser un modèle dédié au lieu de `PartialUser`)
   - `backend/src/models/user.py`, `backend/src/routes/user.py`
 - [ ] Ne pas révéler si un email existe au login : renvoyer un 401 unique « Invalid credentials » au lieu de 404 / 401
   - `backend/src/services/user.py` (`login`), `frontend/src/pages/Login.tsx` + `frontend/src/components/UI/Cards/BadCredentials.tsx` si le message dépend du code

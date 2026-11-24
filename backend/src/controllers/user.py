@@ -9,6 +9,7 @@ from src.models.user import (
     LoginUser,
     PartialUser,
     UpdateCredentials,
+    UpdateUser,
     UserToken,
 )
 from src.services.user import UserService
@@ -102,7 +103,7 @@ class UserController:
             )
 
     async def patch_user(
-        self, user_id: int, user_patch: PartialUser
+        self, user_id: int, user_patch: UpdateUser
     ) -> PartialUser | None:
         try:
             return await self.user_service.patch_user(user_id, user_patch)

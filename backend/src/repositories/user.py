@@ -2,7 +2,7 @@ from src.models.relations import UserUniverse
 from src.utils.unoptional import unoptional
 from typing import Optional
 
-from models.user import InputUser, PartialUser, UserToken
+from models.user import InputUser, PartialUser, UpdateUser, UserToken
 from pydantic import EmailStr
 from src.repositories.base_repository import BaseRepository
 from src.repositories.session_token import SessionTokenRepository
@@ -155,7 +155,7 @@ class UserRepository(BaseRepository):
         return UserUniverse.model_validate(rows[0])
 
     async def patch_user(
-        self, user_id: int, user_patch: PartialUser
+        self, user_id: int, user_patch: UpdateUser
     ) -> PartialUser | None:
         sql = (
             "UPDATE users SET "

@@ -1,7 +1,14 @@
 import os
 
 from fastapi import APIRouter, HTTPException, status, Response, Request
-from models.user import InputUser, LoginUser, PartialUser, UpdateCredentials, UserToken
+from models.user import (
+    InputUser,
+    LoginUser,
+    PartialUser,
+    UpdateCredentials,
+    UpdateUser,
+    UserToken,
+)
 from controllers.user import UserController
 from factory import get_factory
 import traceback
@@ -79,7 +86,7 @@ async def logout(request: Request):
 
 
 @user_router.patch("/myself", status_code=status.HTTP_200_OK)
-async def patch_myself(req: Request, user_patch: PartialUser) -> PartialUser:
+async def patch_myself(req: Request, user_patch: UpdateUser) -> PartialUser:
     try:
         user: UserToken = req.state.user
         patched_user = await user_controller.patch_user(user.id, user_patch)

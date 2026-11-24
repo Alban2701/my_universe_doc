@@ -122,5 +122,5 @@ def get_factory():
 
     if _factory is None:
         _factory = Factory()
-        
+
     return _factory

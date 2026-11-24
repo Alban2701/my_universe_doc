@@ -47,9 +47,7 @@ class TestUpdateMultipleTextBlocks:
 
         payload = UpdateTextBlocks(
             to_delete=[],
-            to_create=[
-                InputTextBlock(title="t", content="c", position=1, entity_id=1)
-            ],
+            to_create=[InputTextBlock(title="t", content="c", position=1, entity_id=1)],
             to_move=[],
             to_patch=[],
         )
@@ -61,9 +59,7 @@ class TestUpdateMultipleTextBlocks:
     async def test_empty_payload_returns_an_empty_result(self):
         service, repo = make_service()
 
-        payload = UpdateTextBlocks(
-            to_delete=[], to_create=[], to_move=[], to_patch=[]
-        )
+        payload = UpdateTextBlocks(to_delete=[], to_create=[], to_move=[], to_patch=[])
         result = await service.update_multiple_text_blocks(payload, creator_id=1)
 
         repo.delete_multiple_text_blocks.assert_not_awaited()
@@ -84,9 +80,7 @@ class TestUpdateMultipleTextBlocks:
             to_delete=[],
             to_create=[],
             to_move=[
-                MovingTextBlock(
-                    id=1, old_position=1, new_position=2, entity_id=1
-                )
+                MovingTextBlock(id=1, old_position=1, new_position=2, entity_id=1)
             ],
             to_patch=[PartialTextBlock(id=1, title="new")],
         )

@@ -32,6 +32,14 @@ class PartialUser(BaseModel):
     updated_at: datetime | None = None
 
 
+class UpdateUser(BaseModel):
+    email: EmailStr | None = None
+    password: str | None = None
+    username: str | None = None
+    bio: str | None = None
+    picture: bytes | None = None
+
+
 class LoginUser(BaseModel):
     email: EmailStr
     password: str
@@ -55,4 +63,4 @@ class ReturnedUser(BaseModel):
 
 class UpdateCredentials(BaseModel):
     check_password: str
-    new_datas: PartialUser
+    new_datas: UpdateUser
