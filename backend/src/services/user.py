@@ -165,6 +165,10 @@ class UserService:
         Parameters:
         - user_id: the user's id
         - universe_id: the universe's id
+
+        Returns:
+        - True if the user is super admin
+        - False otherwise
         """
         user_role = unoptional(
             await self.user_repository.get_user_role(user_id, universe_id)
