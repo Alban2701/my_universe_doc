@@ -12,7 +12,7 @@ Légende : 🔴 critique (sécurité) · 🟠 important · 🟢 confort / nettoy
 
 - [x] Supprimer `PATCH /user/{user_id}` (n'importe qui pouvait modifier n'importe quel compte) et passer le front sur `/user/myself`
   - `backend/src/routes/user.py`, `frontend/src/pages/UpdatePassword.tsx`
-- [ ] Retirer le champ « id » et l'état `id` du formulaire de changement de mot de passe (inutile depuis `/myself`, l'id envoyé est ignoré par le back)
+- [x] Retirer le champ « id » et l'état `id` du formulaire de changement de mot de passe (inutile depuis `/myself`, l'id envoyé est ignoré par le back)
   - `frontend/src/pages/UpdatePassword.tsx` (interface `UpdateUserPayload`, `useState<number>(1)`, input `name: "id"`, `verified_payload.id`)
 - [ ] Mettre à jour les requêtes Postman qui pointent encore sur `/user/1`
   - `backend/postman/collections/my-universe-doc/user/patch.request.yaml`
