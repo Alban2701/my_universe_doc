@@ -19,15 +19,21 @@ class UniverseRepository(BaseRepository):
         Returns:
         PartialUniverse: the created universe
         """
-        sql = (
-            "INSERT INTO universe (creator_id, name, description, version) "
-            "VALUES (%(creator_id)s, %(name)s, %(description)s, %(version)s) "
-            "RETURNING *"
+        sql_universe = (
+            "WITH new_universe as ("
+            "   INSERT INTO universe (creator_id, name, description, version) "
+            "   VALUES (%(creator_id)s, %(name)s, %(description)s, %(version)s) "
+            "   RETURNING *"
+            "), creator as ("
+            "   INSERT INTO user_universe (user_id, universe_id, admin_role)"
+            "   SELECT creator_id, id, 'creator' FROM new_universe"
+            ")"
+            " SELECT * FROM new_universe"
         )
         model_universe = universe.model_dump()
         model_universe["creator_id"] = creator_id
         model_universe["version"] = 1
-        rows = unoptional(await self.db.execute(sql, model_universe))
+        rows = unoptional(await self.db.execute(sql_universe, model_universe))
         returned_universe = Universe.model_validate(rows[0])
         return returned_universe
 

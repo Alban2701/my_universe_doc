@@ -50,7 +50,7 @@ Légende : 🔴 critique (sécurité) · 🟠 important · 🟢 confort / nettoy
 
 ### Contrôle d'accès (aucun aujourd'hui)
 
-- [ ] À la création d'un univers, insérer `user_universe (creator)` dans la même transaction
+- [x] À la création d'un univers, insérer `user_universe (creator)` dans la même transaction
   - `backend/src/repositories/universe.py` (`create_universe` → `execute_transactional`), test dans `backend/tests/integration/test_universe_repository.py`
 - [ ] À la création d'une entité, définir le rôle du créateur (`user_entity`) si nécessaire
   - `backend/src/repositories/entity.py`, `backend/src/repositories/user_entity.py`
