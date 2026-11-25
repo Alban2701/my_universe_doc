@@ -38,6 +38,8 @@ Légende : 🔴 critique (sécurité) · 🟠 important · 🟢 confort / nettoy
   - `backend/src/routes/user.py` (`max_age`), `backend/src/repositories/session_token.py` (`expires_in_days`)
 - [x] Logout : `delete_cookie` avec le même `secure` que le login (actuellement `secure=False` en dur) ; décider si le logout supprime toutes les sessions ou seulement la courante
   - `backend/src/routes/user.py` (`logout`), `backend/src/services/user.py`
+- [ ] Logout everywhere : créer une route et les fonctions nécessaires pour se déconnecter de n'importe quel appareil (supprimer tous les cookies)
+  - `backend/src/(routes, controller, services, repository)/user.py`
 - [ ] Écrire `expires_at` en SQL plutôt que depuis Python : `datetime.now()` (heure locale du processus) est comparé à `NOW()` (heure du serveur Postgres), ce qui décale les expirations de 1 à 2 h si les deux ne sont pas dans le même fuseau (ex. Python sous Windows à l'heure de Paris, Postgres en UTC)
   - `backend/src/repositories/session_token.py` : `create_session_token` → `VALUES (..., NOW() + make_interval(days => %(days)s))` et supprimer le calcul `expires_at` en Python ; idem pour `update_expires_date_token` (`SET expires_at = NOW() + make_interval(days => %(days)s)`)
   - test d'intégration : un token créé avec `expires_in_days=0` (ou `-1`) n'est pas accepté par `get_user_with_session_token`, un token créé avec 7 jours l'est : `backend/tests/integration/` (nouveau `test_session_token_repository.py`)
