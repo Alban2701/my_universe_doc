@@ -68,12 +68,33 @@ async def me(req: Request):
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@user_router.get("/logout", status_code=status.HTTP_200_OK)
+@user_router.delete("/logout", status_code=status.HTTP_200_OK)
 async def logout(request: Request):
     try:
         secure = os.getenv("IN_DEV") is None
+        token = request.cookies.get("session_token")
+        if not token:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+        await user_controller.logout(token)
+        response = Response(status_code=status.HTTP_200_OK)
+        response.delete_cookie(
+            "session_token", httponly=True, samesite="lax", secure=secure
+        )
+        return response
+    except HTTPException:
+        print(traceback.format_exc())
+        raise
+    except Exception as e:
+        print(traceback.format_exc())
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@user_router.delete("/logout-everywhere", status_code=status.HTTP_200_OK)
+async def logout_everywhere(request: Request):
+    try:
+        secure = os.getenv("IN_DEV") is None
         user: UserToken = request.state.user
-        await user_controller.logout(user.id)
+        await user_controller.logout_everywhere(user.id)
         response = Response(status_code=status.HTTP_200_OK)
         response.delete_cookie(
             "session_token", httponly=True, samesite="lax", secure=secure
