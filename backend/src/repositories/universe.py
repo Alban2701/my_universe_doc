@@ -20,7 +20,7 @@ class UniverseRepository(BaseRepository):
         PartialUniverse: the created universe
         """
         sql_universe = (
-            "WITH new_universe as ("
+            "WITH new_universe AS ("
             "   INSERT INTO universe (creator_id, name, description, version) "
             "   VALUES (%(creator_id)s, %(name)s, %(description)s, %(version)s) "
             "   RETURNING *"
