@@ -23,7 +23,7 @@ CREATE TABLE "users" (
     "bio" text,
     "picture" bytea,
     "created_at" timestamptz NOT NULL DEFAULT NOW(),
-    "updated_at" timestamptz
+    "updated_at" timestamptz NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE "universe" (
@@ -33,7 +33,7 @@ CREATE TABLE "universe" (
     "description" text,
     "version" varchar(255),
     "created_at" timestamptz NOT NULL DEFAULT NOW(),
-    "updated_at" timestamptz
+    "updated_at" timestamptz NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE "entities" (
@@ -44,7 +44,7 @@ CREATE TABLE "entities" (
     "universe_id" int NOT NULL,
     "creator_id" int NOT NULL,
     "created_at" timestamptz NOT NULL DEFAULT NOW(),
-    "updated_at" timestamptz
+    "updated_at" timestamptz NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE "text_blocks" (
@@ -55,7 +55,7 @@ CREATE TABLE "text_blocks" (
     "creator_id" int NOT NULL,
     "entity_id" int NOT NULL,
     "created_at" timestamptz NOT NULL DEFAULT NOW(),
-    "updated_at" timestamptz,
+    "updated_at" timestamptz NOT NULL DEFAULT NOW(),
     CONSTRAINT unique_position_per_entity UNIQUE ("entity_id", "position")
 );
 
@@ -86,7 +86,7 @@ CREATE TABLE "invitations" (
     "universe_id" integer NOT NULL,
     "status" invitation_status NOT NULL,
     "created_at" timestamptz NOT NULL DEFAULT NOW(),
-    "updated_at" timestamptz
+    "updated_at" timestamptz NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE "comments" (
@@ -97,7 +97,7 @@ CREATE TABLE "comments" (
     "text_block_id" int,
     "comment_id" int,
     "created_at" timestamptz NOT NULL DEFAULT NOW(),
-    "updated_at" timestamptz
+    "updated_at" timestamptz NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE "commits" (
