@@ -1,4 +1,5 @@
 import secrets
+from hashlib import sha256
 
 
 def create_token(nb_bytes: int) -> str:
@@ -13,3 +14,7 @@ def create_token(nb_bytes: int) -> str:
     """
     token_value = secrets.token_urlsafe(nb_bytes)
     return token_value
+
+
+def hash_token(token_value: str) -> str:
+    return sha256(token_value.encode()).hexdigest()

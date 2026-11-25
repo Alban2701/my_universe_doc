@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from src.utils.unoptional import unoptional
-from utils.token_creator import create_token
+from utils.token_creator import create_token, hash_token
 from models.session_token import SessionToken
 from errors import errors
 from src.repositories.base_repository import BaseRepository
@@ -22,20 +22,22 @@ class SessionTokenRepository(BaseRepository):
         SessionToken: the created session token
         """
         token = create_token(nb_bytes=nb_bytes)
+        hashed_token = hash_token(token)
         expires_at = datetime.now() + timedelta(days=expires_in_days)
 
         sql = (
             "INSERT INTO session_token (value, user_id, expires_at)"
-            " VALUES (%(value)s, %(user_id)s, %(expires_at)s)"
+            " VALUES (%(hash)s, %(user_id)s, %(expires_at)s)"
             " RETURNING id, value, user_id, created_at, updated_at, expires_at"
         )
         params = {
-            "value": token,
+            "hash": hashed_token,
             "user_id": user_id,
             "expires_at": expires_at,
         }
         rows = unoptional(await self.db.execute(sql, params))
         returned_session = SessionToken.model_validate(rows[0])
+        returned_session.value = token
         return returned_session
 
     async def update_expires_date_token(
@@ -74,7 +76,7 @@ class SessionTokenRepository(BaseRepository):
             params = {"user_id": user_id}
         else:
             sql = "DELETE FROM session_token WHERE value = %(value)s;"
-            params = {"value": session_value}
+            params = {"value": hash_token(unoptional(session_value))}
         await self.db.execute(sql, params)
         return
 

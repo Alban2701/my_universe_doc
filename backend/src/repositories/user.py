@@ -3,6 +3,7 @@ from src.utils.unoptional import unoptional
 from typing import Optional
 
 from models.user import InputUser, PartialUser, ReturnedUser, UpdateUser, UserToken
+from utils.token_creator import hash_token
 from pydantic import EmailStr
 from src.repositories.base_repository import BaseRepository
 from src.repositories.session_token import SessionTokenRepository
@@ -100,7 +101,7 @@ class UserRepository(BaseRepository):
             "ON s.user_id = u.id "
             "WHERE s.value = %(token_value)s AND s.expires_at > NOW()"
         )
-        params = {"token_value": token_value}
+        params = {"token_value": hash_token(token_value)}
         rows = await self.db.execute(sql, params)
         if rows is None or len(rows) == 0:
             return None

@@ -32,7 +32,7 @@ Légende : 🔴 critique (sécurité) · 🟠 important · 🟢 confort / nettoy
   - `backend/src/repositories/session_token.py`, `backend/src/services/user.py` (`is_logged_in`), `backend/src/middlewares/auth.py`
 - [x] Simplifier le middleware : une seule requête « token valide + non expiré → user » au lieu de `get_user_with_session_token` puis `is_logged_in`
   - `backend/src/middlewares/auth.py`, `backend/src/repositories/user.py` (`get_user_with_session_token`)
-- [ ] Stocker un hash du token (SHA-256) en base plutôt que la valeur brute
+- [x] Stocker un hash du token (SHA-256) en base plutôt que la valeur brute
   - `backend/src/repositories/session_token.py`, `backend/src/repositories/user.py`
 - [ ] Aligner la durée du cookie (1 jour) et celle du token (7 jours)
   - `backend/src/routes/user.py` (`max_age`), `backend/src/repositories/session_token.py` (`expires_in_days`)
