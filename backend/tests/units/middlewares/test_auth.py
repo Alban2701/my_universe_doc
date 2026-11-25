@@ -5,7 +5,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from src.middlewares.auth import AuthMiddleware
 from src.models.user import UserToken
 
-from src.errors import errors
 
 
 def make_request(path: str = "/protected", session_token: str | None = None):

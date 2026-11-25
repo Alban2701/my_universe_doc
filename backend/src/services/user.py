@@ -10,9 +10,8 @@ from models.user import (
 from repositories.user import UserRepository
 from repositories.session_token import SessionTokenRepository
 from pwdlib import PasswordHash
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from typing import Optional
-from datetime import datetime
 
 from src.models.enums import UserUniverseRole
 from src.utils.unoptional import unoptional
