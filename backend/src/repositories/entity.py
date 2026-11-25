@@ -35,9 +35,16 @@ class EntityRepository(BaseRepository):
         Entity: the created entity
         """
         sql = (
-            "INSERT INTO entities (name, not_discovered_name, parent, creator_id, universe_id) "
-            "VALUES (%(name)s, %(not_discovered_name)s, %(parent)s, %(creator_id)s, %(universe_id)s) "
-            "RETURNING *"
+            "WITH new_entity AS ("
+            "   INSERT INTO entities (name, not_discovered_name, parent, creator_id, universe_id) "
+            "   VALUES (%(name)s, %(not_discovered_name)s, %(parent)s, %(creator_id)s, %(universe_id)s) "
+            "   RETURNING *"
+            "), "
+            "user_entity AS ("
+            "   INSERT INTO user_entity (user_id, entity_id, role)"
+            "   SELECT creator_id, id, 'entity_administrator' FROM new_entity"
+            ")"
+            " SELECT * FROM new_entity"
         )
         model_entity = entity.model_dump()
         model_entity["creator_id"] = creator_id

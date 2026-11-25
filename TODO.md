@@ -52,7 +52,7 @@ Légende : 🔴 critique (sécurité) · 🟠 important · 🟢 confort / nettoy
 
 - [x] À la création d'un univers, insérer `user_universe (creator)` dans la même transaction
   - `backend/src/repositories/universe.py` (`create_universe` → `execute_transactional`), test dans `backend/tests/integration/test_universe_repository.py`
-- [ ] À la création d'une entité, définir le rôle du créateur (`user_entity`) si nécessaire
+- [x] À la création d'une entité, définir le rôle du créateur (`user_entity`) si nécessaire
   - `backend/src/repositories/entity.py`, `backend/src/repositories/user_entity.py`
 - [ ] Créer un service d'autorisation (ex. `can_read_universe`, `can_edit_entity`, `can_admin_entity` en tenant compte de l'héritage parent → enfants)
   - nouveau `backend/src/services/authorization.py`, `backend/src/repositories/user_entity.py`, `backend/src/repositories/user.py` (`get_user_role`), `backend/src/factory.py`
