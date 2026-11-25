@@ -71,11 +71,12 @@ async def me(req: Request):
 @user_router.get("/logout", status_code=status.HTTP_200_OK)
 async def logout(request: Request):
     try:
+        secure = os.getenv("IN_DEV") is None
         user: UserToken = request.state.user
         await user_controller.logout(user.id)
         response = Response(status_code=status.HTTP_200_OK)
         response.delete_cookie(
-            "session_token", httponly=True, samesite="lax", secure=False
+            "session_token", httponly=True, samesite="lax", secure=secure
         )
         return response
     except HTTPException:
