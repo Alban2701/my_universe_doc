@@ -43,14 +43,14 @@ class TestRegister:
 
 
 class TestLogin:
-    async def test_raises_404_when_user_does_not_exist(self):
+    async def test_raises_401_when_user_does_not_exist(self):
         service, user_repo, _ = make_service()
         user_repo.get_user_by_email.return_value = None
 
         with pytest.raises(HTTPException) as exc_info:
             await service.login(LoginUser(email="ghost@mail.com", password="pw"))
 
-        assert exc_info.value.status_code == 404
+        assert exc_info.value.status_code == 401
 
     async def test_raises_401_when_password_is_wrong(self):
         service, user_repo, _ = make_service()

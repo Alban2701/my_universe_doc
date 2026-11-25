@@ -58,7 +58,7 @@ class UserService:
         if user is None or not self.hasher.verify(
             credentials.password, unoptional(user.password)
         ):
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+            raise HTTPException(status_code=401)
 
         session = await self.session_token_repository.create_session_token(
             unoptional(user.id)
