@@ -22,17 +22,16 @@ class SessionTokenRepository(BaseRepository):
         """
         token = create_token(nb_bytes=nb_bytes)
         hashed_token = hash_token(token)
-        expires_at = datetime.now() + timedelta(days=expires_in_days)
 
         sql = (
             "INSERT INTO session_token (value, user_id, expires_at)"
-            " VALUES (%(hash)s, %(user_id)s, %(expires_at)s)"
+            " VALUES (%(value)s, %(user_id)s, NOW() + MAKE_INTERVAL(days => %(days)s))"
             " RETURNING id, value, user_id, created_at, updated_at, expires_at"
         )
         params = {
-            "hash": hashed_token,
+            "value": hashed_token,
             "user_id": user_id,
-            "expires_at": expires_at,
+            "days": expires_in_days,
         }
         rows = unoptional(await self.db.execute(sql, params))
         returned_session = SessionToken.model_validate(rows[0])
@@ -40,7 +39,7 @@ class SessionTokenRepository(BaseRepository):
         return returned_session
 
     async def update_expires_date_token(
-        self, user_id: int, expires_in_days: int = 7
+        self, token: str, expires_in_days: int = 30
     ) -> None:
         """
         Update the expire_date of a token
@@ -49,14 +48,13 @@ class SessionTokenRepository(BaseRepository):
         - user_id (int): the id of the user we are checking
         - expires_in_days (int): expire time in days
         """
-        expires_at = datetime.now(timezone.utc) + timedelta(days=expires_in_days)
         sql = (
             "UPDATE session_token SET "
             "updated_at = NOW(), "
-            "expires_at = %(expires_at)s "
-            "WHERE user_id = %(user_id)s;"
+            "expires_at = NOW() + MAKE_INTERVAL(days => %(days)s) "
+            "WHERE value = %(hash)s AND expires_at > NOW();"
         )
-        params = {"expires_at": expires_at, "user_id": user_id}
+        params = {"days": expires_in_days, "hash": hash_token(token)}
         await self.db.execute(sql, params)
         return
 
@@ -69,7 +67,7 @@ class SessionTokenRepository(BaseRepository):
         - session_value (str): the session token value to delete
         """
         sql = "DELETE FROM session_token WHERE value = %(value)s;"
-        params = {"value": hash_token(unoptional(session_value))}
+        params = {"value": hash_token(session_value)}
         await self.db.execute(sql, params)
         return
 
@@ -80,7 +78,7 @@ class SessionTokenRepository(BaseRepository):
         Parameters:
         - user_id (int): the user's id who is being disconnected
         """
-    
+
         sql = "DELETE FROM session_token WHERE user_id = %(user_id)s;"
         params = {"user_id": user_id}
         await self.db.execute(sql, params)
