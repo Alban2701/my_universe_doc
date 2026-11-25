@@ -5,7 +5,7 @@ MyUniverseDoc is an advanced collaborative wiki for documenting universes (ficti
 ## Requirements
 
 - [Docker and Docker Compose](https://docs.docker.com/get-docker/)
-- Python 3.13 minimum (to run the tests locally)
+- Python 3.12 or newer (to run the tests locally; CI uses 3.12)
 - git
 - (optional) [pnpm](https://pnpm.io/) for frontend development
 - (optional) PGAdmin to inspect the database
@@ -52,50 +52,83 @@ pnpm build      # production build
 
 The project has three levels of tests: unit and integration on the backend, and end-to-end with Playwright. All three also run in CI (workflows `.github/workflows/unit-integration-test.yml` and `.github/workflows/e2e-test.yml`).
 
-### Unit tests (backend)
-
-No external dependency, just the Python environment:
+### Backend Python environment (once)
 
 ```bash
 cd backend
-pip install -r requirements-dev.txt
+python -m venv .venv
+pip install -r requirements-dev.txt   # after activating the venv
+```
+
+Activate the venv with `.venv\Scripts\Activate.ps1` (PowerShell), `. .venv/Scripts/activate` (Git Bash) or `source .venv/bin/activate` (Linux/macOS).
+
+> **Windows:** if `python` opens the Microsoft Store or says it is not found, it is the Store alias in `WindowsApps`. Use the `py` launcher instead (`py -m venv .venv`), or call the venv interpreter directly: `.venv\Scripts\python.exe -m pytest ...`. You can also disable the alias in *Settings → Apps → Advanced app settings → App execution aliases*.
+
+All the commands below are run from `backend/` with the venv activated (or prefixed with `.venv\Scripts\python.exe -m`).
+
+### Unit tests (backend)
+
+Located in `backend/tests/units/`, they mock the repositories and need no database:
+
+```bash
 pytest tests/units/ -v
 ```
 
 ### Integration tests (backend)
 
-They require a dedicated test database, started via `backend/docker-compose.test.yaml` (PostgreSQL on port 5434), and a `backend/.env.test` file (gitignored, to be created once) that is loaded automatically by the tests:
+Located in `backend/tests/integration/`, they exercise controllers, services and repositories against a real PostgreSQL. They need:
 
-```env
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5434
-DATABASE_NAME=my_universe_doc_db_test
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=myuniversedocpwdb
-```
+1. A `backend/.env.test` file (gitignored, to be created once), loaded automatically by the `test_db` fixture. Its values must match `docker-compose.test.yaml`:
 
-Then:
+    ```env
+    POSTGRES_HOST=localhost
+    POSTGRES_PORT=5434
+    DATABASE_NAME=my_universe_doc_db_test
+    POSTGRES_USER=postgres
+    POSTGRES_PASSWORD=myuniversedocpwdb
+    ```
+
+2. The test database (container `myd_db_test`, PostgreSQL 18 on port 5434). Docker Desktop must be running:
+
+    ```bash
+    docker compose -f docker-compose.test.yaml up -d --wait   # --wait returns once the DB is healthy
+    ```
+
+Then run the suite, or the whole backend suite at once:
 
 ```bash
-cd backend
-docker compose -f docker-compose.test.yaml up -d
 pytest tests/integration/ -v
+pytest tests/ -q                       # units + integration
+pytest tests/integration/test_session_token_repository.py -k expired -v   # one file / one test
 ```
 
-Finally, stop the test database:
+The database can stay up between runs. Stop it when you are done:
 
 ```bash
 docker compose -f docker-compose.test.yaml down -v
 ```
 
+#### How the test database is reset
+
+- **On container creation**, PostgreSQL runs `backend/src/data/*.sql` (schema `00.sql`, `01.sql`, then the demo seed `99.sql`). These scripts only run when the volume is empty, so **after changing a `.sql` file, recreate the container** with `down -v` then `up -d --wait`.
+- **Before every test**, the autouse `reset_db` fixture (`tests/integration/conftest.py`) truncates the tables (`RESTART IDENTITY CASCADE`, which also empties `session_token`) and replays `99.sql`. Each test therefore starts from the same seed: users 1 to 4 (password `azer`), their universes, entities, etc. A test can freely insert or delete data.
+
+#### Writing an integration test
+
+- Build the objects through `src.factory.Factory()` (`factory.user_controller`, `factory.session_repository`, …) so the real dependency graph is used.
+- Tests are plain `async def` functions or methods: `asyncio_mode = auto` is set in `pytest.ini`, no decorator needed.
+- Rely on the ids from `99.sql` rather than hard-coding data you did not insert yourself.
+- For anything time-related (token expiration…), compare with `NOW()` in SQL rather than `datetime.now()` in Python, the Python process and the Postgres container may not share the same time zone. See `tests/integration/test_session_token_repository.py` for an example.
+- The app imports its modules both as `src.models.x` and `models.x`. Python treats them as two different modules, so `isinstance(obj, src.models.x.Model)` can be `False` on an object built by the app. Assert on the fields instead.
+
 #### If an integration test fails
 
 1. Read the failing assertion, then re-run just that test: `pytest tests/integration/ -k <name> -v`.
-2. Most failures come from a stale DB. Reseed it from scratch:
-    `docker compose -f docker-compose.test.yaml down -v && docker compose -f docker-compose.test.yaml up -d`.
-3. Check the DB is reachable on port 5434 and that `backend/.env.test` matches the compose file.
-4. The integration tests share the same schema/seed as production (`backend/src/data/*.sql`). A failure there often means a real regression in the repository layer. Fix the code, don't adjust the test to make it green, except if you really wanted to change the program comportment.
-5. Never merge while this suite is red.
+2. `ValueError: db_host` (or another `db_*`) during setup: `backend/.env.test` is missing or incomplete.
+3. Connection refused / timeout: the container is not running (`docker ps`) or Docker Desktop is stopped. Start it with `docker compose -f docker-compose.test.yaml up -d --wait`.
+4. Errors about a missing column or table: the schema in the container is older than `src/data/*.sql`. Recreate it: `docker compose -f docker-compose.test.yaml down -v && docker compose -f docker-compose.test.yaml up -d --wait`.
+5. The integration tests share the same schema/seed as production (`backend/src/data/*.sql`). A failure there often means a real regression in the repository layer. Fix the code, don't adjust the test to make it green, except if you really wanted to change the program behaviour.
+6. Never merge while this suite is red.
 
 ### End-to-end tests (Playwright + pytest)
 
