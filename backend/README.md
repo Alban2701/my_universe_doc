@@ -2,7 +2,7 @@
 
 ## Prérequis
 
-- python 3.13 minimum installé
+- python 3.12 minimum installé (version utilisée par la CI)
 - Docker et Docker Compose installés
 - git installé et configuré
 - PGAdmin conseillé pour consulter la base de données
