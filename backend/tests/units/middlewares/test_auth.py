@@ -55,9 +55,8 @@ class TestAuthMiddleware:
         call_next.assert_not_awaited()
 
     async def test_returns_401_when_user_is_not_logged_in(self):
-        user = UserToken(id=1, username="bob")
         with patch("src.middlewares.auth.user_controller") as user_ctrl:
-            user_ctrl.get_user_with_session_token = AsyncMock(return_value=user)
+            user_ctrl.get_user_with_session_token = AsyncMock(return_value=None)
             middleware = AuthMiddleware(app=MagicMock())
             call_next, _ = await make_call_next()
 
