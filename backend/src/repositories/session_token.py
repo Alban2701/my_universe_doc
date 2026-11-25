@@ -7,7 +7,7 @@ from src.repositories.base_repository import BaseRepository
 
 class SessionTokenRepository(BaseRepository):
     async def create_session_token(
-        self, user_id: int, expires_in_days: int = 7, nb_bytes: int = 32
+        self, user_id: int, expires_in_days: int = 30, nb_bytes: int = 32
     ) -> SessionToken:
         """
         Create a session token for a user

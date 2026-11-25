@@ -44,7 +44,7 @@ async def login(credentials: LoginUser, response: Response):
             httponly=True,
             samesite="lax",
             secure=secure,
-            max_age=3600 * 24,
+            max_age=3600 * 24 * 30,
         )
         return {"message": "login successful"}
     except HTTPException:
