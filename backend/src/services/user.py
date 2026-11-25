@@ -73,14 +73,14 @@ class UserService:
         user = await self.user_repository.patch_user(user_id, user_patch)
         return user
 
-    async def logout(self, user_id: int) -> None:
+    async def logout(self, token: str) -> None:
         """
         Delete the session token for the given user.
 
         Parameters:
         - user_id: the id of the user to logout
         """
-        await self.session_token_repository.delete_session_token(user_id=user_id)
+        await self.session_token_repository.delete_session_token(token)
 
     async def get_current_user(self, token_value: str) -> UserToken:
         """
@@ -188,3 +188,6 @@ class UserService:
             )
         else:
             raise HTTPException(403)
+
+    async def logout_everywhere(self, user_id: int):
+        await self.session_token_repository.delete_all_user_session_token(user_id)

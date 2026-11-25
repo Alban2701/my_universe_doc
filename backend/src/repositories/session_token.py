@@ -60,9 +60,7 @@ class SessionTokenRepository(BaseRepository):
         await self.db.execute(sql, params)
         return
 
-    async def delete_session_token(
-        self, user_id: int | None = None, session_value: str | None = None
-    ) -> None:
+    async def delete_session_token(self, session_value: str) -> None:
         """
         Delete a session_token
 
@@ -70,12 +68,21 @@ class SessionTokenRepository(BaseRepository):
         - user_id (int): the user's id who is being disconnected
         - session_value (str): the session token value to delete
         """
-        if user_id:
-            sql = "DELETE FROM session_token WHERE user_id = %(user_id)s;"
-            params = {"user_id": user_id}
-        else:
-            sql = "DELETE FROM session_token WHERE value = %(value)s;"
-            params = {"value": hash_token(unoptional(session_value))}
+        sql = "DELETE FROM session_token WHERE value = %(value)s;"
+        params = {"value": hash_token(unoptional(session_value))}
+        await self.db.execute(sql, params)
+        return
+
+    async def delete_all_user_session_token(self, user_id: int) -> None:
+        """
+        Delete all user's session_token
+
+        Parameters:
+        - user_id (int): the user's id who is being disconnected
+        """
+    
+        sql = "DELETE FROM session_token WHERE user_id = %(user_id)s;"
+        params = {"user_id": user_id}
         await self.db.execute(sql, params)
         return
 

@@ -38,13 +38,19 @@ class UserController:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
             )
 
-    async def logout(self, user_id: int) -> None:
+    async def logout(self, token: str) -> None:
         try:
-            await self.user_service.logout(user_id)
+            await self.user_service.logout(token)
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
             )
+
+    async def logout_everywhere(self, user_id: int) -> None:
+        try:
+            await self.user_service.logout_everywhere(user_id)
+        except Exception:
+            raise HTTPException(500)
 
     async def get_current_user(self, token_value: str) -> UserToken:
         try:
