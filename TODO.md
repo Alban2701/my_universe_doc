@@ -105,8 +105,21 @@ Légende : 🔴 critique (sécurité) · 🟠 important · 🟢 confort / nettoy
   - `backend/docker-compose.yaml`
 - [ ] Prévoir une sauvegarde de la base (`pg_dump` planifié)
   - nouveau script `scripts/backup.sh`, `deployment.md`
-- [ ] Mettre en place un outil de migrations (Alembic, dbmate…) : `00.sql` + `01.sql` ne sont joués qu'à la création du volume
-  - `backend/src/data/`, `backend/requirements.txt`
+- [ ] **Mettre en place un système de migrations** : `00.sql`, `01.sql` et `99.sql` ne sont joués par `docker-entrypoint-initdb.d` qu'à la création du volume, donc toute modification de schéma (ex. `timestamptz` / `DEFAULT NOW()`) n'atteint jamais une base existante sans `down -v`, qui efface les données
+  - [ ] Choisir un outil SQL pur (pas d'ORM dans le projet) : **dbmate** (binaire / image Docker, fichiers `-- migrate:up` / `-- migrate:down`) ou **yoyo-migrations** (`pip`) ; Alembic est surdimensionné sans SQLAlchemy
+    - `backend/requirements.txt` (si yoyo) ou `docker-compose.yaml` (service `migrate` si dbmate)
+  - [ ] Créer `backend/migrations/` : `001_initial.sql` = schéma actuel de `00.sql` + `01.sql` (déjà en `timestamptz` / `DEFAULT NOW()`), puis un fichier numéroté par changement de schéma
+    - `backend/migrations/`, `backend/src/data/00.sql`, `backend/src/data/01.sql`
+  - [ ] Garder `99.sql` (données de démo) hors des migrations : le charger seulement en dev, en test (fixture `reset_db`) et en e2e, jamais en prod
+    - `backend/src/data/99.sql`, `backend/tests/integration/conftest.py`, `e2e/`
+  - [ ] Ne plus monter `src/data` dans `docker-entrypoint-initdb.d` pour le schéma : appliquer les migrations au démarrage (service `migrate` qui tourne avant `api`, avec `depends_on: condition: service_completed_successfully`) ou dans le `lifespan` du backend
+    - `docker-compose.yaml`, `docker-compose-example.yaml`, `backend/docker-compose.test.yaml`, `e2e/docker-compose.e2e.yaml`, `backend/src/server.py`
+  - [ ] Appliquer les migrations dans la CI avant les tests d'intégration et e2e
+    - `.github/workflows/unit-integration-test.yml`, `.github/workflows/e2e-test.yml`
+  - [ ] Migrer la base de prod existante : sauvegarde `pg_dump`, puis marquer `001_initial` comme déjà appliquée (le schéma existe) et appliquer un `002_timestamptz_default_now.sql` (`ALTER COLUMN ... TYPE timestamptz USING ... AT TIME ZONE 'UTC'`, `SET DEFAULT NOW()`)
+    - `backend/migrations/`, `deployment.md`
+  - [ ] Documenter : créer une migration, l'appliquer en local / en prod, revenir en arrière
+    - `README.md`, `backend/README.md`, `deployment.md`
 
 ---
 
